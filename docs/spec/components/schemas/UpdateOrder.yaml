@@ -1,0 +1,31 @@
+allOf:
+  - $ref: "#/components/schemas/OrderKey"
+  - type: object
+    x-go-is-request: true
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - srcChain
+          - state
+        properties:
+          srcChain:
+            type: string
+            description: Code name of the order's source chain. **Not to be updated**
+            example: "mainnet"
+          state:
+            type: integer
+            format: uint8
+            description: New order state
+            example: 2
+          executedBy:
+            type: string
+            format: "big.Int"
+            description: Match order's ID that allowed to execute the order
+            example: 200
+          matchSwapica:
+            type: string
+            description: Swapica contract address on the destination network
+            example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"

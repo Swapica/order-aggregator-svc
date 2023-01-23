@@ -1,0 +1,64 @@
+allOf:
+  - $ref: "#/components/schemas/OrderKey"
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - srcChain
+          - account
+          - tokensToSell
+          - tokensToBuy
+          - amountToSell
+          - amountToBuy
+          - destChain
+          - state
+          - block
+        properties:
+          srcChain:
+            type: string
+            description: Code name of the order's source chain
+            example: "mainnet"
+          account:
+            type: string
+            description: Order creator
+            example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
+          tokensToSell:
+            type: string
+            description: Contract address of the token to sell
+            example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
+          tokensToBuy:
+            type: string
+            description: Contract address of the token to buy
+            example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
+          amountToSell:
+            type: string
+            format: "*big.Int"
+            description: With decimals
+            example: 800000000000
+          amountToBuy:
+            type: string
+            format: "*big.Int"
+            description: With decimals
+            example: 16900000000000
+          destChain:
+            type: string
+            format: "*big.Int"
+            description: Chain ID of the destination network
+            example: 5
+          state:
+            type: integer
+            format: uint8
+            description: Order state
+            example: 2
+          executedBy:
+            type: integer
+            format: "big.Int"
+            description: Match order's ID that allowed to execute the order
+            example: 200
+          matchSwapica:
+            type: string
+            description: Swapica contract address on the destination network
+            example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"

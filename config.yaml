@@ -1,0 +1,17 @@
+log:
+  level: debug
+  disable_sentry: true
+
+db:
+  url: "postgres://orders:orders@orders_db/orders?sslmode=disable"
+
+listener:
+  addr: :8000
+
+cop:
+  disabled: true
+  endpoint: "http://cop"
+  upstream: "http://order-aggregator"
+  service_name: order-aggregator-svc
+  service_prefix: "integrations/order-aggregator"
+  service_port: 80

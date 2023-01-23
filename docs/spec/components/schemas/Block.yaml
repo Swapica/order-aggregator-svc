@@ -1,0 +1,16 @@
+allOf:
+  - $ref: "#/components/schemas/BlockKey"
+  - type: object
+    x-go-is-request: true
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - chain
+        properties:
+          chain:
+            type: string
+            description: Code name of the related chain
+            example: "goerli"

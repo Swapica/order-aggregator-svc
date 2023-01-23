@@ -1,0 +1,24 @@
+get:
+  tags:
+    - Orders
+  summary: List orders
+  operationId: listOrders
+  responses:
+    '200':
+      description: Success
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Order'
+    '400':
+      description: Request was invalid in some way
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    '500':
+      description: Internal error
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Errors'
