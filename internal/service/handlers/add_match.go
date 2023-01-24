@@ -20,7 +20,7 @@ func AddMatch(w http.ResponseWriter, r *http.Request) {
 	q := MatchOrdersQ(r)
 	match := request.DBModel()
 	log := Log(r).WithFields(logan.F{
-		"match_id": match.ID, "origin_order_id": request.Body.Data.Attributes.OriginOrderId, "src_chain": match.SrcChain})
+		"match_id": match.ID, "origin_order_id": match.OriginOrderId, "src_chain": match.SrcChain})
 
 	conflict, err := q.Get(match.ID, match.SrcChain)
 	if err != nil {

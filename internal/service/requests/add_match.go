@@ -27,16 +27,22 @@ func NewAddMatchRequest(r *http.Request) (*AddMatchRequest, error) {
 
 func (r *AddMatchRequest) validate() error {
 	a := r.Body.Data.Attributes
+	origin := r.Body.Data.Relationships.OriginOrder.Data
+	if origin == nil {
+		return val.Errors{"data/relationships/originOrder/data": val.Validate(origin, val.NotNil)}
+	}
+
 	return val.Errors{
-		"{chain}":                       val.Validate(r.Chain, val.Required),
-		"data/id":                       val.Validate(r.Body.Data.ID, val.Required, val.Match(uint256Regexp)),
-		"data/type":                     val.Validate(r.Body.Data.Type, val.Required, val.In(resources.MATCH_ORDER)),
-		"data/attributes/originOrderId": val.Validate(a.OriginOrderId, val.Required),
-		"data/attributes/account":       val.Validate(a.Account, val.Required, val.Match(addressRegexp)),
-		"data/attributes/tokenToSell":   val.Validate(a.TokenToSell, val.Required, val.Match(addressRegexp)),
-		"data/attributes/amountToSell":  val.Validate(a.AmountToSell.String(), val.Required, val.Match(uint256Regexp)),
-		"data/attributes/originChain":   val.Validate(a.OriginChain, val.Required),
-		"data/attributes/state":         val.Validate(a.State, val.Required, val.Min(uint8(1))),
+		"{chain}":                                  val.Validate(r.Chain, val.Required),
+		"data/id":                                  val.Validate(r.Body.Data.ID, val.Required, val.Match(uint256Regexp)),
+		"data/type":                                val.Validate(r.Body.Data.Type, val.Required, val.In(resources.MATCH_ORDER)),
+		"data/attributes/account":                  val.Validate(a.Account, val.Required, val.Match(addressRegexp)),
+		"data/attributes/tokenToSell":              val.Validate(a.TokenToSell, val.Required, val.Match(addressRegexp)),
+		"data/attributes/amountToSell":             val.Validate(a.AmountToSell.String(), val.Required, val.Match(uint256Regexp)),
+		"data/attributes/originChain":              val.Validate(a.OriginChain, val.Required),
+		"data/attributes/state":                    val.Validate(a.State, val.Required, val.Min(uint8(1))),
+		"data/relationships/originOrder/data/id":   val.Validate(origin.ID, val.Required, val.Match(uint256Regexp)),
+		"data/relationships/originOrder/data/type": val.Validate(origin.Type, val.Required, val.In(resources.ORDER)),
 	}.Filter()
 }
 
@@ -44,8 +50,8 @@ func (r *AddMatchRequest) DBModel() data.Match {
 	a := r.Body.Data.Attributes
 	return data.Match{
 		ID:            r.Body.Data.ID,
+		OriginOrderId: r.Body.Data.Relationships.OriginOrder.Data.ID,
 		SrcChain:      r.Chain,
-		OriginOrderId: a.OriginOrderId.String(),
 		Account:       a.Account,
 		TokenToSell:   a.TokenToSell,
 		AmountToSell:  a.AmountToSell.String(),

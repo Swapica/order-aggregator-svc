@@ -6,7 +6,8 @@ package resources
 
 type Match struct {
 	Key
-	Attributes MatchAttributes `json:"attributes"`
+	Attributes    MatchAttributes    `json:"attributes"`
+	Relationships MatchRelationships `json:"relationships"`
 }
 type MatchResponse struct {
 	Data     Match    `json:"data"`

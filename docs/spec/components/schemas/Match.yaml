@@ -3,22 +3,17 @@ allOf:
   - type: object
     required:
       - attributes
+      - relationships
     properties:
       attributes:
         type: object
         required:
-          - originOrderId
           - account
           - tokenToSell
           - amountToSell
           - originChain
           - state
         properties:
-          originOrderId:
-            type: string
-            format: "*big.Int"
-            description: ID of the order to match
-            example: 437
           account:
             type: string
             description: "**Match order** creator"
@@ -42,3 +37,16 @@ allOf:
             format: uint8
             description: Order state
             example: 2
+      relationships:
+        type: object
+        required:
+          - originOrder
+        properties:
+          originOrder:
+            type: object
+            description: ID of the order to match
+            required:
+              - data
+            properties:
+              data:
+                $ref: "#/components/schemas/OrderKey"
