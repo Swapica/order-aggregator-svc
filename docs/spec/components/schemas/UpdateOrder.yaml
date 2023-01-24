@@ -8,13 +8,8 @@ allOf:
       attributes:
         type: object
         required:
-          - srcChain
           - state
         properties:
-          srcChain:
-            type: string
-            description: Code name of the order's source chain. **Not to be updated**
-            example: "mainnet"
           state:
             type: integer
             format: uint8

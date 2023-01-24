@@ -5,21 +5,27 @@ import (
 	"net/http"
 
 	"github.com/Swapica/order-aggregator-svc/resources"
+	"github.com/go-chi/chi"
 	val "github.com/go-ozzo/ozzo-validation/v4"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 )
 
-func NewUpdateOrderRequest(r *http.Request) (*resources.UpdateOrderRequest, error) {
-	var dst resources.UpdateOrderRequest
-	if err := json.NewDecoder(r.Body).Decode(&dst); err != nil {
+type UpdateOrderRequest struct {
+	Body  resources.UpdateOrderRequest
+	Chain string
+}
+
+func NewUpdateOrderRequest(r *http.Request) (*UpdateOrderRequest, error) {
+	dst := UpdateOrderRequest{Chain: chi.URLParam(r, "chain")}
+	if err := json.NewDecoder(r.Body).Decode(&dst.Body); err != nil {
 		return nil, errors.Wrap(err, "failed to decode request body")
 	}
 
-	a := dst.Data.Attributes
+	a := dst.Body.Data.Attributes
 	return &dst, val.Errors{
-		"data/id":                      val.Validate(dst.Data.ID, val.Required, val.Match(uint256Regexp)),
-		"data/type":                    val.Validate(dst.Data.Type, val.Required, val.In(resources.ORDER)),
-		"data/attributes/srcChain":     val.Validate(a.SrcChain, val.Required),
+		"{chain}":                      val.Validate(dst.Chain, val.Required),
+		"data/id":                      val.Validate(dst.Body.Data.ID, val.Required, val.Match(uint256Regexp)),
+		"data/type":                    val.Validate(dst.Body.Data.Type, val.Required, val.In(resources.ORDER)),
 		"data/attributes/state":        val.Validate(a.State, val.Required, val.Min(uint8(1))),
 		"data/attributes/matchSwapica": val.Validate(a.MatchSwapica, val.NilOrNotEmpty, val.Match(addressRegexp)),
 	}.Filter()

@@ -1,3 +1,6 @@
+parameters:
+  - $ref: "#/components/parameters/chainParam"
+
 get:
   tags:
     - Orders

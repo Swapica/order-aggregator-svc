@@ -7,7 +7,6 @@ allOf:
       attributes:
         type: object
         required:
-          - srcChain
           - account
           - tokenToSell
           - tokenToBuy
@@ -16,10 +15,6 @@ allOf:
           - destChain
           - state
         properties:
-          srcChain:
-            type: string
-            description: Code name of the order's source chain
-            example: "mainnet"
           account:
             type: string
             description: Order creator

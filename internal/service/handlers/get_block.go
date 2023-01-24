@@ -31,17 +31,16 @@ func GetBlock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ape.Render(w, newBlockResponse(*num, request.Chain))
+	ape.Render(w, newBlockResponse(*num))
 }
 
-func newBlockResponse(id uint64, chain string) resources.BlockRequest {
-	return resources.BlockRequest{
+func newBlockResponse(id uint64) resources.BlockResponse {
+	return resources.BlockResponse{
 		Data: resources.Block{
 			Key: resources.Key{
 				ID:   strconv.FormatUint(id, 10),
 				Type: resources.BLOCK,
 			},
-			Attributes: resources.BlockAttributes{Chain: chain},
 		},
 	}
 }

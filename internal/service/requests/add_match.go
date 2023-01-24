@@ -6,15 +6,19 @@ import (
 
 	"github.com/Swapica/order-aggregator-svc/internal/data"
 	"github.com/Swapica/order-aggregator-svc/resources"
+	"github.com/go-chi/chi"
 	val "github.com/go-ozzo/ozzo-validation/v4"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 )
 
-type AddMatchRequest resources.MatchResponse
+type AddMatchRequest struct {
+	Body  resources.MatchResponse
+	Chain string
+}
 
 func NewAddMatchRequest(r *http.Request) (*AddMatchRequest, error) {
-	var dst AddMatchRequest
-	if err := json.NewDecoder(r.Body).Decode(&dst); err != nil {
+	dst := AddMatchRequest{Chain: chi.URLParam(r, "chain")}
+	if err := json.NewDecoder(r.Body).Decode(&dst.Body); err != nil {
 		return nil, errors.Wrap(err, "failed to decode request body")
 	}
 
@@ -22,11 +26,11 @@ func NewAddMatchRequest(r *http.Request) (*AddMatchRequest, error) {
 }
 
 func (r *AddMatchRequest) validate() error {
-	a := r.Data.Attributes
+	a := r.Body.Data.Attributes
 	return val.Errors{
-		"data/id":                       val.Validate(r.Data.ID, val.Required, val.Match(uint256Regexp)),
-		"data/type":                     val.Validate(r.Data.Type, val.Required, val.In(resources.MATCH_ORDER)),
-		"data/attributes/srcChain":      val.Validate(a.SrcChain, val.Required),
+		"{chain}":                       val.Validate(r.Chain, val.Required),
+		"data/id":                       val.Validate(r.Body.Data.ID, val.Required, val.Match(uint256Regexp)),
+		"data/type":                     val.Validate(r.Body.Data.Type, val.Required, val.In(resources.MATCH_ORDER)),
 		"data/attributes/originOrderId": val.Validate(a.OriginOrderId, val.Required),
 		"data/attributes/account":       val.Validate(a.Account, val.Required, val.Match(addressRegexp)),
 		"data/attributes/tokenToSell":   val.Validate(a.TokenToSell, val.Required, val.Match(addressRegexp)),
@@ -37,10 +41,10 @@ func (r *AddMatchRequest) validate() error {
 }
 
 func (r *AddMatchRequest) DBModel() data.Match {
-	a := r.Data.Attributes
+	a := r.Body.Data.Attributes
 	return data.Match{
-		ID:            r.Data.ID,
-		SrcChain:      a.SrcChain,
+		ID:            r.Body.Data.ID,
+		SrcChain:      r.Chain,
 		OriginOrderId: a.OriginOrderId.String(),
 		Account:       a.Account,
 		TokenToSell:   a.TokenToSell,

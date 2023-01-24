@@ -19,8 +19,6 @@ type OrderAttributes struct {
 	ExecutedBy *big.Int `json:"executedBy,omitempty"`
 	// Swapica contract address on the destination network
 	MatchSwapica *string `json:"matchSwapica,omitempty"`
-	// Code name of the order's source chain
-	SrcChain string `json:"srcChain"`
 	// Order state
 	State uint8 `json:"state"`
 	// Contract address of the token to buy

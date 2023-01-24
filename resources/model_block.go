@@ -6,14 +6,15 @@ package resources
 
 type Block struct {
 	Key
-	Attributes BlockAttributes `json:"attributes"`
+	// Only for generation of Go API resources
+	Attributes *struct{} `json:"attributes,omitempty"`
 }
-type BlockRequest struct {
+type BlockResponse struct {
 	Data     Block    `json:"data"`
 	Included Included `json:"included"`
 }
 
-type BlockListRequest struct {
+type BlockListResponse struct {
 	Data     []Block  `json:"data"`
 	Included Included `json:"included"`
 	Links    *Links   `json:"links"`

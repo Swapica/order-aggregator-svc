@@ -7,7 +7,6 @@ allOf:
       attributes:
         type: object
         required:
-          - srcChain
           - originOrderId
           - account
           - tokenToSell
@@ -15,10 +14,6 @@ allOf:
           - originChain
           - state
         properties:
-          srcChain:
-            type: string
-            description: Code name of the **match order's** source chain
-            example: "goerli"
           originOrderId:
             type: string
             format: "*big.Int"

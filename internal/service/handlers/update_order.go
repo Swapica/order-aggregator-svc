@@ -18,10 +18,10 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	q := OrdersQ(r)
-	id, chain := request.Data.ID, request.Data.Attributes.SrcChain
-	log := Log(r).WithFields(logan.F{"order_id": id, "src_chain": chain})
+	id := request.Body.Data.ID
+	log := Log(r).WithFields(logan.F{"order_id": id, "src_chain": request.Chain})
 
-	exists, err := q.Get(id, chain)
+	exists, err := q.Get(id, request.Chain)
 	if err != nil {
 		log.WithError(err).Error("failed to get order")
 		ape.RenderErr(w, problems.InternalError())
@@ -33,8 +33,8 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	a := request.Data.Attributes
-	if err = q.Update(id, chain, a.State, a.ExecutedBy, a.MatchSwapica); err != nil {
+	a := request.Body.Data.Attributes
+	if err = q.Update(id, request.Chain, a.State, a.ExecutedBy, a.MatchSwapica); err != nil {
 		log.WithError(err).Error("failed to insert order")
 		ape.RenderErr(w, problems.InternalError())
 		return
