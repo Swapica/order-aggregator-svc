@@ -1,0 +1,49 @@
+allOf:
+  - $ref: "#/components/schemas/MatchKey"
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - srcChain
+          - originOrderId
+          - account
+          - tokensToSell
+          - amountToSell
+          - originChain
+          - state
+        properties:
+          srcChain:
+            type: string
+            description: Code name of the **match order's** source chain
+            example: "goerli"
+          originOrderId:
+            type: string
+            format: "*big.Int"
+            description: ID of the order to match
+            example: 437
+          account:
+            type: string
+            description: "**Match order** creator"
+            example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
+          tokensToSell:
+            type: string
+            description: Contract address of the token to sell
+            example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
+          amountToSell:
+            type: string
+            format: "*big.Int"
+            description: With decimals
+            example: 16900000000000
+          originChain:
+            type: string
+            format: "*big.Int"
+            description: Chain ID of the order's origin network
+            example: 1
+          state:
+            type: integer
+            format: uint8
+            description: Order state
+            example: 2

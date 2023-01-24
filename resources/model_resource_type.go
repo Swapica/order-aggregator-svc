@@ -8,6 +8,7 @@ type ResourceType string
 
 // List of ResourceType
 const (
-	BLOCK ResourceType = "block"
-	ORDER ResourceType = "order"
+	BLOCK       ResourceType = "block"
+	MATCH_ORDER ResourceType = "match_order"
+	ORDER       ResourceType = "order"
 )

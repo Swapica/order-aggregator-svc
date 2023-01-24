@@ -1,0 +1,14 @@
+type: object
+required:
+  - id
+  - type
+properties:
+  id:
+    type: string
+    description: order ID
+    pattern: '^[0-9]{1,78}$'
+    example: 7802323
+  type:
+    type: string
+    enum:
+      - match_order

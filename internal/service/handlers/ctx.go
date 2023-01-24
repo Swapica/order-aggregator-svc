@@ -15,6 +15,7 @@ type ctxKey int
 const (
 	logCtxKey ctxKey = iota
 	ordersCtxKey
+	matchOrdersCtxKey
 	blockCtxKey
 )
 
@@ -36,6 +37,16 @@ func CtxOrdersQ(db *pgdb.DB) func(context.Context) context.Context {
 
 func OrdersQ(r *http.Request) data.Orders {
 	return r.Context().Value(ordersCtxKey).(data.Orders)
+}
+
+func CtxMatchOrdersQ(db *pgdb.DB) func(context.Context) context.Context {
+	return func(ctx context.Context) context.Context {
+		return context.WithValue(ctx, matchOrdersCtxKey, postgres.NewMatchOrders(db))
+	}
+}
+
+func MatchOrdersQ(r *http.Request) data.MatchOrders {
+	return r.Context().Value(matchOrdersCtxKey).(data.MatchOrders)
 }
 
 func CtxBlockQ(db *pgdb.DB) func(context.Context) context.Context {

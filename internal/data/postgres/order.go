@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"database/sql"
-	"fmt"
 	"math/big"
 
 	"github.com/Masterminds/squirrel"
@@ -35,7 +34,6 @@ func (q orders) Update(id, chain string, state uint8, execBy *big.Int, matchSw *
 	}
 
 	stmt := squirrel.Update(ordersTable).SetMap(updMap).Where(squirrel.Eq{"id": id, "src_chain": chain})
-	fmt.Println(stmt.ToSql())
 	err := q.db.Exec(stmt)
 	return errors.Wrap(err, "failed to update order")
 }

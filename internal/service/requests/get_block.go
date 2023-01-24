@@ -8,7 +8,7 @@ import (
 )
 
 type GetBlockRequest struct {
-	Chain string `filter:"chain"`
+	Chain string
 }
 
 func NewGetBlockRequest(r *http.Request) (GetBlockRequest, error) {

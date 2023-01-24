@@ -15,7 +15,6 @@ allOf:
           - amountToBuy
           - destChain
           - state
-          - block
         properties:
           srcChain:
             type: string

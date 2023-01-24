@@ -16,9 +16,14 @@ func (s *service) router() chi.Router {
 			handlers.CtxLog(s.log),
 			handlers.CtxOrdersQ(s.cfg.DB()),
 			handlers.CtxBlockQ(s.cfg.DB()),
+			handlers.CtxMatchOrdersQ(s.cfg.DB()),
 		),
 	)
 	r.Route("/integrations/order-aggregator", func(r chi.Router) {
+		r.Route("/match_orders", func(r chi.Router) {
+			r.Post("/", handlers.AddMatch)
+			r.Patch("/", handlers.UpdateMatch)
+		})
 		r.Route("/orders", func(r chi.Router) {
 			r.Post("/", handlers.AddOrder)
 			r.Patch("/", handlers.UpdateOrder)

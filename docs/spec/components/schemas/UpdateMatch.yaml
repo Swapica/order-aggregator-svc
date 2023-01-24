@@ -1,0 +1,22 @@
+allOf:
+  - $ref: "#/components/schemas/MatchKey"
+  - type: object
+    x-go-is-request: true
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - srcChain
+          - state
+        properties:
+          srcChain:
+            type: string
+            description: Code name of the **match order's** source chain. **Not to be updated**
+            example: "goerli"
+          state:
+            type: integer
+            format: uint8
+            description: New match order state
+            example: 2
