@@ -20,5 +20,5 @@ type MatchAttributes struct {
 	// Order state
 	State uint8 `json:"state"`
 	// Contract address of the token to sell
-	TokensToSell string `json:"tokensToSell"`
+	TokenToSell string `json:"tokenToSell"`
 }

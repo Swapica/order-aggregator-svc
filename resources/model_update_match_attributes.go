@@ -5,8 +5,8 @@
 package resources
 
 type UpdateMatchAttributes struct {
-	// Code name of the order's source chain. **Not to be updated**
+	// Code name of the **match order's** source chain. **Not to be updated**
 	SrcChain string `json:"srcChain"`
-	// New order state
+	// New match order state
 	State uint8 `json:"state"`
 }

@@ -11,7 +11,7 @@ type Match struct {
 	SrcChain      string `structs:"src_chain" db:"src_chain"`
 	OriginOrderId string `structs:"origin_order_id" db:"origin_order_id"`
 	Account       string `structs:"account" db:"account"`
-	TokensToSell  string `structs:"sell_tokens" db:"sell_tokens"`
+	TokenToSell   string `structs:"sell_token" db:"sell_token"`
 	AmountToSell  string `structs:"sell_amount" db:"sell_amount"`
 	OriginChain   string `structs:"origin_chain" db:"origin_chain"`
 	State         uint8  `structs:"state" db:"state"`

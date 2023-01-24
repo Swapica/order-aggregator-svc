@@ -9,8 +9,8 @@ allOf:
         required:
           - srcChain
           - account
-          - tokensToSell
-          - tokensToBuy
+          - tokenToSell
+          - tokenToBuy
           - amountToSell
           - amountToBuy
           - destChain
@@ -24,11 +24,11 @@ allOf:
             type: string
             description: Order creator
             example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
-          tokensToSell:
+          tokenToSell:
             type: string
             description: Contract address of the token to sell
             example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
-          tokensToBuy:
+          tokenToBuy:
             type: string
             description: Contract address of the token to buy
             example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"

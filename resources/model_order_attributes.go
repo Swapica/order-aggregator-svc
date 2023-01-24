@@ -24,7 +24,7 @@ type OrderAttributes struct {
 	// Order state
 	State uint8 `json:"state"`
 	// Contract address of the token to buy
-	TokensToBuy string `json:"tokensToBuy"`
+	TokenToBuy string `json:"tokenToBuy"`
 	// Contract address of the token to sell
-	TokensToSell string `json:"tokensToSell"`
+	TokenToSell string `json:"tokenToSell"`
 }

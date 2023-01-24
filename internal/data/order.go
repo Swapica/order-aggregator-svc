@@ -15,8 +15,8 @@ type Order struct {
 	ID           string `structs:"id" db:"id"`
 	SrcChain     string `structs:"src_chain" db:"src_chain"`
 	Account      string `structs:"account" db:"account"`
-	TokensToSell string `structs:"sell_tokens" db:"sell_tokens"`
-	TokensToBuy  string `structs:"buy_tokens" db:"buy_tokens"`
+	TokenToSell  string `structs:"sell_token" db:"sell_token"`
+	TokenToBuy   string `structs:"buy_token" db:"buy_token"`
 	AmountToSell string `structs:"sell_amount" db:"sell_amount"`
 	AmountToBuy  string `structs:"buy_amount" db:"buy_amount"`
 	DestChain    string `structs:"dest_chain" db:"dest_chain"`
