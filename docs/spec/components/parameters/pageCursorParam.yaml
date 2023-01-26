@@ -1,0 +1,7 @@
+in: query
+name: page[cursor]
+required: false
+description: Cursor point to the end of the previous page
+schema:
+  type: integer
+  minimum: 0
