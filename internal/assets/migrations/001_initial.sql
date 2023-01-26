@@ -1,7 +1,7 @@
 -- +migrate Up
 CREATE TABLE orders
 (
-    id            text,
+    id            bigint,
     src_chain     text,
     account       varchar(42) NOT NULL,
     sell_token    varchar(42) NOT NULL,
@@ -12,15 +12,15 @@ CREATE TABLE orders
 
     state         smallint    NOT NULL,
     executed_by   text,
-    match_swapica text,
+    match_swapica varchar(42),
     PRIMARY KEY (id, src_chain)
 );
 
 CREATE TABLE match_orders
 (
-    id              text,
+    id              bigint,
     src_chain       text,
-    origin_order_id text        NOT NULL,
+    origin_order_id bigint      NOT NULL,
     account         varchar(42) NOT NULL,
     sell_token      varchar(42) NOT NULL,
     sell_amount     text        NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE match_orders
 
 CREATE TABLE last_blocks
 (
-    number    text NOT NULL,
+    number    bigint NOT NULL,
     src_chain text,
     CONSTRAINT last_blocks_pkey PRIMARY KEY (src_chain)
 );
