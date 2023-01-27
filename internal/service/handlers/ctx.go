@@ -34,7 +34,7 @@ func CtxOrdersQ(q data.Orders) func(context.Context) context.Context {
 }
 
 func OrdersQ(r *http.Request) data.Orders {
-	return r.Context().Value(ordersCtxKey).(data.Orders)
+	return r.Context().Value(ordersCtxKey).(data.Orders).New()
 }
 
 func CtxMatchOrdersQ(q data.MatchOrders) func(context.Context) context.Context {
@@ -44,7 +44,7 @@ func CtxMatchOrdersQ(q data.MatchOrders) func(context.Context) context.Context {
 }
 
 func MatchOrdersQ(r *http.Request) data.MatchOrders {
-	return r.Context().Value(matchOrdersCtxKey).(data.MatchOrders)
+	return r.Context().Value(matchOrdersCtxKey).(data.MatchOrders).New()
 }
 
 func CtxBlockQ(q data.LastBlock) func(context.Context) context.Context {

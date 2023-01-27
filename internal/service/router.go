@@ -25,10 +25,12 @@ func (s *service) router() chi.Router {
 			r.Route("/match_orders", func(r chi.Router) {
 				r.Post("/", handlers.AddMatch)
 				r.Patch("/", handlers.UpdateMatch)
+				r.Get("/", handlers.ListMatches)
 			})
 			r.Route("/orders", func(r chi.Router) {
 				r.Post("/", handlers.AddOrder)
 				r.Patch("/", handlers.UpdateOrder)
+				r.Get("/", handlers.ListOrders)
 			})
 			r.Route("/block", func(r chi.Router) {
 				r.Post("/", handlers.SetBlock)

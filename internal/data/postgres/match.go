@@ -12,33 +12,37 @@ import (
 
 const matchOrdersTable = "match_orders"
 
-type match struct {
+type matches struct {
 	db       *pgdb.DB
 	selector squirrel.SelectBuilder
 	updater  squirrel.UpdateBuilder
 }
 
 func NewMatchOrders(db *pgdb.DB) data.MatchOrders {
-	return &match{
+	return &matches{
 		db:       db,
 		selector: squirrel.Select("*").From(matchOrdersTable),
 		updater:  squirrel.Update(matchOrdersTable),
 	}
 }
 
-func (q *match) Insert(order data.Match) error {
+func (q *matches) New() data.MatchOrders {
+	return NewMatchOrders(q.db)
+}
+
+func (q *matches) Insert(order data.Match) error {
 	stmt := squirrel.Insert(matchOrdersTable).SetMap(structs.Map(order))
 	err := q.db.Exec(stmt)
 	return errors.Wrap(err, "failed to insert match order")
 }
 
-func (q *match) Update(id string, state uint8) error {
+func (q *matches) Update(id string, state uint8) error {
 	stmt := q.updater.Where(squirrel.Eq{"id": id}).Set("state", state)
 	err := q.db.Exec(stmt)
 	return errors.Wrap(err, "failed to update match order")
 }
 
-func (q *match) Get(id string) (*data.Match, error) {
+func (q *matches) Get(id string) (*data.Match, error) {
 	var res data.Match
 	stmt := squirrel.Select("*").From(matchOrdersTable).Where(squirrel.Eq{"id": id})
 	err := q.db.Get(&res, stmt)
@@ -48,21 +52,21 @@ func (q *match) Get(id string) (*data.Match, error) {
 	return &res, errors.Wrap(err, "failed to get match order")
 }
 
-func (q *match) Select() ([]data.Match, error) {
+func (q *matches) Select() ([]data.Match, error) {
 	var res []data.Match
-	err := q.db.Get(&res, q.selector)
+	err := q.db.Select(&res, q.selector)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
 	return res, errors.Wrap(err, "failed to select match orders")
 }
 
-func (q *match) Page(page *pgdb.CursorPageParams) data.MatchOrders {
+func (q *matches) Page(page *pgdb.CursorPageParams) data.MatchOrders {
 	q.selector = page.ApplyTo(q.selector, "id")
 	return q
 }
 
-func (q *match) FilterByChain(name string) data.MatchOrders {
+func (q *matches) FilterByChain(name string) data.MatchOrders {
 	q.selector = q.selector.Where(squirrel.Eq{"src_chain": name})
 	q.updater = q.updater.Where(squirrel.Eq{"src_chain": name})
 	return q

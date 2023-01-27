@@ -8,6 +8,7 @@ import (
 )
 
 type Orders interface {
+	New() Orders
 	Insert(Order) error
 	Update(id string, state uint8, executedBy *big.Int, matchSwapica *string) error
 	Get(id string) (*Order, error)

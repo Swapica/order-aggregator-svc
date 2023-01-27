@@ -3,6 +3,7 @@ package data
 import "gitlab.com/distributed_lab/kit/pgdb"
 
 type MatchOrders interface {
+	New() MatchOrders
 	Insert(Match) error
 	Update(id string, state uint8) error
 	Get(id string) (*Match, error)

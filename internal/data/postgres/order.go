@@ -27,6 +27,10 @@ func NewOrders(db *pgdb.DB) data.Orders {
 	}
 }
 
+func (q *orders) New() data.Orders {
+	return NewOrders(q.db)
+}
+
 func (q *orders) Insert(order data.Order) error {
 	stmt := squirrel.Insert(ordersTable).SetMap(structs.Map(order))
 	err := q.db.Exec(stmt)
@@ -55,7 +59,7 @@ func (q *orders) Get(id string) (*data.Order, error) {
 
 func (q *orders) Select() ([]data.Order, error) {
 	var res []data.Order
-	err := q.db.Get(&res, q.selector)
+	err := q.db.Select(&res, q.selector)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
