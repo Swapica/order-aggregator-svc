@@ -10,14 +10,20 @@ import (
 )
 
 func ListOrders(w http.ResponseWriter, r *http.Request) {
-	request, err := requests.NewListRequest(r)
+	req, err := requests.NewListOrdersRequest(r)
 	if err != nil {
 		Log(r).WithError(err).Debug("bad request")
 		ape.RenderErr(w, problems.BadRequest(err)...)
 		return
 	}
 
-	orders, err := OrdersQ(r).FilterByChain(request.Chain).Page(&request.CursorPageParams).Select()
+	orders, err := OrdersQ(r).FilterByChain(req.Chain).
+		FilterByTokenToBuy(req.FilterBuyToken).
+		FilterByTokenToSell(req.FilterSellToken).
+		FilterByAccount(req.FilterAccount).
+		FilterByState(req.FilterState).
+		Page(&req.CursorPageParams).
+		Select()
 	if err != nil {
 		Log(r).WithError(err).Error("failed to get orders")
 		ape.RenderErr(w, problems.InternalError())
@@ -30,6 +36,6 @@ func ListOrders(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := responses.NewOrderListResponse(orders)
-	resp.Links = request.GetCursorLinks(r, last)
+	resp.Links = req.GetCursorLinks(r, last)
 	ape.Render(w, resp)
 }

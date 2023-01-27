@@ -15,6 +15,10 @@ type Orders interface {
 	Select() ([]Order, error)
 	Page(*pgdb.CursorPageParams) Orders
 	FilterByChain(name string) Orders
+	FilterByTokenToBuy(*string) Orders
+	FilterByTokenToSell(*string) Orders
+	FilterByAccount(*string) Orders
+	FilterByState(*string) Orders
 }
 
 type Order struct {

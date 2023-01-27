@@ -72,7 +72,30 @@ func (q *orders) Page(page *pgdb.CursorPageParams) data.Orders {
 }
 
 func (q *orders) FilterByChain(name string) data.Orders {
-	q.selector = q.selector.Where(squirrel.Eq{"src_chain": name})
-	q.updater = q.updater.Where(squirrel.Eq{"src_chain": name})
+	return q.filterByCol("src_chain", &name)
+}
+
+func (q *orders) FilterByTokenToBuy(address *string) data.Orders {
+	return q.filterByCol("buy_token", address)
+}
+
+func (q *orders) FilterByTokenToSell(address *string) data.Orders {
+	return q.filterByCol("sell_token", address)
+}
+
+func (q *orders) FilterByAccount(address *string) data.Orders {
+	return q.filterByCol("account", address)
+}
+
+func (q *orders) FilterByState(state *string) data.Orders {
+	return q.filterByCol("state", state)
+}
+
+func (q *orders) filterByCol(column string, value *string) data.Orders {
+	if value == nil {
+		return q
+	}
+	q.selector = q.selector.Where(squirrel.Eq{column: value})
+	q.updater = q.updater.Where(squirrel.Eq{column: value})
 	return q
 }

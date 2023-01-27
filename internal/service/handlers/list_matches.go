@@ -10,7 +10,7 @@ import (
 )
 
 func ListMatches(w http.ResponseWriter, r *http.Request) {
-	request, err := requests.NewListRequest(r)
+	request, err := requests.NewListMatchesRequest(r)
 	if err != nil {
 		Log(r).WithError(err).Debug("bad request")
 		ape.RenderErr(w, problems.BadRequest(err)...)

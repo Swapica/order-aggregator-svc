@@ -13,6 +13,7 @@ import (
 	"gitlab.com/distributed_lab/logan/v3/errors"
 )
 
+var uint8Regexp = regexp.MustCompile(`^[0-9]{1,3}$`)
 var uint256Regexp = regexp.MustCompile(`^[0-9]{1,78}$`)
 var addressRegexp = regexp.MustCompile("^0x[0-9A-Fa-f]{40}$")
 
