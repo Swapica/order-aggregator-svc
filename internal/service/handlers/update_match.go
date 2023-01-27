@@ -17,11 +17,11 @@ func UpdateMatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	q := MatchOrdersQ(r)
+	q := MatchOrdersQ(r).FilterByChain(request.Chain)
 	id := request.Body.Data.ID
 	log := Log(r).WithFields(logan.F{"match_id": id, "src_chain": request.Chain})
 
-	exists, err := q.Get(id, request.Chain)
+	exists, err := q.Get(id)
 	if err != nil {
 		log.WithError(err).Error("failed to get match order")
 		ape.RenderErr(w, problems.InternalError())
@@ -33,7 +33,7 @@ func UpdateMatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = q.Update(id, request.Chain, request.Body.Data.Attributes.State); err != nil {
+	if err = q.Update(id, request.Body.Data.Attributes.State); err != nil {
 		log.WithError(err).Error("failed to insert match order")
 		ape.RenderErr(w, problems.InternalError())
 		return

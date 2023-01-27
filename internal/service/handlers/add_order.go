@@ -17,11 +17,11 @@ func AddOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	q := OrdersQ(r)
 	order := request.DBModel()
+	q := OrdersQ(r).FilterByChain(order.SrcChain)
 	log := Log(r).WithFields(logan.F{"order_id": order.ID, "src_chain": order.SrcChain})
 
-	conflict, err := q.Get(order.ID, order.SrcChain)
+	conflict, err := q.Get(order.ID)
 	if err != nil {
 		log.WithError(err).Error("failed to get order")
 		ape.RenderErr(w, problems.InternalError())

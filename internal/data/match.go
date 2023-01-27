@@ -1,9 +1,14 @@
 package data
 
+import "gitlab.com/distributed_lab/kit/pgdb"
+
 type MatchOrders interface {
 	Insert(Match) error
-	Update(id, srcChain string, state uint8) error
-	Get(id, chain string) (*Match, error)
+	Update(id string, state uint8) error
+	Get(id string) (*Match, error)
+	Select() ([]Match, error)
+	Page(*pgdb.CursorPageParams) MatchOrders
+	FilterByChain(name string) MatchOrders
 }
 
 type Match struct {

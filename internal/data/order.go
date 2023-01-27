@@ -3,12 +3,17 @@ package data
 import (
 	"database/sql"
 	"math/big"
+
+	"gitlab.com/distributed_lab/kit/pgdb"
 )
 
 type Orders interface {
 	Insert(Order) error
-	Update(id, srcChain string, state uint8, executedBy *big.Int, matchSwapica *string) error
-	Get(id, srcChain string) (*Order, error)
+	Update(id string, state uint8, executedBy *big.Int, matchSwapica *string) error
+	Get(id string) (*Order, error)
+	Select() ([]Order, error)
+	Page(*pgdb.CursorPageParams) Orders
+	FilterByChain(name string) Orders
 }
 
 type Order struct {

@@ -13,32 +13,57 @@ import (
 const matchOrdersTable = "match_orders"
 
 type match struct {
-	db *pgdb.DB
+	db       *pgdb.DB
+	selector squirrel.SelectBuilder
+	updater  squirrel.UpdateBuilder
 }
 
 func NewMatchOrders(db *pgdb.DB) data.MatchOrders {
-	return match{db: db}
+	return &match{
+		db:       db,
+		selector: squirrel.Select("*").From(matchOrdersTable),
+		updater:  squirrel.Update(matchOrdersTable),
+	}
 }
 
-func (q match) Insert(order data.Match) error {
+func (q *match) Insert(order data.Match) error {
 	stmt := squirrel.Insert(matchOrdersTable).SetMap(structs.Map(order))
 	err := q.db.Exec(stmt)
 	return errors.Wrap(err, "failed to insert match order")
 }
 
-func (q match) Update(id, chain string, state uint8) error {
-	stmt := squirrel.Update(matchOrdersTable).Set("state", state).
-		Where(squirrel.Eq{"id": id, "src_chain": chain})
+func (q *match) Update(id string, state uint8) error {
+	stmt := q.updater.Where(squirrel.Eq{"id": id}).Set("state", state)
 	err := q.db.Exec(stmt)
 	return errors.Wrap(err, "failed to update match order")
 }
 
-func (q match) Get(id, chain string) (*data.Match, error) {
+func (q *match) Get(id string) (*data.Match, error) {
 	var res data.Match
-	stmt := squirrel.Select("*").From(matchOrdersTable).Where(squirrel.Eq{"id": id, "src_chain": chain})
+	stmt := squirrel.Select("*").From(matchOrdersTable).Where(squirrel.Eq{"id": id})
 	err := q.db.Get(&res, stmt)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
 	return &res, errors.Wrap(err, "failed to get match order")
+}
+
+func (q *match) Select() ([]data.Match, error) {
+	var res []data.Match
+	err := q.db.Get(&res, q.selector)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	return res, errors.Wrap(err, "failed to select match orders")
+}
+
+func (q *match) Page(page *pgdb.CursorPageParams) data.MatchOrders {
+	q.selector = page.ApplyTo(q.selector, "id")
+	return q
+}
+
+func (q *match) FilterByChain(name string) data.MatchOrders {
+	q.selector = q.selector.Where(squirrel.Eq{"src_chain": name})
+	q.updater = q.updater.Where(squirrel.Eq{"src_chain": name})
+	return q
 }

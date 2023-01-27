@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/Swapica/order-aggregator-svc/internal/data/postgres"
 	"github.com/Swapica/order-aggregator-svc/internal/service/handlers"
 	"github.com/go-chi/chi"
 	"gitlab.com/distributed_lab/ape"
@@ -14,9 +15,9 @@ func (s *service) router() chi.Router {
 		ape.LoganMiddleware(s.log),
 		ape.CtxMiddleware(
 			handlers.CtxLog(s.log),
-			handlers.CtxOrdersQ(s.cfg.DB()),
-			handlers.CtxBlockQ(s.cfg.DB()),
-			handlers.CtxMatchOrdersQ(s.cfg.DB()),
+			handlers.CtxOrdersQ(postgres.NewOrders(s.cfg.DB())),
+			handlers.CtxMatchOrdersQ(postgres.NewMatchOrders(s.cfg.DB())),
+			handlers.CtxBlockQ(postgres.NewLastBlock(s.cfg.DB())),
 		),
 	)
 	r.Route("/integrations/order-aggregator", func(r chi.Router) {
