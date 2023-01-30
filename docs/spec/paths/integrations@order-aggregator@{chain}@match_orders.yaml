@@ -29,7 +29,8 @@ get:
       in: query
       required: false
       description: |
-        Filter expired match orders, i.e. those which have the corresponding order canceled or executed by another match
+        Filter expired match orders, i.e. those which have the corresponding order canceled or executed by another match.
+        Use only `true` value, because `false` will take no effect.
       schema:
         type: boolean
   responses:

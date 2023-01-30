@@ -12,7 +12,7 @@ type MatchOrders interface {
 	FilterByChain(chainID string) MatchOrders
 	FilterByAccount(*string) MatchOrders
 	FilterByState(*string) MatchOrders
-	FilterExpired(apply bool) MatchOrders
+	FilterExpired(*bool) MatchOrders
 }
 
 type Match struct {

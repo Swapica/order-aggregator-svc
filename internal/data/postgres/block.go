@@ -10,7 +10,6 @@ import (
 )
 
 const blockTable = "last_blocks"
-const chainCol = "src_chain"
 const upsertBlockSuffix = "ON CONFLICT ON CONSTRAINT last_blocks_pkey DO UPDATE SET number = ?"
 
 type block struct {
@@ -22,7 +21,7 @@ func NewLastBlock(db *pgdb.DB) data.LastBlock {
 }
 
 func (q block) Set(n uint64, chain string) error {
-	stmt := squirrel.Insert(blockTable).Columns("number", chainCol).Values(n, chain).Suffix(upsertBlockSuffix, n)
+	stmt := squirrel.Insert(blockTable).Columns("number", "src_chain").Values(n, chain).Suffix(upsertBlockSuffix, n)
 	err := q.db.Exec(stmt)
 	return errors.Wrap(err, "failed to initialize or update last block")
 }
@@ -31,7 +30,7 @@ func (q block) Get(chain string) (*uint64, error) {
 	var result struct {
 		Number uint64 `db:"number"`
 	}
-	stmt := squirrel.Select("number").From(blockTable).Where(squirrel.Eq{chainCol: chain})
+	stmt := squirrel.Select("number").From(blockTable).Where(squirrel.Eq{"src_chain": chain})
 
 	if err := q.db.Get(&result, stmt); err != nil {
 		if err == sql.ErrNoRows {

@@ -15,7 +15,7 @@ type ListMatchesRequest struct {
 	page.CursorParams
 	FilterState   *string `filter:"state"`
 	FilterAccount *string `filter:"account"`
-	FilterExpired bool    `filter:"expired"`
+	FilterExpired *bool   `filter:"expired"`
 }
 
 func NewListMatchesRequest(r *http.Request) (*ListMatchesRequest, error) {
