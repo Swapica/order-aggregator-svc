@@ -66,10 +66,8 @@ func (q *matches) Page(page *pgdb.CursorPageParams) data.MatchOrders {
 	return q
 }
 
-func (q *matches) FilterByChain(name string) data.MatchOrders {
-	q.selector = q.selector.Where(squirrel.Eq{"src_chain": name})
-	q.updater = q.updater.Where(squirrel.Eq{"src_chain": name})
-	return q
+func (q *matches) FilterByChain(id string) data.MatchOrders {
+	return q.filterByCol("src_chain", &id)
 }
 
 func (q *matches) FilterByAccount(address *string) data.MatchOrders {

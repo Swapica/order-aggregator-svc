@@ -46,5 +46,5 @@ func (r *ListOrdersRequest) validate() error {
 }
 
 func requireChain(ch string) error {
-	return val.Errors{"{chain}": val.Validate(ch, val.Required)}.Filter()
+	return val.Errors{"{chain}": val.Validate(ch, val.Required, val.Match(uint63Regexp))}.Filter()
 }

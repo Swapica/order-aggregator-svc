@@ -14,6 +14,7 @@ import (
 )
 
 var uint8Regexp = regexp.MustCompile(`^[0-9]{1,3}$`)
+var uint63Regexp = regexp.MustCompile(`^[0-9]{1,19}$`)
 var uint256Regexp = regexp.MustCompile(`^[0-9]{1,78}$`)
 var addressRegexp = regexp.MustCompile("^0x[0-9A-Fa-f]{40}$")
 
@@ -34,7 +35,7 @@ func NewAddOrderRequest(r *http.Request) (*AddOrderRequest, error) {
 func (r *AddOrderRequest) validate() error {
 	a := r.Body.Data.Attributes
 	return val.Errors{
-		"{chain}":                      val.Validate(r.Chain, val.Required),
+		"{chain}":                      val.Validate(r.Chain, val.Required, val.Match(uint63Regexp)),
 		"data/id":                      val.Validate(r.Body.Data.ID, val.Required, val.Match(uint256Regexp)),
 		"data/type":                    val.Validate(r.Body.Data.Type, val.Required, val.In(resources.ORDER)),
 		"data/attributes/account":      val.Validate(a.Account, val.Required, val.Match(addressRegexp)),

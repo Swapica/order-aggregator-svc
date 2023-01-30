@@ -23,7 +23,7 @@ func NewUpdateMatchRequest(r *http.Request) (*UpdateMatchRequest, error) {
 
 	a := dst.Body.Data.Attributes
 	return &dst, val.Errors{
-		"{chain}":               val.Validate(dst.Chain, val.Required),
+		"{chain}":               val.Validate(dst.Chain, val.Required, val.Match(uint63Regexp)),
 		"data/id":               val.Validate(dst.Body.Data.ID, val.Required, val.Match(uint256Regexp)),
 		"data/type":             val.Validate(dst.Body.Data.Type, val.Required, val.In(resources.MATCH_ORDER)),
 		"data/attributes/state": val.Validate(a.State, val.Required, val.Min(uint8(1))),

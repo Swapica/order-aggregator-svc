@@ -31,7 +31,7 @@ func NewSetBlockRequest(r *http.Request) (*SetBlockRequest, error) {
 		Chain:  chi.URLParam(r, "chain"),
 	}
 	return &req, val.Errors{
-		"{chain}":   val.Validate(req.Chain, val.Required),
+		"{chain}":   val.Validate(req.Chain, val.Required, val.Match(uint63Regexp)),
 		"data/type": val.Validate(dst.Data.Type, val.Required, val.In(resources.BLOCK)),
 	}.Filter()
 }

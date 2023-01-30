@@ -22,14 +22,14 @@ func newMatchResource(o data.Match) resources.Match {
 		Attributes: resources.MatchAttributes{
 			Account:      o.Account,
 			AmountToSell: parseBig(o.AmountToSell, "amountToSell"),
-			OriginChain:  parseBig(o.OriginChain, "originChain"),
+			OriginChain:  parseBig(o.OrderChain, "originChain"),
 			State:        o.State,
 			TokenToSell:  o.TokenToSell,
 		},
 		Relationships: resources.MatchRelationships{
 			OriginOrder: resources.Relation{
 				Data: &resources.Key{
-					ID:   o.OriginOrderId,
+					ID:   o.OrderID,
 					Type: resources.ORDER,
 				},
 			},

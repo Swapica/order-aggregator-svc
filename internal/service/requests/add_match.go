@@ -33,7 +33,7 @@ func (r *AddMatchRequest) validate() error {
 	}
 
 	return val.Errors{
-		"{chain}":                                  val.Validate(r.Chain, val.Required),
+		"{chain}":                                  val.Validate(r.Chain, val.Required, val.Match(uint63Regexp)),
 		"data/id":                                  val.Validate(r.Body.Data.ID, val.Required, val.Match(uint256Regexp)),
 		"data/type":                                val.Validate(r.Body.Data.Type, val.Required, val.In(resources.MATCH_ORDER)),
 		"data/attributes/account":                  val.Validate(a.Account, val.Required, val.Match(addressRegexp)),
@@ -49,13 +49,13 @@ func (r *AddMatchRequest) validate() error {
 func (r *AddMatchRequest) DBModel() data.Match {
 	a := r.Body.Data.Attributes
 	return data.Match{
-		ID:            r.Body.Data.ID,
-		OriginOrderId: r.Body.Data.Relationships.OriginOrder.Data.ID,
-		SrcChain:      r.Chain,
-		Account:       a.Account,
-		TokenToSell:   a.TokenToSell,
-		AmountToSell:  a.AmountToSell.String(),
-		OriginChain:   a.OriginChain.String(),
-		State:         a.State,
+		ID:           r.Body.Data.ID,
+		OrderID:      r.Body.Data.Relationships.OriginOrder.Data.ID,
+		SrcChain:     r.Chain,
+		Account:      a.Account,
+		TokenToSell:  a.TokenToSell,
+		AmountToSell: a.AmountToSell.String(),
+		OrderChain:   a.OriginChain.String(),
+		State:        a.State,
 	}
 }

@@ -1,7 +1,7 @@
 name: chain
 in: path
 required: true
-description: "Code name of the blockchain which order / match order / block appeared at"
+description: "`ChainId` of the blockchain where order / match order / block appeared"
 schema:
-  type: string
-  example: "mainnet"
+  type: integer
+  example: 5

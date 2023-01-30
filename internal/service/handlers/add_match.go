@@ -20,7 +20,7 @@ func AddMatch(w http.ResponseWriter, r *http.Request) {
 	match := request.DBModel()
 	q := MatchOrdersQ(r).FilterByChain(match.SrcChain)
 	log := Log(r).WithFields(logan.F{
-		"match_id": match.ID, "origin_order_id": match.OriginOrderId, "src_chain": match.SrcChain})
+		"match_id": match.ID, "src_chain": match.SrcChain, "order_id": match.OrderID, "order_chain": match.OrderChain})
 
 	conflict, err := q.Get(match.ID)
 	if err != nil {
@@ -34,7 +34,7 @@ func AddMatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	origin, err := OrdersQ(r).FilterByChain(match.SrcChain).Get(match.OriginOrderId)
+	origin, err := OrdersQ(r).FilterByChain(match.OrderChain).Get(match.OrderID)
 	if err != nil {
 		log.WithError(err).Error("failed to get origin order")
 		ape.RenderErr(w, problems.InternalError())
