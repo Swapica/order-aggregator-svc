@@ -5,6 +5,7 @@ import (
 
 	"github.com/Swapica/order-aggregator-svc/internal/service/page"
 	"github.com/go-chi/chi"
+	val "github.com/go-ozzo/ozzo-validation/v4"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 	"gitlab.com/distributed_lab/urlval"
 )
@@ -12,6 +13,9 @@ import (
 type ListMatchesRequest struct {
 	Chain string
 	page.CursorParams
+	FilterState   *string `filter:"state"`
+	FilterAccount *string `filter:"account"`
+	FilterExpired bool    `filter:"expired"`
 }
 
 func NewListMatchesRequest(r *http.Request) (*ListMatchesRequest, error) {
@@ -24,5 +28,15 @@ func NewListMatchesRequest(r *http.Request) (*ListMatchesRequest, error) {
 		return nil, errors.Wrap(err, "failed to decode request URL params")
 	}
 
-	return &dst, dst.Validate()
+	return &dst, dst.validate()
+}
+
+func (r *ListMatchesRequest) validate() error {
+	if err := r.CursorParams.Validate(); err != nil {
+		return err
+	}
+	return val.Errors{
+		"filter[account]": val.Validate(r.FilterAccount, val.Match(addressRegexp)),
+		"filter[state]":   val.Validate(r.FilterState, val.Match(uint8Regexp)),
+	}.Filter()
 }

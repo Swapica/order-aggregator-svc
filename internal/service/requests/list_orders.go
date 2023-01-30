@@ -42,7 +42,7 @@ func (r *ListOrdersRequest) validate() error {
 		"filter[tokenToSell]": val.Validate(r.FilterSellToken, val.Match(addressRegexp)),
 		"filter[account]":     val.Validate(r.FilterAccount, val.Match(addressRegexp)),
 		"filter[state]":       val.Validate(r.FilterState, val.Match(uint8Regexp)),
-	}
+	}.Filter()
 }
 
 func requireChain(ch string) error {

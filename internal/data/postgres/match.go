@@ -71,3 +71,28 @@ func (q *matches) FilterByChain(name string) data.MatchOrders {
 	q.updater = q.updater.Where(squirrel.Eq{"src_chain": name})
 	return q
 }
+
+func (q *matches) FilterByAccount(address *string) data.MatchOrders {
+	return q.filterByCol("account", address)
+}
+
+func (q *matches) FilterByState(state *string) data.MatchOrders {
+	return q.filterByCol("state", state)
+}
+
+func (q *matches) FilterExpired(apply bool) data.MatchOrders {
+	if !apply {
+		return q
+	}
+	// todo implement
+	return q
+}
+
+func (q *matches) filterByCol(column string, value *string) data.MatchOrders {
+	if value == nil {
+		return q
+	}
+	q.selector = q.selector.Where(squirrel.Eq{column: value})
+	q.updater = q.updater.Where(squirrel.Eq{column: value})
+	return q
+}

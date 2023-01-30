@@ -10,14 +10,19 @@ import (
 )
 
 func ListMatches(w http.ResponseWriter, r *http.Request) {
-	request, err := requests.NewListMatchesRequest(r)
+	req, err := requests.NewListMatchesRequest(r)
 	if err != nil {
 		Log(r).WithError(err).Debug("bad request")
 		ape.RenderErr(w, problems.BadRequest(err)...)
 		return
 	}
 
-	matches, err := MatchOrdersQ(r).FilterByChain(request.Chain).Page(&request.CursorPageParams).Select()
+	matches, err := MatchOrdersQ(r).FilterByChain(req.Chain).
+		FilterByAccount(req.FilterAccount).
+		FilterByState(req.FilterState).
+		FilterExpired(req.FilterExpired).
+		Page(&req.CursorPageParams).
+		Select()
 	if err != nil {
 		Log(r).WithError(err).Error("failed to get match orders")
 		ape.RenderErr(w, problems.InternalError())
@@ -30,6 +35,6 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := responses.NewMatchListResponse(matches)
-	resp.Links = request.GetCursorLinks(r, last)
+	resp.Links = req.GetCursorLinks(r, last)
 	ape.Render(w, resp)
 }

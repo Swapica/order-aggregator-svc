@@ -10,6 +10,9 @@ type MatchOrders interface {
 	Select() ([]Match, error)
 	Page(*pgdb.CursorPageParams) MatchOrders
 	FilterByChain(name string) MatchOrders
+	FilterByAccount(*string) MatchOrders
+	FilterByState(*string) MatchOrders
+	FilterExpired(apply bool) MatchOrders
 }
 
 type Match struct {
