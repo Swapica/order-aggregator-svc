@@ -20,7 +20,7 @@ type ListMatchesRequest struct {
 
 func NewListMatchesRequest(r *http.Request) (*ListMatchesRequest, error) {
 	dst := ListMatchesRequest{Chain: chi.URLParam(r, "chain")}
-	if err := requireChain(dst.Chain); err != nil {
+	if err := validateChain(dst.Chain); err != nil {
 		return nil, err
 	}
 
@@ -37,6 +37,6 @@ func (r *ListMatchesRequest) validate() error {
 	}
 	return val.Errors{
 		"filter[account]": val.Validate(r.FilterAccount, val.Match(addressRegexp)),
-		"filter[state]":   val.Validate(r.FilterState, val.Match(uint8Regexp)),
+		"filter[state]":   validateState(r.FilterState),
 	}.Filter()
 }

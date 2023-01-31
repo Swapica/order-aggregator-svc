@@ -12,5 +12,5 @@ type GetBlockRequest struct {
 
 func NewGetBlockRequest(r *http.Request) (GetBlockRequest, error) {
 	dst := GetBlockRequest{Chain: chi.URLParam(r, "chain")}
-	return dst, requireChain(dst.Chain)
+	return dst, validateChain(dst.Chain)
 }

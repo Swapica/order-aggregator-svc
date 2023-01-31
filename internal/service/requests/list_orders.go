@@ -22,7 +22,7 @@ type ListOrdersRequest struct {
 
 func NewListOrdersRequest(r *http.Request) (*ListOrdersRequest, error) {
 	dst := ListOrdersRequest{Chain: chi.URLParam(r, "chain")}
-	if err := requireChain(dst.Chain); err != nil {
+	if err := validateChain(dst.Chain); err != nil {
 		return nil, err
 	}
 
@@ -41,10 +41,6 @@ func (r *ListOrdersRequest) validate() error {
 		"filter[tokenToBuy]":  val.Validate(r.FilterBuyToken, val.Match(addressRegexp)),
 		"filter[tokenToSell]": val.Validate(r.FilterSellToken, val.Match(addressRegexp)),
 		"filter[account]":     val.Validate(r.FilterAccount, val.Match(addressRegexp)),
-		"filter[state]":       val.Validate(r.FilterState, val.Match(uint8Regexp)),
+		"filter[state]":       validateState(r.FilterState),
 	}.Filter()
-}
-
-func requireChain(ch string) error {
-	return val.Errors{"{chain}": val.Validate(ch, val.Required, val.Match(uint63Regexp))}.Filter()
 }
