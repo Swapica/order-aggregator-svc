@@ -6,7 +6,7 @@ import (
 	"github.com/Swapica/order-aggregator-svc/resources"
 )
 
-func NewBlockResponse(id uint64) resources.BlockResponse {
+func NewBlock(id uint64) resources.BlockResponse {
 	return resources.BlockResponse{
 		Data: resources.Block{
 			Key: resources.Key{

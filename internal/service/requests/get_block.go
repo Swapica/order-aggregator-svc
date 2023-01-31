@@ -6,11 +6,11 @@ import (
 	"github.com/go-chi/chi"
 )
 
-type GetBlockRequest struct {
+type GetBlock struct {
 	Chain string
 }
 
-func NewGetBlockRequest(r *http.Request) (GetBlockRequest, error) {
-	dst := GetBlockRequest{Chain: chi.URLParam(r, "chain")}
+func NewGetBlock(r *http.Request) (GetBlock, error) {
+	dst := GetBlock{Chain: chi.URLParam(r, "chain")}
 	return dst, validateChain(dst.Chain)
 }

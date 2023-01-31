@@ -10,13 +10,13 @@ import (
 	"gitlab.com/distributed_lab/logan/v3/errors"
 )
 
-type UpdateOrderRequest struct {
+type UpdateOrder struct {
 	Body  resources.UpdateOrderRequest
 	Chain string
 }
 
-func NewUpdateOrderRequest(r *http.Request) (*UpdateOrderRequest, error) {
-	dst := UpdateOrderRequest{Chain: chi.URLParam(r, "chain")}
+func NewUpdateOrder(r *http.Request) (*UpdateOrder, error) {
+	dst := UpdateOrder{Chain: chi.URLParam(r, "chain")}
 	if err := json.NewDecoder(r.Body).Decode(&dst.Body); err != nil {
 		return nil, errors.Wrap(err, "failed to decode request body")
 	}

@@ -7,7 +7,7 @@ import (
 	"github.com/Swapica/order-aggregator-svc/resources"
 )
 
-func NewOrderListResponse(orders []data.Order) resources.OrderListResponse {
+func NewOrderList(orders []data.Order) resources.OrderListResponse {
 	list := make([]resources.Order, len(orders))
 	for i, o := range orders {
 		list[i] = newOrderResource(o)

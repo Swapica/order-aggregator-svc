@@ -5,7 +5,7 @@ import (
 	"github.com/Swapica/order-aggregator-svc/resources"
 )
 
-func NewMatchListResponse(matches []data.Match) resources.MatchListResponse {
+func NewMatchList(matches []data.Match) resources.MatchListResponse {
 	list := make([]resources.Match, len(matches))
 	for i, o := range matches {
 		list[i] = newMatchResource(o)

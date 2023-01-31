@@ -11,13 +11,13 @@ import (
 	"gitlab.com/distributed_lab/logan/v3/errors"
 )
 
-type AddMatchRequest struct {
+type AddMatch struct {
 	Body  resources.MatchResponse
 	Chain string
 }
 
-func NewAddMatchRequest(r *http.Request) (*AddMatchRequest, error) {
-	dst := AddMatchRequest{Chain: chi.URLParam(r, "chain")}
+func NewAddMatch(r *http.Request) (*AddMatch, error) {
+	dst := AddMatch{Chain: chi.URLParam(r, "chain")}
 	if err := json.NewDecoder(r.Body).Decode(&dst.Body); err != nil {
 		return nil, errors.Wrap(err, "failed to decode request body")
 	}
@@ -25,7 +25,7 @@ func NewAddMatchRequest(r *http.Request) (*AddMatchRequest, error) {
 	return &dst, dst.validate()
 }
 
-func (r *AddMatchRequest) validate() error {
+func (r *AddMatch) validate() error {
 	a := r.Body.Data.Attributes
 	origin := r.Body.Data.Relationships.OriginOrder.Data
 	if origin == nil {
@@ -46,7 +46,7 @@ func (r *AddMatchRequest) validate() error {
 	}.Filter()
 }
 
-func (r *AddMatchRequest) DBModel() data.Match {
+func (r *AddMatch) DBModel() data.Match {
 	a := r.Body.Data.Attributes
 	return data.Match{
 		ID:           r.Body.Data.ID,

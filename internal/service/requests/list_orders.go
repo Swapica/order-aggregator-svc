@@ -10,7 +10,7 @@ import (
 	"gitlab.com/distributed_lab/urlval"
 )
 
-type ListOrdersRequest struct {
+type ListOrders struct {
 	Chain string
 	page.CursorParams
 	FilterBuyToken  *string `filter:"tokenToBuy"`
@@ -20,8 +20,8 @@ type ListOrdersRequest struct {
 	FilterState *string `filter:"state"`
 }
 
-func NewListOrdersRequest(r *http.Request) (*ListOrdersRequest, error) {
-	dst := ListOrdersRequest{Chain: chi.URLParam(r, "chain")}
+func NewListOrders(r *http.Request) (*ListOrders, error) {
+	dst := ListOrders{Chain: chi.URLParam(r, "chain")}
 	if err := validateChain(dst.Chain); err != nil {
 		return nil, err
 	}
@@ -33,7 +33,7 @@ func NewListOrdersRequest(r *http.Request) (*ListOrdersRequest, error) {
 	return &dst, dst.validate()
 }
 
-func (r *ListOrdersRequest) validate() error {
+func (r *ListOrders) validate() error {
 	if err := r.CursorParams.Validate(); err != nil {
 		return err
 	}

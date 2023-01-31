@@ -11,12 +11,12 @@ import (
 	"gitlab.com/distributed_lab/logan/v3/errors"
 )
 
-type SetBlockRequest struct {
+type SetBlock struct {
 	Number uint64
 	Chain  string
 }
 
-func NewSetBlockRequest(r *http.Request) (*SetBlockRequest, error) {
+func NewSetBlock(r *http.Request) (*SetBlock, error) {
 	var dst resources.BlockResponse
 	if err := json.NewDecoder(r.Body).Decode(&dst); err != nil {
 		return nil, errors.Wrap(err, "failed to decode request body")
@@ -26,7 +26,7 @@ func NewSetBlockRequest(r *http.Request) (*SetBlockRequest, error) {
 		return nil, val.Errors{"data/id": errors.Wrap(err, "failed to parse block number")}
 	}
 
-	req := SetBlockRequest{
+	req := SetBlock{
 		Number: num,
 		Chain:  chi.URLParam(r, "chain"),
 	}

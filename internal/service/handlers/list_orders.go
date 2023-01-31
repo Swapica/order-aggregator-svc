@@ -10,7 +10,7 @@ import (
 )
 
 func ListOrders(w http.ResponseWriter, r *http.Request) {
-	req, err := requests.NewListOrdersRequest(r)
+	req, err := requests.NewListOrders(r)
 	if err != nil {
 		Log(r).WithError(err).Debug("bad request")
 		ape.RenderErr(w, problems.BadRequest(err)...)
@@ -35,7 +35,7 @@ func ListOrders(w http.ResponseWriter, r *http.Request) {
 		last = orders[len(orders)-1].ID
 	}
 
-	resp := responses.NewOrderListResponse(orders)
+	resp := responses.NewOrderList(orders)
 	resp.Links = req.GetCursorLinks(r, last)
 	ape.Render(w, resp)
 }

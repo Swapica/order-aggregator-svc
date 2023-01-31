@@ -10,13 +10,13 @@ import (
 	"gitlab.com/distributed_lab/logan/v3/errors"
 )
 
-type UpdateMatchRequest struct {
+type UpdateMatch struct {
 	Body  resources.UpdateMatchRequest
 	Chain string
 }
 
-func NewUpdateMatchRequest(r *http.Request) (*UpdateMatchRequest, error) {
-	dst := UpdateMatchRequest{Chain: chi.URLParam(r, "chain")}
+func NewUpdateMatch(r *http.Request) (*UpdateMatch, error) {
+	dst := UpdateMatch{Chain: chi.URLParam(r, "chain")}
 	if err := json.NewDecoder(r.Body).Decode(&dst.Body); err != nil {
 		return nil, errors.Wrap(err, "failed to decode request body")
 	}

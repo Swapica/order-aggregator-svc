@@ -12,13 +12,13 @@ import (
 	"gitlab.com/distributed_lab/logan/v3/errors"
 )
 
-type AddOrderRequest struct {
+type AddOrder struct {
 	Body  resources.OrderResponse
 	Chain string
 }
 
-func NewAddOrderRequest(r *http.Request) (*AddOrderRequest, error) {
-	dst := AddOrderRequest{Chain: chi.URLParam(r, "chain")}
+func NewAddOrder(r *http.Request) (*AddOrder, error) {
+	dst := AddOrder{Chain: chi.URLParam(r, "chain")}
 	if err := json.NewDecoder(r.Body).Decode(&dst.Body); err != nil {
 		return nil, errors.Wrap(err, "failed to decode request body")
 	}
@@ -26,7 +26,7 @@ func NewAddOrderRequest(r *http.Request) (*AddOrderRequest, error) {
 	return &dst, dst.validate()
 }
 
-func (r *AddOrderRequest) validate() error {
+func (r *AddOrder) validate() error {
 	a := r.Body.Data.Attributes
 	return val.Errors{
 		"{chain}":                      validateUint(r.Chain, bigintBitSize),
@@ -43,7 +43,7 @@ func (r *AddOrderRequest) validate() error {
 	}.Filter()
 }
 
-func (r *AddOrderRequest) DBModel() data.Order {
+func (r *AddOrder) DBModel() data.Order {
 	a := r.Body.Data.Attributes
 	order := data.Order{
 		ID:           r.Body.Data.ID,

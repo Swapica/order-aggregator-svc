@@ -10,7 +10,7 @@ import (
 	"gitlab.com/distributed_lab/urlval"
 )
 
-type ListMatchesRequest struct {
+type ListMatches struct {
 	Chain string
 	page.CursorParams
 	FilterState   *string `filter:"state"`
@@ -18,8 +18,8 @@ type ListMatchesRequest struct {
 	FilterExpired *bool   `filter:"expired"`
 }
 
-func NewListMatchesRequest(r *http.Request) (*ListMatchesRequest, error) {
-	dst := ListMatchesRequest{Chain: chi.URLParam(r, "chain")}
+func NewListMatches(r *http.Request) (*ListMatches, error) {
+	dst := ListMatches{Chain: chi.URLParam(r, "chain")}
 	if err := validateChain(dst.Chain); err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func NewListMatchesRequest(r *http.Request) (*ListMatchesRequest, error) {
 	return &dst, dst.validate()
 }
 
-func (r *ListMatchesRequest) validate() error {
+func (r *ListMatches) validate() error {
 	if err := r.CursorParams.Validate(); err != nil {
 		return err
 	}

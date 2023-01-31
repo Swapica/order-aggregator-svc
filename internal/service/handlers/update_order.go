@@ -10,7 +10,7 @@ import (
 )
 
 func UpdateOrder(w http.ResponseWriter, r *http.Request) {
-	request, err := requests.NewUpdateOrderRequest(r)
+	request, err := requests.NewUpdateOrder(r)
 	if err != nil {
 		Log(r).WithError(err).Debug("bad request")
 		ape.RenderErr(w, problems.BadRequest(err)...)

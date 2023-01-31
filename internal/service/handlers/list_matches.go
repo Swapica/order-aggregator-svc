@@ -10,7 +10,7 @@ import (
 )
 
 func ListMatches(w http.ResponseWriter, r *http.Request) {
-	req, err := requests.NewListMatchesRequest(r)
+	req, err := requests.NewListMatches(r)
 	if err != nil {
 		Log(r).WithError(err).Debug("bad request")
 		ape.RenderErr(w, problems.BadRequest(err)...)
@@ -34,7 +34,7 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 		last = matches[len(matches)-1].ID
 	}
 
-	resp := responses.NewMatchListResponse(matches)
+	resp := responses.NewMatchList(matches)
 	resp.Links = req.GetCursorLinks(r, last)
 	ape.Render(w, resp)
 }

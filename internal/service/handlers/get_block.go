@@ -10,7 +10,7 @@ import (
 )
 
 func GetBlock(w http.ResponseWriter, r *http.Request) {
-	request, err := requests.NewGetBlockRequest(r)
+	request, err := requests.NewGetBlock(r)
 	if err != nil {
 		Log(r).WithError(err).Debug("bad request")
 		ape.RenderErr(w, problems.BadRequest(err)...)
@@ -30,5 +30,5 @@ func GetBlock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ape.Render(w, responses.NewBlockResponse(*num))
+	ape.Render(w, responses.NewBlock(*num))
 }
