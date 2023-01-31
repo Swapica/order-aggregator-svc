@@ -2,7 +2,6 @@ package data
 
 import (
 	"database/sql"
-	"math/big"
 
 	"gitlab.com/distributed_lab/kit/pgdb"
 )
@@ -10,7 +9,7 @@ import (
 type Orders interface {
 	New() Orders
 	Insert(Order) error
-	Update(id string, state uint8, executedBy *big.Int, matchSwapica *string) error
+	Update(id string, state uint8, executedBy *string, matchSwapica *string) error
 	Get(id string) (*Order, error)
 	Select() ([]Order, error)
 	Page(*pgdb.CursorPageParams) Orders

@@ -4,19 +4,17 @@
 
 package resources
 
-import "math/big"
-
 type OrderAttributes struct {
 	// Order creator
 	Account string `json:"account"`
 	// With decimals
-	AmountToBuy *big.Int `json:"amountToBuy"`
+	AmountToBuy string `json:"amountToBuy"`
 	// With decimals
-	AmountToSell *big.Int `json:"amountToSell"`
+	AmountToSell string `json:"amountToSell"`
 	// Chain ID of the destination network
-	DestChain *big.Int `json:"destChain"`
+	DestChain string `json:"destChain"`
 	// Match order's ID that allowed to execute the order
-	ExecutedBy *big.Int `json:"executedBy,omitempty"`
+	ExecutedBy *string `json:"executedBy,omitempty"`
 	// Swapica contract address on the destination network
 	MatchSwapica *string `json:"matchSwapica,omitempty"`
 	// Order state

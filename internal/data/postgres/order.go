@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"database/sql"
-	"math/big"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/Swapica/order-aggregator-svc/internal/data"
@@ -37,13 +36,9 @@ func (q *orders) Insert(order data.Order) error {
 	return errors.Wrap(err, "failed to insert order")
 }
 
-func (q *orders) Update(id string, state uint8, execBy *big.Int, matchSw *string) error {
-	updMap := map[string]interface{}{"state": state, "executed_by": nil, "match_swapica": matchSw}
-	if execBy != nil {
-		updMap["executed_by"] = execBy.String()
-	}
-
-	stmt := q.updater.Where(squirrel.Eq{"id": id}).SetMap(updMap)
+func (q *orders) Update(id string, state uint8, execBy *string, matchSw *string) error {
+	stmt := q.updater.Where(squirrel.Eq{"id": id}).
+		SetMap(map[string]interface{}{"state": state, "executed_by": execBy, "match_swapica": matchSw})
 	err := q.db.Exec(stmt)
 	return errors.Wrap(err, "failed to update order")
 }

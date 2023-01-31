@@ -38,8 +38,8 @@ func (r *AddMatchRequest) validate() error {
 		"data/type":                                val.Validate(r.Body.Data.Type, val.Required, val.In(resources.MATCH_ORDER)),
 		"data/attributes/account":                  val.Validate(a.Account, val.Required, val.Match(addressRegexp)),
 		"data/attributes/tokenToSell":              val.Validate(a.TokenToSell, val.Required, val.Match(addressRegexp)),
-		"data/attributes/amountToSell":             validateUint(a.AmountToSell.String(), amountBitSize),
-		"data/attributes/originChain":              validateUint(a.OriginChain.String(), bigintBitSize),
+		"data/attributes/amountToSell":             validateUint(a.AmountToSell, amountBitSize),
+		"data/attributes/originChain":              validateUint(a.OriginChain, bigintBitSize),
 		"data/attributes/state":                    val.Validate(a.State, val.Required, val.Min(uint8(1))),
 		"data/relationships/originOrder/data/id":   validateUint(origin.ID, bigintBitSize),
 		"data/relationships/originOrder/data/type": val.Validate(origin.Type, val.Required, val.In(resources.ORDER)),
@@ -54,8 +54,8 @@ func (r *AddMatchRequest) DBModel() data.Match {
 		SrcChain:     r.Chain,
 		Account:      a.Account,
 		TokenToSell:  a.TokenToSell,
-		AmountToSell: a.AmountToSell.String(),
-		OrderChain:   a.OriginChain.String(),
+		AmountToSell: a.AmountToSell,
+		OrderChain:   a.OriginChain,
 		State:        a.State,
 	}
 }

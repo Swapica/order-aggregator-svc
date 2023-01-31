@@ -17,29 +17,32 @@ allOf:
         properties:
           account:
             type: string
+            pattern: '^0x[0-9A-Fa-f]{40}$'
             description: Order creator
             example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
           tokenToSell:
             type: string
+            pattern: '^0x[0-9A-Fa-f]{40}$'
             description: Contract address of the token to sell
             example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
           tokenToBuy:
             type: string
+            pattern: '^0x[0-9A-Fa-f]{40}$'
             description: Contract address of the token to buy
             example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
           amountToSell:
-            type: string
-            format: "*big.Int"
+            type: integer
+            format: string
             description: With decimals
             example: 800000000000
           amountToBuy:
-            type: string
-            format: "*big.Int"
+            type: integer
+            format: string
             description: With decimals
             example: 16900000000000
           destChain:
-            type: string
-            format: "*big.Int"
+            type: integer
+            format: string
             description: Chain ID of the destination network
             example: 5
           state:
@@ -49,10 +52,11 @@ allOf:
             example: 2
           executedBy:
             type: integer
-            format: "big.Int"
+            format: string
             description: Match order's ID that allowed to execute the order
             example: 200
           matchSwapica:
             type: string
+            pattern: '^0x[0-9A-Fa-f]{40}$'
             description: Swapica contract address on the destination network
             example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"

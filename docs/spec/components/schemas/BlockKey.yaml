@@ -5,7 +5,6 @@ required:
 properties:
   id:
     type: string
-    pattern: '^[0-9]{1,20}$'
     description: Block number
     example: 7344018
   type:

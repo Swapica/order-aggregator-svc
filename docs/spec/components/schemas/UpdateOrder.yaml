@@ -16,11 +16,12 @@ allOf:
             description: New order state
             example: 2
           executedBy:
-            type: string
-            format: "big.Int"
+            type: integer
+            format: string
             description: Match order's ID that allowed to execute the order
             example: 200
           matchSwapica:
             type: string
+            pattern: '^0x[0-9A-Fa-f]{40}$'
             description: Swapica contract address on the destination network
             example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"

@@ -4,11 +4,9 @@
 
 package resources
 
-import "math/big"
-
 type UpdateOrderAttributes struct {
 	// Match order's ID that allowed to execute the order
-	ExecutedBy *big.Int `json:"executedBy,omitempty"`
+	ExecutedBy *string `json:"executedBy,omitempty"`
 	// Swapica contract address on the destination network
 	MatchSwapica *string `json:"matchSwapica,omitempty"`
 	// New order state

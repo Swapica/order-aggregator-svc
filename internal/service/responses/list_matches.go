@@ -21,8 +21,8 @@ func newMatchResource(o data.Match) resources.Match {
 		},
 		Attributes: resources.MatchAttributes{
 			Account:      o.Account,
-			AmountToSell: parseBig(o.AmountToSell, "amountToSell"),
-			OriginChain:  parseBig(o.OrderChain, "originChain"),
+			AmountToSell: o.AmountToSell,
+			OriginChain:  o.OrderChain,
 			State:        o.State,
 			TokenToSell:  o.TokenToSell,
 		},

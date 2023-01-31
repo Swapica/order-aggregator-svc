@@ -35,9 +35,9 @@ func (r *AddOrderRequest) validate() error {
 		"data/attributes/account":      val.Validate(a.Account, val.Required, val.Match(addressRegexp)),
 		"data/attributes/tokenToSell":  val.Validate(a.TokenToSell, val.Required, val.Match(addressRegexp)),
 		"data/attributes/tokenToBuy":   val.Validate(a.TokenToBuy, val.Required, val.Match(addressRegexp)),
-		"data/attributes/amountToSell": validateUint(a.AmountToSell.String(), amountBitSize),
-		"data/attributes/amountToBuy":  validateUint(a.AmountToBuy.String(), amountBitSize),
-		"data/attributes/destChain":    validateUint(a.DestChain.String(), bigintBitSize),
+		"data/attributes/amountToSell": validateUint(a.AmountToSell, amountBitSize),
+		"data/attributes/amountToBuy":  validateUint(a.AmountToBuy, amountBitSize),
+		"data/attributes/destChain":    validateUint(a.DestChain, bigintBitSize),
 		"data/attributes/state":        val.Validate(a.State, val.Required, val.Min(uint8(1))),
 		"data/attributes/matchSwapica": val.Validate(a.MatchSwapica, val.NilOrNotEmpty, val.Match(addressRegexp)),
 	}.Filter()
@@ -51,14 +51,14 @@ func (r *AddOrderRequest) DBModel() data.Order {
 		Account:      a.Account,
 		TokenToSell:  a.TokenToSell,
 		TokenToBuy:   a.TokenToBuy,
-		AmountToSell: a.AmountToSell.String(),
-		AmountToBuy:  a.AmountToBuy.String(),
-		DestChain:    a.DestChain.String(),
+		AmountToSell: a.AmountToSell,
+		AmountToBuy:  a.AmountToBuy,
+		DestChain:    a.DestChain,
 		State:        a.State,
 	}
 
 	if a.ExecutedBy != nil {
-		order.ExecutedBy = sql.NullString{String: a.ExecutedBy.String(), Valid: true}
+		order.ExecutedBy = sql.NullString{String: *a.ExecutedBy, Valid: true}
 	}
 	if a.MatchSwapica != nil {
 		order.MatchSwapica = sql.NullString{String: *a.MatchSwapica, Valid: true}

@@ -16,20 +16,22 @@ allOf:
         properties:
           account:
             type: string
+            pattern: '^0x[0-9A-Fa-f]{40}$'
             description: "**Match order** creator"
             example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
           tokenToSell:
             type: string
+            pattern: '^0x[0-9A-Fa-f]{40}$'
             description: Contract address of the token to sell
             example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
           amountToSell:
-            type: string
-            format: "*big.Int"
+            type: integer
+            format: string
             description: With decimals
             example: 16900000000000
           originChain:
-            type: string
-            format: "*big.Int"
+            type: integer
+            format: string
             description: Chain ID of the order's origin network
             example: 1
           state:
