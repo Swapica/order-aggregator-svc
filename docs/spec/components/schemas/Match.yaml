@@ -25,13 +25,11 @@ allOf:
             description: Contract address of the token to sell
             example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
           amountToSell:
-            type: integer
-            format: string
+            type: string
             description: With decimals
             example: 16900000000000
           originChain:
-            type: integer
-            format: string
+            type: string
             description: Chain ID of the order's origin network
             example: 1
           state:

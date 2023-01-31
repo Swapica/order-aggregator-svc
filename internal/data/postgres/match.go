@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	matchesTable   = "match_orders m"
+	matchesTable   = "match_orders"
 	matchesColumns = "m.id,m.src_chain,m.order_id,m.order_chain,m.account,m.sell_token,m.sell_amount,m.state"
 )
 
@@ -30,7 +30,7 @@ type matches struct {
 func NewMatchOrders(db *pgdb.DB) data.MatchOrders {
 	return &matches{
 		db:       db,
-		selector: squirrel.Select(matchesColumns).From(matchesTable),
+		selector: squirrel.Select(matchesColumns).From(matchesTable + " m"),
 		updater:  squirrel.Update(matchesTable),
 	}
 }
@@ -46,15 +46,15 @@ func (q *matches) Insert(order data.Match) error {
 }
 
 func (q *matches) Update(id string, state uint8) error {
-	stmt := q.updater.Where(squirrel.Eq{"m.id": id}).Set("m.state", state)
+	// update is not supported in FilterExpired, therefore no table alias is needed
+	stmt := q.updater.Where(squirrel.Eq{"id": id}).Set("state", state)
 	err := q.db.Exec(stmt)
 	return errors.Wrap(err, "failed to update match order")
 }
 
 func (q *matches) Get(id string) (*data.Match, error) {
 	var res data.Match
-	stmt := squirrel.Select("*").From(matchesTable).Where(squirrel.Eq{"m.id": id})
-	err := q.db.Get(&res, stmt)
+	err := q.db.Get(&res, q.selector.Where(squirrel.Eq{"m.id": id}))
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
@@ -76,15 +76,15 @@ func (q *matches) Page(page *pgdb.CursorPageParams) data.MatchOrders {
 }
 
 func (q *matches) FilterByChain(id string) data.MatchOrders {
-	return q.filterByCol("m.src_chain", &id)
+	return q.filterByCol("src_chain", &id)
 }
 
 func (q *matches) FilterByAccount(address *string) data.MatchOrders {
-	return q.filterByCol("m.account", address)
+	return q.filterByCol("account", address)
 }
 
 func (q *matches) FilterByState(state *string) data.MatchOrders {
-	return q.filterByCol("m.state", state)
+	return q.filterByCol("state", state)
 }
 
 func (q *matches) FilterExpired(apply *bool) data.MatchOrders {
@@ -104,7 +104,7 @@ func (q *matches) filterByCol(column string, value *string) data.MatchOrders {
 	if value == nil {
 		return q
 	}
-	q.selector = q.selector.Where(squirrel.Eq{column: value})
+	q.selector = q.selector.Where(squirrel.Eq{"m." + column: value})
 	q.updater = q.updater.Where(squirrel.Eq{column: value})
 	return q
 }

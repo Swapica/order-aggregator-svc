@@ -16,8 +16,7 @@ allOf:
             description: New order state
             example: 2
           executedBy:
-            type: integer
-            format: string
+            type: string
             description: Match order's ID that allowed to execute the order
             example: 200
           matchSwapica:
