@@ -32,16 +32,15 @@ func (r *AddMatch) validate() error {
 		"data/attributes/tokenToSell":              val.Validate(a.TokenToSell, val.Required, val.Match(addressRegexp)),
 		"data/attributes/amountToSell":             validateUint(a.AmountToSell, amountBitSize),
 		"data/attributes/state":                    val.Validate(a.State, val.Required),
-		"data/relationships/originOrder/data/id":   validateUint(safeGetKey("id", originOrder), bigintBitSize),
-		"data/relationships/originOrder/data/type": val.Validate(safeGetKey("type", originOrder), val.Required, val.In(resources.ORDER)),
-		"data/relationships/originChain/data/id":   validateUint(safeGetKey("id", originChain), bigintBitSize),
-		"data/relationships/originChain/data/type": val.Validate(safeGetKey("type", originChain), val.Required, val.In(resources.CHAIN)),
+		"data/relationships/originOrder/data/id":   validateUint(safeGetKey(originOrder).ID, bigintBitSize),
+		"data/relationships/originOrder/data/type": val.Validate(safeGetKey(originOrder).Type, val.Required, val.In(resources.ORDER)),
+		"data/relationships/originChain/data/id":   validateUint(safeGetKey(originChain).ID, bigintBitSize),
+		"data/relationships/originChain/data/type": val.Validate(safeGetKey(originChain).Type, val.Required, val.In(resources.CHAIN)),
 	}.Filter()
 }
 
 func (r *AddMatch) DBModel() data.Match {
 	return data.Match{
-		ID:           mustParseBigint(r.Data.ID),
 		SrcChain:     *r.Data.Attributes.SrcChain,
 		MatchID:      *r.Data.Attributes.MatchId,
 		OrderID:      mustParseBigint(r.Data.Relationships.OriginOrder.Data.ID),

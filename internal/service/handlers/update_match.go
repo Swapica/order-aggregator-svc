@@ -17,8 +17,7 @@ func UpdateMatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	q := MatchOrdersQ(r).FilterByMatchID(request.MatchID).FilterByChain(&request.Chain)
-	id := request.Body.Data.ID
-	log := Log(r).WithFields(logan.F{"match_id": id, "src_chain": request.Chain})
+	log := Log(r).WithFields(logan.F{"match_id": request.MatchID, "src_chain": request.Chain})
 
 	exists, err := q.Get()
 	if err != nil {

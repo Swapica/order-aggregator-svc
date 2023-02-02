@@ -45,6 +45,13 @@ func validateUint(value string, bitSize int) error {
 	return nil
 }
 
+func validateOptionalUint(value string, bitSize int) error {
+	if value == "" {
+		return nil
+	}
+	return validateUint(value, bitSize)
+}
+
 func toDecodeErr(err error, what string) error {
 	return val.Errors{"/": errors.Wrap(err, "failed to decode request "+what)}
 }
@@ -63,14 +70,9 @@ func mustParseBigint(value string) int64 {
 	return n
 }
 
-func safeGetKey(field string, rel *resources.Relation) string {
+func safeGetKey(rel *resources.Relation) resources.Key {
 	if rel != nil && rel.Data != nil {
-		switch field {
-		case "id":
-			return rel.Data.ID
-		case "type":
-			return string(rel.Data.Type)
-		}
+		return *rel.Data
 	}
-	return ""
+	return resources.Key{}
 }

@@ -36,22 +36,21 @@ func (r *AddOrder) validate() error {
 		"data/attributes/amountToBuy":             validateUint(a.AmountToBuy, amountBitSize),
 		"data/attributes/state":                   val.Validate(a.State, val.Required, val.Min(uint8(1))),
 		"data/attributes/matchSwapica":            val.Validate(a.MatchSwapica, val.NilOrNotEmpty, val.Match(addressRegexp)),
-		"data/relationships/executedBy/data/id":   validateUint(safeGetKey("id", executedBy), bigintBitSize),
-		"data/relationships/executedBy/data/type": val.Validate(safeGetKey("type", executedBy), val.In(resources.ORDER)),
-		"data/relationships/destChain/data/id":    validateUint(safeGetKey("id", destChain), bigintBitSize),
-		"data/relationships/destChain/data/type":  val.Validate(safeGetKey("type", destChain), val.Required, val.In(resources.CHAIN)),
+		"data/relationships/executedBy/data/id":   validateOptionalUint(safeGetKey(executedBy).ID, bigintBitSize),
+		"data/relationships/executedBy/data/type": val.Validate(safeGetKey(executedBy).Type, val.In(resources.MATCH_ORDER)),
+		"data/relationships/destChain/data/id":    validateUint(safeGetKey(destChain).ID, bigintBitSize),
+		"data/relationships/destChain/data/type":  val.Validate(safeGetKey(destChain).Type, val.Required, val.In(resources.CHAIN)),
 	}.Filter()
 }
 
 func (r *AddOrder) DBModel() data.Order {
-	execBy := safeGetKey("id", r.Data.Relationships.ExecutedBy)
+	execBy := safeGetKey(r.Data.Relationships.ExecutedBy).ID
 	matchSw := ""
 	if ptr := r.Data.Attributes.MatchSwapica; ptr != nil {
 		matchSw = *ptr
 	}
 
 	return data.Order{
-		ID:           mustParseBigint(r.Data.ID),
 		SrcChain:     *r.Data.Attributes.SrcChain,
 		OrderID:      *r.Data.Attributes.OrderId,
 		Account:      r.Data.Attributes.Account,

@@ -27,7 +27,7 @@ func NewUpdateOrder(r *http.Request) (*UpdateOrder, error) {
 
 	if rel := dst.Body.Data.Relationships; rel != nil {
 		var ex int64
-		ex, errExecutedBy = parseBigint(safeGetKey("id", rel.ExecutedBy))
+		ex, errExecutedBy = parseBigint(safeGetKey(rel.ExecutedBy).ID)
 		dst.ExecutedBy = &ex
 	}
 
