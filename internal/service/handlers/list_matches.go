@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/Swapica/order-aggregator-svc/internal/service/requests"
 	"github.com/Swapica/order-aggregator-svc/internal/service/responses"
@@ -17,7 +18,8 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	matches, err := MatchOrdersQ(r).FilterByChain(req.Chain).
+	matches, err := MatchOrdersQ(r).
+		FilterByChain(req.FilterChain).
 		FilterByAccount(req.FilterAccount).
 		FilterByState(req.FilterState).
 		FilterExpired(req.FilterExpired).
@@ -31,7 +33,7 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 
 	var last string
 	if len(matches) > 0 {
-		last = matches[len(matches)-1].ID
+		last = strconv.FormatInt(matches[len(matches)-1].ID, 10)
 	}
 
 	resp := responses.NewMatchList(matches)

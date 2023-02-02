@@ -1,6 +1,6 @@
 package data
 
 type LastBlock interface {
-	Set(number uint64, chain string) error
-	Get(chain string) (*uint64, error)
+	Set(number int64, chain int64) error
+	Get(chain int64) (*int64, error)
 }

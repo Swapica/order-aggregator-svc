@@ -5,12 +5,14 @@
 package resources
 
 type MatchAttributes struct {
-	// **Match order** creator
+	// Match order creator
 	Account string `json:"account"`
 	// With decimals
 	AmountToSell string `json:"amountToSell"`
-	// Chain ID of the order's origin network
-	OriginChain string `json:"originChain"`
+	// Match order ID from the contract
+	MatchId *int64 `json:"match_id"`
+	// Source blockchain where the match order appeared
+	SrcChain *int64 `json:"src_chain"`
 	// Order state
 	State uint8 `json:"state"`
 	// Contract address of the token to sell

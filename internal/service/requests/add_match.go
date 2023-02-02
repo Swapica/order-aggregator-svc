@@ -6,19 +6,15 @@ import (
 
 	"github.com/Swapica/order-aggregator-svc/internal/data"
 	"github.com/Swapica/order-aggregator-svc/resources"
-	"github.com/go-chi/chi"
 	val "github.com/go-ozzo/ozzo-validation/v4"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 )
 
-type AddMatch struct {
-	Body  resources.MatchResponse
-	Chain string
-}
+type AddMatch resources.MatchResponse
 
 func NewAddMatch(r *http.Request) (*AddMatch, error) {
-	dst := AddMatch{Chain: chi.URLParam(r, "chain")}
-	if err := json.NewDecoder(r.Body).Decode(&dst.Body); err != nil {
+	var dst AddMatch
+	if err := json.NewDecoder(r.Body).Decode(&dst); err != nil {
 		return nil, errors.Wrap(err, "failed to decode request body")
 	}
 
@@ -26,36 +22,34 @@ func NewAddMatch(r *http.Request) (*AddMatch, error) {
 }
 
 func (r *AddMatch) validate() error {
-	a := r.Body.Data.Attributes
-	origin := r.Body.Data.Relationships.OriginOrder.Data
-	if origin == nil {
-		return val.Errors{"data/relationships/originOrder/data": val.Validate(origin, val.NotNil)}
-	}
-
+	a := r.Data.Attributes
+	originOrder, originChain := &r.Data.Relationships.OriginOrder, &r.Data.Relationships.OriginChain
 	return val.Errors{
-		"{chain}":                                  validateUint(r.Chain, bigintBitSize),
-		"data/id":                                  validateUint(r.Body.Data.ID, bigintBitSize),
-		"data/type":                                val.Validate(r.Body.Data.Type, val.Required, val.In(resources.MATCH_ORDER)),
+		"data/id":                                  val.Validate(r.Data.ID, val.Empty),
+		"data/type":                                val.Validate(r.Data.Type, val.Required, val.In(resources.MATCH_ORDER)),
+		"data/attributes/match_id":                 val.Validate(a.MatchId, val.Required, val.Min(0)),
+		"data/attributes/src_chain":                val.Validate(a.SrcChain, val.Required, val.Min(1)),
 		"data/attributes/account":                  val.Validate(a.Account, val.Required, val.Match(addressRegexp)),
 		"data/attributes/tokenToSell":              val.Validate(a.TokenToSell, val.Required, val.Match(addressRegexp)),
 		"data/attributes/amountToSell":             validateUint(a.AmountToSell, amountBitSize),
-		"data/attributes/originChain":              validateUint(a.OriginChain, bigintBitSize),
-		"data/attributes/state":                    val.Validate(a.State, val.Required, val.Min(uint8(1))),
-		"data/relationships/originOrder/data/id":   validateUint(origin.ID, bigintBitSize),
-		"data/relationships/originOrder/data/type": val.Validate(origin.Type, val.Required, val.In(resources.ORDER)),
+		"data/attributes/state":                    val.Validate(a.State, val.Required),
+		"data/relationships/originOrder/data/id":   validateUint(safeGetKey("id", originOrder), bigintBitSize),
+		"data/relationships/originOrder/data/type": val.Validate(safeGetKey("type", originOrder), val.Required, val.In(resources.ORDER)),
+		"data/relationships/originChain/data/id":   validateUint(safeGetKey("id", originChain), bigintBitSize),
+		"data/relationships/originChain/data/type": val.Validate(safeGetKey("type", originChain), val.Required, val.In(resources.CHAIN)),
 	}.Filter()
 }
 
 func (r *AddMatch) DBModel() data.Match {
-	a := r.Body.Data.Attributes
 	return data.Match{
-		ID:           r.Body.Data.ID,
-		OrderID:      r.Body.Data.Relationships.OriginOrder.Data.ID,
-		SrcChain:     r.Chain,
-		Account:      a.Account,
-		TokenToSell:  a.TokenToSell,
-		AmountToSell: a.AmountToSell,
-		OrderChain:   a.OriginChain,
-		State:        a.State,
+		ID:           mustParseBigint(r.Data.ID),
+		SrcChain:     *r.Data.Attributes.SrcChain,
+		MatchID:      *r.Data.Attributes.MatchId,
+		OrderID:      mustParseBigint(r.Data.Relationships.OriginOrder.Data.ID),
+		OrderChain:   mustParseBigint(r.Data.Relationships.OriginChain.Data.ID),
+		Account:      r.Data.Attributes.Account,
+		TokenToSell:  r.Data.Attributes.TokenToSell,
+		AmountToSell: r.Data.Attributes.AmountToSell,
+		State:        r.Data.Attributes.State,
 	}
 }

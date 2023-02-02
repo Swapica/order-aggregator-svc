@@ -5,9 +5,9 @@ required:
 properties:
   id:
     type: string
-    description: _Surrogate_ order ID
-    example: 7802323
+    description: Chain ID
+    example: 91
   type:
     type: string
     enum:
-      - order
+      - chain

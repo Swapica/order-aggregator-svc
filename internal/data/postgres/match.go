@@ -12,7 +12,7 @@ import (
 
 const (
 	matchesTable   = "match_orders"
-	matchesColumns = "m.id,m.src_chain,m.order_id,m.order_chain,m.account,m.sell_token,m.sell_amount,m.state"
+	matchesColumns = "m.id,m.match_id,m.src_chain,m.order_id,m.order_chain,m.account,m.sell_token,m.sell_amount,m.state"
 )
 
 const (
@@ -45,16 +45,16 @@ func (q *matches) Insert(order data.Match) error {
 	return errors.Wrap(err, "failed to insert match order")
 }
 
-func (q *matches) Update(id string, state uint8) error {
+func (q *matches) Update(state uint8) error {
 	// update is not supported in FilterExpired, therefore no table alias is needed
-	stmt := q.updater.Where(squirrel.Eq{"id": id}).Set("state", state)
+	stmt := q.updater.Set("state", state)
 	err := q.db.Exec(stmt)
 	return errors.Wrap(err, "failed to update match order")
 }
 
-func (q *matches) Get(id string) (*data.Match, error) {
+func (q *matches) Get() (*data.Match, error) {
 	var res data.Match
-	err := q.db.Get(&res, q.selector.Where(squirrel.Eq{"m.id": id}))
+	err := q.db.Get(&res, q.selector)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
@@ -75,15 +75,19 @@ func (q *matches) Page(page *pgdb.CursorPageParams) data.MatchOrders {
 	return q
 }
 
-func (q *matches) FilterByChain(id string) data.MatchOrders {
-	return q.filterByCol("src_chain", &id)
+func (q *matches) FilterByMatchID(id int64) data.MatchOrders {
+	return q.filterByCol("match_id", id)
+}
+
+func (q *matches) FilterByChain(id *int64) data.MatchOrders {
+	return q.filterByCol("src_chain", id)
 }
 
 func (q *matches) FilterByAccount(address *string) data.MatchOrders {
 	return q.filterByCol("account", address)
 }
 
-func (q *matches) FilterByState(state *string) data.MatchOrders {
+func (q *matches) FilterByState(state *uint8) data.MatchOrders {
 	return q.filterByCol("state", state)
 }
 
@@ -92,18 +96,19 @@ func (q *matches) FilterExpired(apply *bool) data.MatchOrders {
 		return q
 	}
 
-	q.selector = q.selector.Join(ordersTable + " o ON m.order_id = o.id AND m.order_chain = o.src_chain").Where(
+	q.selector = q.selector.Join(ordersTable + " o ON m.order_id = o.order_id AND m.order_chain = o.src_chain").Where(
 		squirrel.Eq{
 			"m.state": orderStateAwaitingFinalization,
 			"o.state": []int{orderStateCanceled, orderStateExecuted}}).Where(
-		"o.executed_by IS DISTINCT FROM m.id") // works with NULLs better than != or squirrel.NotEq
+		"o.executed_by IS DISTINCT FROM m.match_id") // works with NULLs better than != or squirrel.NotEq
 	return q
 }
 
-func (q *matches) filterByCol(column string, value *string) data.MatchOrders {
-	if value == nil {
+func (q *matches) filterByCol(column string, value interface{}) data.MatchOrders {
+	if isNilInterface(value) {
 		return q
 	}
+
 	q.selector = q.selector.Where(squirrel.Eq{"m." + column: value})
 	q.updater = q.updater.Where(squirrel.Eq{column: value})
 	return q

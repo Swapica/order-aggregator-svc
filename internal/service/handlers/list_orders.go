@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/Swapica/order-aggregator-svc/internal/service/requests"
 	"github.com/Swapica/order-aggregator-svc/internal/service/responses"
@@ -17,7 +18,8 @@ func ListOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	orders, err := OrdersQ(r).FilterByChain(req.Chain).
+	orders, err := OrdersQ(r).
+		FilterByChain(req.FilterChain).
 		FilterByTokenToBuy(req.FilterBuyToken).
 		FilterByTokenToSell(req.FilterSellToken).
 		FilterByAccount(req.FilterAccount).
@@ -32,7 +34,7 @@ func ListOrders(w http.ResponseWriter, r *http.Request) {
 
 	var last string
 	if len(orders) > 0 {
-		last = orders[len(orders)-1].ID
+		last = strconv.FormatInt(orders[len(orders)-1].ID, 10)
 	}
 
 	resp := responses.NewOrderList(orders)

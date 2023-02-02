@@ -4,13 +4,17 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
+	val "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 type GetBlock struct {
-	Chain string
+	Chain int64
 }
 
 func NewGetBlock(r *http.Request) (GetBlock, error) {
-	dst := GetBlock{Chain: chi.URLParam(r, "chain")}
-	return dst, validateChain(dst.Chain)
+	c, errChain := parseBigint(chi.URLParam(r, "chain"))
+
+	return GetBlock{Chain: c}, val.Errors{
+		"{chain}": errChain,
+	}.Filter()
 }

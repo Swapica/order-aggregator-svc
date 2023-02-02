@@ -14,24 +14,25 @@ func NewMatchList(matches []data.Match) resources.MatchListResponse {
 }
 
 func newMatchResource(o data.Match) resources.Match {
+	originOrder := resources.NewKeyInt64(o.OrderID, resources.ORDER)
+	originChain := resources.NewKeyInt64(o.OrderChain, resources.CHAIN)
+
 	return resources.Match{
-		Key: resources.Key{
-			ID:   o.ID,
-			Type: resources.MATCH_ORDER,
-		},
+		Key: resources.NewKeyInt64(o.ID, resources.MATCH_ORDER),
 		Attributes: resources.MatchAttributes{
 			Account:      o.Account,
 			AmountToSell: o.AmountToSell,
-			OriginChain:  o.OrderChain,
+			MatchId:      &o.MatchID,
+			SrcChain:     &o.SrcChain,
 			State:        o.State,
 			TokenToSell:  o.TokenToSell,
 		},
 		Relationships: resources.MatchRelationships{
+			OriginChain: resources.Relation{
+				Data: &originChain,
+			},
 			OriginOrder: resources.Relation{
-				Data: &resources.Key{
-					ID:   o.OrderID,
-					Type: resources.ORDER,
-				},
+				Data: &originOrder,
 			},
 		},
 	}

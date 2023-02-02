@@ -1,7 +1,0 @@
-name: chain
-in: path
-required: true
-description: "`ChainId` of the blockchain where order / match order / block appeared"
-schema:
-  type: integer
-  example: 5

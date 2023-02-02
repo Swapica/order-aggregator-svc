@@ -1,30 +1,15 @@
-parameters:
-  - $ref: "#/components/parameters/chainParam"
-
 get:
   tags:
     - Match Orders
   summary: List match orders
   operationId: listMatchOrders
   parameters:
-    - $ref: "#/components/parameters/pageCursorParam"
-    - $ref: "#/components/parameters/pageLimitParam"
-    - $ref: "#/components/parameters/pageOrderParam"
-    - name: filter[state]
-      in: query
-      required: false
-      description: Filter by `data.attributes.state` field
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 255
-    - name: filter[account]
-      in: query
-      required: false
-      description: Filter by `data.attributes.account` field
-      schema:
-        type: string
-        pattern: '^0x[0-9a-fA-F]{40}$'
+    - $ref: "#/components/parameters/pageCursor"
+    - $ref: "#/components/parameters/pageLimit"
+    - $ref: "#/components/parameters/pageOrder"
+    - $ref: "#/components/parameters/filterAccount"
+    - $ref: "#/components/parameters/filterChain"
+    - $ref: "#/components/parameters/filterState"
     - name: filter[expired]
       in: query
       required: false

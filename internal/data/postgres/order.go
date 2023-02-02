@@ -36,16 +36,15 @@ func (q *orders) Insert(order data.Order) error {
 	return errors.Wrap(err, "failed to insert order")
 }
 
-func (q *orders) Update(id string, state uint8, execBy *string, matchSw *string) error {
-	stmt := q.updater.Where(squirrel.Eq{"id": id}).
-		SetMap(map[string]interface{}{"state": state, "executed_by": execBy, "match_swapica": matchSw})
+func (q *orders) Update(state uint8, execBy *int64, matchSw *string) error {
+	stmt := q.updater.SetMap(map[string]interface{}{"state": state, "executed_by": execBy, "match_swapica": matchSw})
 	err := q.db.Exec(stmt)
 	return errors.Wrap(err, "failed to update order")
 }
 
-func (q *orders) Get(id string) (*data.Order, error) {
+func (q *orders) Get() (*data.Order, error) {
 	var res data.Order
-	err := q.db.Get(&res, q.selector.Where(squirrel.Eq{"id": id}))
+	err := q.db.Get(&res, q.selector)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
@@ -66,8 +65,12 @@ func (q *orders) Page(page *pgdb.CursorPageParams) data.Orders {
 	return q
 }
 
-func (q *orders) FilterByChain(name string) data.Orders {
-	return q.filterByCol("src_chain", &name)
+func (q *orders) FilterByOrderID(id int64) data.Orders {
+	return q.filterByCol("order_id", id)
+}
+
+func (q *orders) FilterByChain(id *int64) data.Orders {
+	return q.filterByCol("src_chain", id)
 }
 
 func (q *orders) FilterByTokenToBuy(address *string) data.Orders {
@@ -82,12 +85,12 @@ func (q *orders) FilterByAccount(address *string) data.Orders {
 	return q.filterByCol("account", address)
 }
 
-func (q *orders) FilterByState(state *string) data.Orders {
+func (q *orders) FilterByState(state *uint8) data.Orders {
 	return q.filterByCol("state", state)
 }
 
-func (q *orders) filterByCol(column string, value *string) data.Orders {
-	if value == nil {
+func (q *orders) filterByCol(column string, value interface{}) data.Orders {
+	if isNilInterface(value) {
 		return q
 	}
 	q.selector = q.selector.Where(squirrel.Eq{column: value})

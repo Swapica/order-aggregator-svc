@@ -21,21 +21,19 @@ func (s *service) router() chi.Router {
 		),
 	)
 	r.Route("/integrations/order-aggregator", func(r chi.Router) {
+		r.Route("/match_orders", func(r chi.Router) {
+			r.Post("/", handlers.AddMatch)
+			r.Get("/", handlers.ListMatches)
+		})
+		r.Route("/orders", func(r chi.Router) {
+			r.Post("/", handlers.AddOrder)
+			r.Get("/", handlers.ListOrders)
+		})
 		r.Route("/{chain}", func(r chi.Router) {
-			r.Route("/match_orders", func(r chi.Router) {
-				r.Post("/", handlers.AddMatch)
-				r.Patch("/", handlers.UpdateMatch)
-				r.Get("/", handlers.ListMatches)
-			})
-			r.Route("/orders", func(r chi.Router) {
-				r.Post("/", handlers.AddOrder)
-				r.Patch("/", handlers.UpdateOrder)
-				r.Get("/", handlers.ListOrders)
-			})
-			r.Route("/block", func(r chi.Router) {
-				r.Post("/", handlers.SetBlock)
-				r.Get("/", handlers.GetBlock)
-			})
+			r.Patch("/orders", handlers.UpdateOrder)
+			r.Patch("/match_orders", handlers.UpdateMatch)
+			r.Post("/block", handlers.SetBlock)
+			r.Get("/block", handlers.GetBlock)
 		})
 	})
 

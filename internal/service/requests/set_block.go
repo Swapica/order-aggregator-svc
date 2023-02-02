@@ -3,7 +3,6 @@ package requests
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/Swapica/order-aggregator-svc/resources"
 	"github.com/go-chi/chi"
@@ -12,8 +11,7 @@ import (
 )
 
 type SetBlock struct {
-	Number uint64
-	Chain  string
+	Number, Chain int64
 }
 
 func NewSetBlock(r *http.Request) (*SetBlock, error) {
@@ -21,17 +19,13 @@ func NewSetBlock(r *http.Request) (*SetBlock, error) {
 	if err := json.NewDecoder(r.Body).Decode(&dst); err != nil {
 		return nil, errors.Wrap(err, "failed to decode request body")
 	}
-	num, err := strconv.ParseUint(dst.Data.ID, 10, 64)
-	if err != nil {
-		return nil, val.Errors{"data/id": errors.Wrap(err, "failed to parse block number")}
-	}
 
-	req := SetBlock{
-		Number: num,
-		Chain:  chi.URLParam(r, "chain"),
-	}
-	return &req, val.Errors{
-		"{chain}":   validateUint(req.Chain, bigintBitSize),
+	c, errChain := parseBigint(chi.URLParam(r, "chain"))
+	n, errNumber := parseBigint(dst.Data.ID)
+
+	return &SetBlock{Chain: c, Number: n}, val.Errors{
+		"{chain}":   errChain,
+		"data/id":   errNumber,
 		"data/type": val.Validate(dst.Data.Type, val.Required, val.In(resources.BLOCK)),
 	}.Filter()
 }

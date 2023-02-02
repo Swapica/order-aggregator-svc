@@ -5,7 +5,7 @@ required:
 properties:
   id:
     type: string
-    description: Match order ID
+    description: _Surrogate_ match order ID
     example: 7802323
   type:
     type: string

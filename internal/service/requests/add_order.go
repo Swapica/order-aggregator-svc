@@ -7,19 +7,15 @@ import (
 
 	"github.com/Swapica/order-aggregator-svc/internal/data"
 	"github.com/Swapica/order-aggregator-svc/resources"
-	"github.com/go-chi/chi"
 	val "github.com/go-ozzo/ozzo-validation/v4"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 )
 
-type AddOrder struct {
-	Body  resources.OrderResponse
-	Chain string
-}
+type AddOrder resources.OrderResponse
 
 func NewAddOrder(r *http.Request) (*AddOrder, error) {
-	dst := AddOrder{Chain: chi.URLParam(r, "chain")}
-	if err := json.NewDecoder(r.Body).Decode(&dst.Body); err != nil {
+	var dst AddOrder
+	if err := json.NewDecoder(r.Body).Decode(&dst); err != nil {
 		return nil, errors.Wrap(err, "failed to decode request body")
 	}
 
@@ -27,42 +23,46 @@ func NewAddOrder(r *http.Request) (*AddOrder, error) {
 }
 
 func (r *AddOrder) validate() error {
-	a := r.Body.Data.Attributes
+	a := r.Data.Attributes
+	executedBy, destChain := r.Data.Relationships.ExecutedBy, &r.Data.Relationships.DestChain
 	return val.Errors{
-		"{chain}":                      validateUint(r.Chain, bigintBitSize),
-		"data/id":                      validateUint(r.Body.Data.ID, bigintBitSize),
-		"data/type":                    val.Validate(r.Body.Data.Type, val.Required, val.In(resources.ORDER)),
-		"data/attributes/account":      val.Validate(a.Account, val.Required, val.Match(addressRegexp)),
-		"data/attributes/tokenToSell":  val.Validate(a.TokenToSell, val.Required, val.Match(addressRegexp)),
-		"data/attributes/tokenToBuy":   val.Validate(a.TokenToBuy, val.Required, val.Match(addressRegexp)),
-		"data/attributes/amountToSell": validateUint(a.AmountToSell, amountBitSize),
-		"data/attributes/amountToBuy":  validateUint(a.AmountToBuy, amountBitSize),
-		"data/attributes/destChain":    validateUint(a.DestChain, bigintBitSize),
-		"data/attributes/state":        val.Validate(a.State, val.Required, val.Min(uint8(1))),
-		"data/attributes/matchSwapica": val.Validate(a.MatchSwapica, val.NilOrNotEmpty, val.Match(addressRegexp)),
+		"data/id":                                 val.Validate(r.Data.ID, val.Empty),
+		"data/type":                               val.Validate(r.Data.Type, val.Required, val.In(resources.ORDER)),
+		"data/attributes/order_id":                val.Validate(a.OrderId, val.Required, val.Min(0)),
+		"data/attributes/src_chain":               val.Validate(a.SrcChain, val.Required, val.Min(1)),
+		"data/attributes/account":                 val.Validate(a.Account, val.Required, val.Match(addressRegexp)),
+		"data/attributes/tokenToSell":             val.Validate(a.TokenToSell, val.Required, val.Match(addressRegexp)),
+		"data/attributes/tokenToBuy":              val.Validate(a.TokenToBuy, val.Required, val.Match(addressRegexp)),
+		"data/attributes/amountToSell":            validateUint(a.AmountToSell, amountBitSize),
+		"data/attributes/amountToBuy":             validateUint(a.AmountToBuy, amountBitSize),
+		"data/attributes/state":                   val.Validate(a.State, val.Required, val.Min(uint8(1))),
+		"data/attributes/matchSwapica":            val.Validate(a.MatchSwapica, val.NilOrNotEmpty, val.Match(addressRegexp)),
+		"data/relationships/executedBy/data/id":   validateUint(safeGetKey("id", executedBy), bigintBitSize),
+		"data/relationships/executedBy/data/type": val.Validate(safeGetKey("type", executedBy), val.In(resources.ORDER)),
+		"data/relationships/destChain/data/id":    validateUint(safeGetKey("id", destChain), bigintBitSize),
+		"data/relationships/destChain/data/type":  val.Validate(safeGetKey("type", destChain), val.Required, val.In(resources.CHAIN)),
 	}.Filter()
 }
 
 func (r *AddOrder) DBModel() data.Order {
-	a := r.Body.Data.Attributes
-	order := data.Order{
-		ID:           r.Body.Data.ID,
-		SrcChain:     r.Chain,
-		Account:      a.Account,
-		TokenToSell:  a.TokenToSell,
-		TokenToBuy:   a.TokenToBuy,
-		AmountToSell: a.AmountToSell,
-		AmountToBuy:  a.AmountToBuy,
-		DestChain:    a.DestChain,
-		State:        a.State,
+	execBy := safeGetKey("id", r.Data.Relationships.ExecutedBy)
+	matchSw := ""
+	if ptr := r.Data.Attributes.MatchSwapica; ptr != nil {
+		matchSw = *ptr
 	}
 
-	if a.ExecutedBy != nil {
-		order.ExecutedBy = sql.NullString{String: *a.ExecutedBy, Valid: true}
+	return data.Order{
+		ID:           mustParseBigint(r.Data.ID),
+		SrcChain:     *r.Data.Attributes.SrcChain,
+		OrderID:      *r.Data.Attributes.OrderId,
+		Account:      r.Data.Attributes.Account,
+		TokenToSell:  r.Data.Attributes.TokenToSell,
+		TokenToBuy:   r.Data.Attributes.TokenToBuy,
+		AmountToSell: r.Data.Attributes.AmountToSell,
+		AmountToBuy:  r.Data.Attributes.AmountToBuy,
+		DestChain:    mustParseBigint(r.Data.Relationships.DestChain.Data.ID),
+		State:        r.Data.Attributes.State,
+		ExecutedBy:   sql.NullString{String: execBy, Valid: execBy != ""},
+		MatchSwapica: sql.NullString{String: execBy, Valid: matchSw != ""},
 	}
-	if a.MatchSwapica != nil {
-		order.MatchSwapica = sql.NullString{String: *a.MatchSwapica, Valid: true}
-	}
-
-	return order
 }

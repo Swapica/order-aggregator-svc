@@ -11,21 +11,24 @@ import (
 )
 
 type UpdateMatch struct {
-	Body  resources.UpdateMatchRequest
-	Chain string
+	Body           resources.UpdateMatchRequest
+	MatchID, Chain int64
 }
 
 func NewUpdateMatch(r *http.Request) (*UpdateMatch, error) {
-	dst := UpdateMatch{Chain: chi.URLParam(r, "chain")}
+	var dst UpdateMatch
 	if err := json.NewDecoder(r.Body).Decode(&dst.Body); err != nil {
 		return nil, errors.Wrap(err, "failed to decode request body")
 	}
 
-	a := dst.Body.Data.Attributes
+	var errChain, errMatchID error
+	dst.Chain, errChain = parseBigint(chi.URLParam(r, "chain"))
+	dst.MatchID, errMatchID = parseBigint(dst.Body.Data.ID)
+
 	return &dst, val.Errors{
-		"{chain}":               validateUint(dst.Chain, bigintBitSize),
-		"data/id":               validateUint(dst.Chain, bigintBitSize),
+		"{chain}":               errChain,
+		"data/id":               errMatchID,
 		"data/type":             val.Validate(dst.Body.Data.Type, val.Required, val.In(resources.MATCH_ORDER)),
-		"data/attributes/state": val.Validate(a.State, val.Required, val.Min(uint8(1))),
+		"data/attributes/state": val.Validate(dst.Body.Data.Attributes.State, val.Required),
 	}.Filter()
 }

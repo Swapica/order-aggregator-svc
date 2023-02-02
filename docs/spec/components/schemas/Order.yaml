@@ -3,18 +3,30 @@ allOf:
   - type: object
     required:
       - attributes
+      - relationships
     properties:
       attributes:
         type: object
         required:
+          - order_id
+          - src_chain
           - account
           - tokenToSell
           - tokenToBuy
           - amountToSell
           - amountToBuy
-          - destChain
           - state
         properties:
+          order_id:
+            type: integer
+            format: "*int64"
+            description: Order ID from the contract
+            example: 3291
+          src_chain:
+            type: integer
+            format: "*int64"
+            description: Source blockchain where the order appeared
+            example: 92
           account:
             type: string
             pattern: '^0x[0-9A-Fa-f]{40}$'
@@ -38,21 +50,34 @@ allOf:
             type: string
             description: With decimals
             example: 16900000000000
-          destChain:
-            type: string
-            description: Chain ID of the destination network
-            example: 5
           state:
             type: integer
             format: uint8
             description: Order state
             example: 2
-          executedBy:
-            type: string
-            description: Match order's ID that allowed to execute the order
-            example: 200
           matchSwapica:
             type: string
             pattern: '^0x[0-9A-Fa-f]{40}$'
             description: Swapica contract address on the destination network
             example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
+      relationships:
+        type: object
+        required:
+          - destChain
+        properties:
+          executedBy:
+            type: object
+            description: Match order's ID _from the contract_ that allowed to execute the order
+            required:
+              - data
+            properties:
+              data:
+                $ref: "#/components/schemas/MatchKey"
+          destChain:
+            type: object
+            description: Source blockchain of the match order which is intended to execute the order
+            required:
+              - data
+            properties:
+              data:
+                $ref: "#/components/schemas/ChainKey"

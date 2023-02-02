@@ -1,8 +1,6 @@
 package responses
 
 import (
-	"database/sql"
-
 	"github.com/Swapica/order-aggregator-svc/internal/data"
 	"github.com/Swapica/order-aggregator-svc/resources"
 )
@@ -16,28 +14,36 @@ func NewOrderList(orders []data.Order) resources.OrderListResponse {
 }
 
 func newOrderResource(o data.Order) resources.Order {
+	destChain := resources.NewKeyInt64(o.DestChain, resources.CHAIN)
+	var matchSwapica *string
+	if m := o.MatchSwapica.String; m != "" {
+		matchSwapica = &m
+	}
+
+	var executedBy *resources.Relation
+	if o.ExecutedBy.String != "" {
+		executedBy = &resources.Relation{
+			Data: &resources.Key{
+				ID:   o.ExecutedBy.String,
+				Type: resources.MATCH_ORDER,
+			},
+		}
+	}
+
 	return resources.Order{
-		Key: resources.Key{
-			ID:   o.ID,
-			Type: resources.ORDER,
-		},
+		Key: resources.NewKeyInt64(o.ID, resources.ORDER),
 		Attributes: resources.OrderAttributes{
 			Account:      o.Account,
 			AmountToBuy:  o.AmountToBuy,
 			AmountToSell: o.AmountToSell,
-			DestChain:    o.DestChain,
-			ExecutedBy:   nullStringToPtr(o.ExecutedBy),
-			MatchSwapica: nullStringToPtr(o.MatchSwapica),
+			MatchSwapica: matchSwapica,
 			State:        o.State,
 			TokenToBuy:   o.TokenToBuy,
 			TokenToSell:  o.TokenToSell,
 		},
+		Relationships: resources.OrderRelationships{
+			DestChain:  resources.Relation{Data: &destChain},
+			ExecutedBy: executedBy,
+		},
 	}
-}
-
-func nullStringToPtr(s sql.NullString) *string {
-	if s.String != "" {
-		return &s.String
-	}
-	return nil
 }

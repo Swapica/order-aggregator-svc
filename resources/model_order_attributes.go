@@ -11,12 +11,12 @@ type OrderAttributes struct {
 	AmountToBuy string `json:"amountToBuy"`
 	// With decimals
 	AmountToSell string `json:"amountToSell"`
-	// Chain ID of the destination network
-	DestChain string `json:"destChain"`
-	// Match order's ID that allowed to execute the order
-	ExecutedBy *string `json:"executedBy,omitempty"`
 	// Swapica contract address on the destination network
 	MatchSwapica *string `json:"matchSwapica,omitempty"`
+	// Order ID from the contract
+	OrderId *int64 `json:"order_id"`
+	// Source blockchain where the order appeared
+	SrcChain *int64 `json:"src_chain"`
 	// Order state
 	State uint8 `json:"state"`
 	// Contract address of the token to buy

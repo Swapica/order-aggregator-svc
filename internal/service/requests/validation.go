@@ -6,13 +6,13 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Swapica/order-aggregator-svc/resources"
 	val "github.com/go-ozzo/ozzo-validation/v4"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 )
 
 const (
-	enumBitSize   = 8
-	bigintBitSize = 63 // EIP 2294
+	bigintBitSize = 63
 	amountBitSize = 256
 )
 
@@ -46,12 +46,31 @@ func validateUint(value string, bitSize int) error {
 }
 
 func validateChain(ch string) error {
-	return val.Errors{"{chain}": validateUint(ch, bigintBitSize)}.Filter()
+	return val.Errors{"{chain}": validateUint(ch, bigintBitSize)}.Filter() // EIP 2294
 }
 
-func validateState(filter *string) error {
-	if filter == nil {
-		return nil
+func parseBigint(value string) (int64, error) {
+	n, err := strconv.ParseUint(value, 10, bigintBitSize)
+	return int64(n), errors.Wrap(err, "failed to parse 63-bit unsigned integer")
+}
+
+// MustParseBigint relies on ValidateUint: if validation succeeded with bitSize=bigintBitSize for value, no panic will appear
+func mustParseBigint(value string) int64 {
+	n, err := parseBigint(value)
+	if err != nil {
+		panic(err)
 	}
-	return validateUint(*filter, enumBitSize)
+	return n
+}
+
+func safeGetKey(field string, rel *resources.Relation) string {
+	if rel != nil && rel.Data != nil {
+		switch field {
+		case "id":
+			return rel.Data.ID
+		case "type":
+			return string(rel.Data.Type)
+		}
+	}
+	return ""
 }
