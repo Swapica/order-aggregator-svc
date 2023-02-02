@@ -25,21 +25,20 @@ func (r *AddOrder) validate() error {
 	a := r.Data.Attributes
 	executedBy, destChain := r.Data.Relationships.ExecutedBy, &r.Data.Relationships.DestChain
 	return val.Errors{
-		"data/id":                                 val.Validate(r.Data.ID, val.Empty),
-		"data/type":                               val.Validate(r.Data.Type, val.Required, val.In(resources.ORDER)),
-		"data/attributes/order_id":                val.Validate(a.OrderId, val.Required, val.Min(0)),
-		"data/attributes/src_chain":               val.Validate(a.SrcChain, val.Required, val.Min(1)),
-		"data/attributes/account":                 val.Validate(a.Account, val.Required, val.Match(addressRegexp)),
-		"data/attributes/tokenToSell":             val.Validate(a.TokenToSell, val.Required, val.Match(addressRegexp)),
-		"data/attributes/tokenToBuy":              val.Validate(a.TokenToBuy, val.Required, val.Match(addressRegexp)),
-		"data/attributes/amountToSell":            validateUint(a.AmountToSell, amountBitSize),
-		"data/attributes/amountToBuy":             validateUint(a.AmountToBuy, amountBitSize),
-		"data/attributes/state":                   val.Validate(a.State, val.Required, val.Min(uint8(1))),
-		"data/attributes/matchSwapica":            val.Validate(a.MatchSwapica, val.NilOrNotEmpty, val.Match(addressRegexp)),
-		"data/relationships/executedBy/data/id":   validateOptionalUint(safeGetKey(executedBy).ID, bigintBitSize),
-		"data/relationships/executedBy/data/type": val.Validate(safeGetKey(executedBy).Type, val.In(resources.MATCH_ORDER)),
-		"data/relationships/destChain/data/id":    validateUint(safeGetKey(destChain).ID, bigintBitSize),
-		"data/relationships/destChain/data/type":  val.Validate(safeGetKey(destChain).Type, val.Required, val.In(resources.CHAIN)),
+		"data/id":                                val.Validate(r.Data.ID, val.Empty),
+		"data/type":                              val.Validate(r.Data.Type, val.Required, val.In(resources.ORDER)),
+		"data/attributes/order_id":               val.Validate(a.OrderId, val.Required, val.Min(0)),
+		"data/attributes/src_chain":              val.Validate(a.SrcChain, val.Required, val.Min(1)),
+		"data/attributes/account":                val.Validate(a.Account, val.Required, val.Match(addressRegexp)),
+		"data/attributes/tokenToSell":            val.Validate(a.TokenToSell, val.Required, val.Match(addressRegexp)),
+		"data/attributes/tokenToBuy":             val.Validate(a.TokenToBuy, val.Required, val.Match(addressRegexp)),
+		"data/attributes/amountToSell":           validateUint(a.AmountToSell, amountBitSize),
+		"data/attributes/amountToBuy":            validateUint(a.AmountToBuy, amountBitSize),
+		"data/attributes/state":                  val.Validate(a.State, val.Required, val.In(data.StateAwaitingMatch)),
+		"data/attributes/matchSwapica":           val.Validate(a.MatchSwapica, val.NilOrNotEmpty, val.Match(addressRegexp)),
+		"data/relationships/executedBy":          val.Validate(executedBy, val.Nil),
+		"data/relationships/destChain/data/id":   validateUint(safeGetKey(destChain).ID, bigintBitSize),
+		"data/relationships/destChain/data/type": val.Validate(safeGetKey(destChain).Type, val.Required, val.In(resources.CHAIN)),
 	}.Filter()
 }
 

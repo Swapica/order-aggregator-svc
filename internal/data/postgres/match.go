@@ -15,12 +15,6 @@ const (
 	matchesColumns = "m.id,m.match_id,m.src_chain,m.order_id,m.order_chain,m.account,m.sell_token,m.sell_amount,m.state"
 )
 
-const (
-	orderStateAwaitingFinalization = iota + 2
-	orderStateCanceled
-	orderStateExecuted
-)
-
 type matches struct {
 	db       *pgdb.DB
 	selector squirrel.SelectBuilder
@@ -95,8 +89,8 @@ func (q *matches) FilterExpired(apply *bool) data.MatchOrders {
 
 	q.selector = q.selector.Join(ordersTable + " o ON m.order_id = o.order_id AND m.order_chain = o.src_chain").Where(
 		squirrel.Eq{
-			"m.state": orderStateAwaitingFinalization,
-			"o.state": []int{orderStateCanceled, orderStateExecuted}}).Where(
+			"m.state": data.StateAwaitingFinalization,
+			"o.state": []uint8{data.StateCanceled, data.StateExecuted}}).Where(
 		"o.executed_by IS DISTINCT FROM m.match_id") // works with NULLs better than != or squirrel.NotEq
 	return q
 }

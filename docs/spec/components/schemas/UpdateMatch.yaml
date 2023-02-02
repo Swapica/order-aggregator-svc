@@ -14,4 +14,4 @@ allOf:
             type: integer
             format: uint8
             description: New match order state
-            example: 2
+            enum: [1, 2, 3, 4]

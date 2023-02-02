@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/Swapica/order-aggregator-svc/internal/data"
 	"github.com/Swapica/order-aggregator-svc/resources"
 	"github.com/go-chi/chi"
 	val "github.com/go-ozzo/ozzo-validation/v4"
@@ -21,23 +22,26 @@ func NewUpdateOrder(r *http.Request) (*UpdateOrder, error) {
 		return nil, toDecodeErr(err, "body")
 	}
 
-	var errChain, errOrderID, errExecutedBy error
+	var errChain, errOrderID, errExecByID, errExecByType error
 	dst.Chain, errChain = parseBigint(chi.URLParam(r, "chain"))
 	dst.OrderID, errOrderID = parseBigint(dst.Body.Data.ID)
 
 	if rel := dst.Body.Data.Relationships; rel != nil {
 		var ex int64
-		ex, errExecutedBy = parseBigint(safeGetKey(rel.ExecutedBy).ID)
+		key := safeGetKey(rel.ExecutedBy)
+		ex, errExecByID = parseBigint(key.ID)
 		dst.ExecutedBy = &ex
+		errExecByType = val.Validate(key.Type, val.Required, val.In(resources.MATCH_ORDER))
 	}
 
 	a := dst.Body.Data.Attributes
 	return &dst, val.Errors{
-		"{chain}":                      errChain,
-		"data/id":                      errOrderID,
-		"data/type":                    val.Validate(dst.Body.Data.Type, val.Required, val.In(resources.ORDER)),
-		"data/attributes/state":        val.Validate(a.State, val.Required, val.Min(uint8(1))),
-		"data/attributes/executedBy":   errExecutedBy,
-		"data/attributes/matchSwapica": val.Validate(a.MatchSwapica, val.NilOrNotEmpty, val.Match(addressRegexp)),
+		"{chain}":                                 errChain,
+		"data/id":                                 errOrderID,
+		"data/type":                               val.Validate(dst.Body.Data.Type, val.Required, val.In(resources.ORDER)),
+		"data/attributes/state":                   val.Validate(a.State, val.Required, val.In(data.StateCanceled, data.StateExecuted)),
+		"data/attributes/matchSwapica":            val.Validate(a.MatchSwapica, val.NilOrNotEmpty, val.Match(addressRegexp)),
+		"data/relationships/executedBy/data/id":   errExecByID,
+		"data/relationships/executedBy/data/type": errExecByType,
 	}.Filter()
 }

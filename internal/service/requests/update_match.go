@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/Swapica/order-aggregator-svc/internal/data"
 	"github.com/Swapica/order-aggregator-svc/resources"
 	"github.com/go-chi/chi"
 	val "github.com/go-ozzo/ozzo-validation/v4"
@@ -28,6 +29,6 @@ func NewUpdateMatch(r *http.Request) (*UpdateMatch, error) {
 		"{chain}":               errChain,
 		"data/id":               errMatchID,
 		"data/type":             val.Validate(dst.Body.Data.Type, val.Required, val.In(resources.MATCH_ORDER)),
-		"data/attributes/state": val.Validate(dst.Body.Data.Attributes.State, val.Required),
+		"data/attributes/state": val.Validate(dst.Body.Data.Attributes.State, val.Required, val.In(data.StateCanceled, data.StateExecuted)),
 	}.Filter()
 }

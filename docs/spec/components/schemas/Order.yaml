@@ -54,7 +54,7 @@ allOf:
             type: integer
             format: uint8
             description: Order state
-            example: 2
+            enum: [1, 2, 3, 4]
           matchSwapica:
             type: string
             pattern: '^0x[0-9A-Fa-f]{40}$'

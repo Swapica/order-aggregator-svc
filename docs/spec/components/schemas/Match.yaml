@@ -42,8 +42,8 @@ allOf:
           state:
             type: integer
             format: uint8
-            description: Order state
-            example: 2
+            description: Match order state
+            enum: [1, 2, 3, 4]
       relationships:
         type: object
         required:

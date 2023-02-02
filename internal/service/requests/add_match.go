@@ -31,7 +31,7 @@ func (r *AddMatch) validate() error {
 		"data/attributes/account":                  val.Validate(a.Account, val.Required, val.Match(addressRegexp)),
 		"data/attributes/tokenToSell":              val.Validate(a.TokenToSell, val.Required, val.Match(addressRegexp)),
 		"data/attributes/amountToSell":             validateUint(a.AmountToSell, amountBitSize),
-		"data/attributes/state":                    val.Validate(a.State, val.Required),
+		"data/attributes/state":                    val.Validate(a.State, val.Required, val.In(data.StateAwaitingFinalization)),
 		"data/relationships/originOrder/data/id":   validateUint(safeGetKey(originOrder).ID, bigintBitSize),
 		"data/relationships/originOrder/data/type": val.Validate(safeGetKey(originOrder).Type, val.Required, val.In(resources.ORDER)),
 		"data/relationships/originChain/data/id":   validateUint(safeGetKey(originChain).ID, bigintBitSize),
