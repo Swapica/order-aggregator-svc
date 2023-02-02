@@ -7,7 +7,6 @@ import (
 	"github.com/Swapica/order-aggregator-svc/resources"
 	"github.com/go-chi/chi"
 	val "github.com/go-ozzo/ozzo-validation/v4"
-	"gitlab.com/distributed_lab/logan/v3/errors"
 )
 
 type UpdateMatch struct {
@@ -18,7 +17,7 @@ type UpdateMatch struct {
 func NewUpdateMatch(r *http.Request) (*UpdateMatch, error) {
 	var dst UpdateMatch
 	if err := json.NewDecoder(r.Body).Decode(&dst.Body); err != nil {
-		return nil, errors.Wrap(err, "failed to decode request body")
+		return nil, toDecodeErr(err, "body")
 	}
 
 	var errChain, errMatchID error

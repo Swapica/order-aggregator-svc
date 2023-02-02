@@ -13,7 +13,6 @@ import (
 func ListMatches(w http.ResponseWriter, r *http.Request) {
 	req, err := requests.NewListMatches(r)
 	if err != nil {
-		Log(r).WithError(err).Debug("bad request")
 		ape.RenderErr(w, problems.BadRequest(err)...)
 		return
 	}

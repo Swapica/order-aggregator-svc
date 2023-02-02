@@ -64,9 +64,6 @@ func (q *matches) Get() (*data.Match, error) {
 func (q *matches) Select() ([]data.Match, error) {
 	var res []data.Match
 	err := q.db.Select(&res, q.selector)
-	if err == sql.ErrNoRows {
-		return nil, nil
-	}
 	return res, errors.Wrap(err, "failed to select match orders")
 }
 
@@ -106,6 +103,12 @@ func (q *matches) FilterExpired(apply *bool) data.MatchOrders {
 
 func (q *matches) filterByCol(column string, value interface{}) data.MatchOrders {
 	if isNilInterface(value) {
+		return q
+	}
+
+	if _, ok := value.(*string); ok {
+		q.selector = q.selector.Where(squirrel.ILike{"m." + column: value})
+		q.updater = q.updater.Where(squirrel.ILike{column: value})
 		return q
 	}
 

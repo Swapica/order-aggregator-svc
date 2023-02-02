@@ -45,8 +45,8 @@ func validateUint(value string, bitSize int) error {
 	return nil
 }
 
-func validateChain(ch string) error {
-	return val.Errors{"{chain}": validateUint(ch, bigintBitSize)}.Filter() // EIP 2294
+func toDecodeErr(err error, what string) error {
+	return val.Errors{"/": errors.Wrap(err, "failed to decode request "+what)}
 }
 
 func parseBigint(value string) (int64, error) {
@@ -54,7 +54,7 @@ func parseBigint(value string) (int64, error) {
 	return int64(n), errors.Wrap(err, "failed to parse 63-bit unsigned integer")
 }
 
-// MustParseBigint relies on ValidateUint: if validation succeeded with bitSize=bigintBitSize for value, no panic will appear
+// mustParseBigint relies on validateUint: if validation succeeded with bitSize=bigintBitSize for value, no panic will appear
 func mustParseBigint(value string) int64 {
 	n, err := parseBigint(value)
 	if err != nil {

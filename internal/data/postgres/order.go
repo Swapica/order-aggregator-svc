@@ -54,9 +54,6 @@ func (q *orders) Get() (*data.Order, error) {
 func (q *orders) Select() ([]data.Order, error) {
 	var res []data.Order
 	err := q.db.Select(&res, q.selector)
-	if err == sql.ErrNoRows {
-		return nil, nil
-	}
 	return res, errors.Wrap(err, "failed to select orders")
 }
 
@@ -93,7 +90,23 @@ func (q *orders) filterByCol(column string, value interface{}) data.Orders {
 	if isNilInterface(value) {
 		return q
 	}
+
+	if _, ok := value.(*string); ok {
+		q.selector = q.selector.Where(squirrel.ILike{column: value})
+		q.updater = q.updater.Where(squirrel.ILike{column: value})
+		return q
+	}
+
 	q.selector = q.selector.Where(squirrel.Eq{column: value})
 	q.updater = q.updater.Where(squirrel.Eq{column: value})
+	return q
+}
+
+func (q *orders) filterByAddress(column string, value *string) data.Orders {
+	if value == nil {
+		return q
+	}
+	q.selector = q.selector.Where(squirrel.ILike{column: value})
+	q.updater = q.updater.Where(squirrel.ILike{column: value})
 	return q
 }

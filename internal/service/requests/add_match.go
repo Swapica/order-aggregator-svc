@@ -7,7 +7,6 @@ import (
 	"github.com/Swapica/order-aggregator-svc/internal/data"
 	"github.com/Swapica/order-aggregator-svc/resources"
 	val "github.com/go-ozzo/ozzo-validation/v4"
-	"gitlab.com/distributed_lab/logan/v3/errors"
 )
 
 type AddMatch resources.MatchResponse
@@ -15,7 +14,7 @@ type AddMatch resources.MatchResponse
 func NewAddMatch(r *http.Request) (*AddMatch, error) {
 	var dst AddMatch
 	if err := json.NewDecoder(r.Body).Decode(&dst); err != nil {
-		return nil, errors.Wrap(err, "failed to decode request body")
+		return nil, toDecodeErr(err, "body")
 	}
 
 	return &dst, dst.validate()

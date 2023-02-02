@@ -37,6 +37,8 @@ func newOrderResource(o data.Order) resources.Order {
 			AmountToBuy:  o.AmountToBuy,
 			AmountToSell: o.AmountToSell,
 			MatchSwapica: matchSwapica,
+			OrderId:      &o.OrderID,
+			SrcChain:     &o.SrcChain,
 			State:        o.State,
 			TokenToBuy:   o.TokenToBuy,
 			TokenToSell:  o.TokenToSell,

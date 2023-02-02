@@ -7,7 +7,6 @@ import (
 	"github.com/Swapica/order-aggregator-svc/resources"
 	"github.com/go-chi/chi"
 	val "github.com/go-ozzo/ozzo-validation/v4"
-	"gitlab.com/distributed_lab/logan/v3/errors"
 )
 
 type UpdateOrder struct {
@@ -19,7 +18,7 @@ type UpdateOrder struct {
 func NewUpdateOrder(r *http.Request) (*UpdateOrder, error) {
 	var dst UpdateOrder
 	if err := json.NewDecoder(r.Body).Decode(&dst.Body); err != nil {
-		return nil, errors.Wrap(err, "failed to decode request body")
+		return nil, toDecodeErr(err, "body")
 	}
 
 	var errChain, errOrderID, errExecutedBy error
