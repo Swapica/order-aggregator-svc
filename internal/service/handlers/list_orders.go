@@ -19,6 +19,7 @@ func ListOrders(w http.ResponseWriter, r *http.Request) {
 
 	orders, err := OrdersQ(r).
 		FilterByChain(req.FilterChain).
+		FilterByDestinationChain(req.FilterDestChain).
 		FilterByTokenToBuy(req.FilterBuyToken).
 		FilterByTokenToSell(req.FilterSellToken).
 		FilterByCreator(req.FilterCreator).

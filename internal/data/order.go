@@ -15,9 +15,10 @@ type Orders interface {
 	Page(*pgdb.CursorPageParams) Orders
 	FilterByOrderID(int64) Orders
 	FilterByChain(*int64) Orders
+	FilterByCreator(*string) Orders
 	FilterByTokenToBuy(*string) Orders
 	FilterByTokenToSell(*string) Orders
-	FilterByCreator(*string) Orders
+	FilterByDestinationChain(*int64) Orders
 	FilterByState(*uint8) Orders
 }
 

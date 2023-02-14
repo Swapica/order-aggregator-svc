@@ -43,7 +43,6 @@ func (r *AddOrder) validate() error {
 }
 
 func (r *AddOrder) DBModel() data.Order {
-	matchID := safeGetKey(r.Data.Relationships.Match).ID
 	matchSw := ""
 	if ptr := r.Data.Attributes.MatchSwapica; ptr != nil {
 		matchSw = *ptr
@@ -59,7 +58,7 @@ func (r *AddOrder) DBModel() data.Order {
 		BuyAmount:    r.Data.Attributes.AmountToBuy,
 		DestChain:    mustParseBigint(r.Data.Relationships.DestinationChain.Data.ID),
 		State:        r.Data.Attributes.State,
-		MatchID:      sql.NullString{String: matchID, Valid: matchID != ""},
-		MatchSwapica: sql.NullString{String: matchID, Valid: matchSw != ""},
+		MatchID:      sql.NullString{}, // must be empty on creation
+		MatchSwapica: sql.NullString{String: matchSw, Valid: matchSw != ""},
 	}
 }
