@@ -36,8 +36,8 @@ func (q *orders) Insert(order data.Order) error {
 	return errors.Wrap(err, "failed to insert order")
 }
 
-func (q *orders) Update(state uint8, execBy *int64, matchSw *string) error {
-	stmt := q.updater.SetMap(map[string]interface{}{"state": state, "executed_by": execBy, "match_swapica": matchSw})
+func (q *orders) Update(state uint8, matchID *int64, matchSw *string) error {
+	stmt := q.updater.SetMap(map[string]interface{}{"state": state, "match_id": matchID, "match_swapica": matchSw})
 	err := q.db.Exec(stmt)
 	return errors.Wrap(err, "failed to update order")
 }
@@ -78,8 +78,8 @@ func (q *orders) FilterByTokenToSell(address *string) data.Orders {
 	return q.filterByCol("sell_token", address)
 }
 
-func (q *orders) FilterByAccount(address *string) data.Orders {
-	return q.filterByCol("account", address)
+func (q *orders) FilterByCreator(address *string) data.Orders {
+	return q.filterByCol("creator", address)
 }
 
 func (q *orders) FilterByState(state *uint8) data.Orders {

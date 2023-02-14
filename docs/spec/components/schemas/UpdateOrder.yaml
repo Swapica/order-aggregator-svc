@@ -15,7 +15,7 @@ allOf:
             format: uint8
             description: New order state
             enum: [1, 2, 3, 4]
-          matchSwapica:
+          match_swapica:
             type: string
             pattern: '^0x[0-9A-Fa-f]{40}$'
             description: Swapica contract address on the destination network
@@ -23,7 +23,7 @@ allOf:
       relationships:
         type: object
         properties:
-          executedBy:
+          match:
             type: object
             # same relation's descriptions cause bad relationship generation
             description: Match order's ID _from the contract_ that allowed to execute the order.

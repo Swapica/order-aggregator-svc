@@ -20,11 +20,11 @@ func newOrderResource(o data.Order) resources.Order {
 		matchSwapica = &m
 	}
 
-	var executedBy *resources.Relation
-	if o.ExecutedBy.String != "" {
-		executedBy = &resources.Relation{
+	var matchId *resources.Relation
+	if o.MatchID.String != "" {
+		matchId = &resources.Relation{
 			Data: &resources.Key{
-				ID:   o.ExecutedBy.String,
+				ID:   o.MatchID.String,
 				Type: resources.MATCH_ORDER,
 			},
 		}
@@ -33,19 +33,19 @@ func newOrderResource(o data.Order) resources.Order {
 	return resources.Order{
 		Key: resources.NewKeyInt64(o.ID, resources.ORDER),
 		Attributes: resources.OrderAttributes{
-			Account:      o.Account,
-			AmountToBuy:  o.AmountToBuy,
-			AmountToSell: o.AmountToSell,
+			Creator:      o.Creator,
+			AmountToBuy:  o.BuyAmount,
+			AmountToSell: o.SellAmount,
 			MatchSwapica: matchSwapica,
 			OrderId:      &o.OrderID,
 			SrcChain:     &o.SrcChain,
 			State:        o.State,
-			TokenToBuy:   o.TokenToBuy,
-			TokenToSell:  o.TokenToSell,
+			TokenToBuy:   o.BuyToken,
+			TokenToSell:  o.SellToken,
 		},
 		Relationships: resources.OrderRelationships{
-			DestChain:  resources.Relation{Data: &destChain},
-			ExecutedBy: executedBy,
+			DestinationChain: resources.Relation{Data: &destChain},
+			Match:            matchId,
 		},
 	}
 }

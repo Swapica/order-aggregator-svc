@@ -10,9 +10,9 @@ allOf:
         required:
           - match_id
           - src_chain
-          - account
-          - tokenToSell
-          - amountToSell
+          - creator
+          - token_to_sell
+          - amount_to_sell
           - state
         properties:
           match_id:
@@ -25,17 +25,17 @@ allOf:
             format: "*int64"
             description: Source blockchain where the match order appeared
             example: 92
-          account:
+          creator:
             type: string
             pattern: '^0x[0-9A-Fa-f]{40}$'
             description: "Match order creator"
             example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
-          tokenToSell:
+          token_to_sell:
             type: string
             pattern: '^0x[0-9A-Fa-f]{40}$'
             description: Contract address of the token to sell
             example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
-          amountToSell:
+          amount_to_sell:
             type: string
             description: With decimals
             example: 16900000000000
@@ -47,10 +47,10 @@ allOf:
       relationships:
         type: object
         required:
-          - originOrder
-          - originChain
+          - origin_order
+          - origin_chain
         properties:
-          originOrder:
+          origin_order:
             type: object
             description: ID of the order _from the contract_ to match
             required:
@@ -58,7 +58,7 @@ allOf:
             properties:
               data:
                 $ref: "#/components/schemas/OrderKey"
-          originChain:
+          origin_chain:
             type: object
             description: Source blockchain of the order to match
             required:

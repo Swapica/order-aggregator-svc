@@ -7,7 +7,7 @@ get:
     - $ref: "#/components/parameters/pageCursor"
     - $ref: "#/components/parameters/pageLimit"
     - $ref: "#/components/parameters/pageOrder"
-    - $ref: "#/components/parameters/filterAccount"
+    - $ref: "#/components/parameters/filterCreator"
     - $ref: "#/components/parameters/filterChain"
     - $ref: "#/components/parameters/filterState"
     - name: filter[expired]

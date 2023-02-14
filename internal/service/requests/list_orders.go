@@ -10,9 +10,9 @@ import (
 type ListOrders struct {
 	page.CursorParams
 	FilterChain     *int64  `filter:"chain"`
-	FilterBuyToken  *string `filter:"tokenToBuy"`
-	FilterSellToken *string `filter:"tokenToSell"`
-	FilterAccount   *string `filter:"account"`
+	FilterBuyToken  *string `filter:"token_to_buy"`
+	FilterSellToken *string `filter:"token_to_sell"`
+	FilterCreator   *string `filter:"creator"`
 	FilterState     *uint8  `filter:"state"`
 }
 

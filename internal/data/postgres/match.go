@@ -12,7 +12,7 @@ import (
 
 const (
 	matchesTable   = "match_orders"
-	matchesColumns = "m.id,m.match_id,m.src_chain,m.order_id,m.order_chain,m.account,m.sell_token,m.sell_amount,m.state"
+	matchesColumns = "m.id,m.match_id,m.src_chain,m.order_id,m.order_chain,m.creator,m.sell_token,m.sell_amount,m.state"
 )
 
 type matches struct {
@@ -74,8 +74,8 @@ func (q *matches) FilterByChain(id *int64) data.MatchOrders {
 	return q.filterByCol("src_chain", id)
 }
 
-func (q *matches) FilterByAccount(address *string) data.MatchOrders {
-	return q.filterByCol("account", address)
+func (q *matches) FilterByCreator(address *string) data.MatchOrders {
+	return q.filterByCol("creator", address)
 }
 
 func (q *matches) FilterByState(state *uint8) data.MatchOrders {
@@ -91,7 +91,7 @@ func (q *matches) FilterExpired(apply *bool) data.MatchOrders {
 		squirrel.Eq{
 			"m.state": data.StateAwaitingFinalization,
 			"o.state": []uint8{data.StateCanceled, data.StateExecuted}}).Where(
-		"o.executed_by IS DISTINCT FROM m.match_id") // works with NULLs better than != or squirrel.NotEq
+		"o.match_id IS DISTINCT FROM m.match_id") // works with NULLs better than != or squirrel.NotEq
 	return q
 }
 

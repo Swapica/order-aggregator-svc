@@ -20,12 +20,12 @@ func newMatchResource(o data.Match) resources.Match {
 	return resources.Match{
 		Key: resources.NewKeyInt64(o.ID, resources.MATCH_ORDER),
 		Attributes: resources.MatchAttributes{
-			Account:      o.Account,
-			AmountToSell: o.AmountToSell,
+			Creator:      o.Creator,
+			AmountToSell: o.SellAmount,
 			MatchId:      &o.MatchID,
 			SrcChain:     &o.SrcChain,
 			State:        o.State,
-			TokenToSell:  o.TokenToSell,
+			TokenToSell:  o.SellToken,
 		},
 		Relationships: resources.MatchRelationships{
 			OriginChain: resources.Relation{

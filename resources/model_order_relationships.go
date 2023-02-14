@@ -5,6 +5,6 @@
 package resources
 
 type OrderRelationships struct {
-	DestChain  Relation  `json:"destChain"`
-	ExecutedBy *Relation `json:"executedBy,omitempty"`
+	DestinationChain Relation  `json:"destination_chain"`
+	Match            *Relation `json:"match,omitempty"`
 }

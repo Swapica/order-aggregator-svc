@@ -21,7 +21,7 @@ func ListOrders(w http.ResponseWriter, r *http.Request) {
 		FilterByChain(req.FilterChain).
 		FilterByTokenToBuy(req.FilterBuyToken).
 		FilterByTokenToSell(req.FilterSellToken).
-		FilterByAccount(req.FilterAccount).
+		FilterByCreator(req.FilterCreator).
 		FilterByState(req.FilterState).
 		Page(&req.CursorPageParams).
 		Select()

@@ -11,7 +11,7 @@ type ListMatches struct {
 	page.CursorParams
 	FilterChain   *int64  `filter:"chain"`
 	FilterState   *uint8  `filter:"state"`
-	FilterAccount *string `filter:"account"`
+	FilterCreator *string `filter:"creator"`
 	FilterExpired *bool   `filter:"expired"`
 }
 

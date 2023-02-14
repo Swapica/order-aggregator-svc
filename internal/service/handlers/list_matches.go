@@ -19,7 +19,7 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 
 	matches, err := MatchOrdersQ(r).
 		FilterByChain(req.FilterChain).
-		FilterByAccount(req.FilterAccount).
+		FilterByCreator(req.FilterCreator).
 		FilterByState(req.FilterState).
 		FilterExpired(req.FilterExpired).
 		Page(&req.CursorPageParams).
