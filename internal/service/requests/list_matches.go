@@ -9,10 +9,12 @@ import (
 
 type ListMatches struct {
 	page.CursorParams
-	FilterChain   *int64  `filter:"chain"`
-	FilterState   *uint8  `filter:"state"`
-	FilterCreator *string `filter:"creator"`
-	FilterExpired *bool   `filter:"expired"`
+	FilterChain        *int64  `filter:"chain"`
+	FilterState        *uint8  `filter:"state"`
+	FilterCreator      *string `filter:"creator"`
+	FilterExpired      *bool   `filter:"expired"`
+	IncludeSrcChain    bool    `include:"src_chain"`
+	IncludeOriginChain bool    `include:"origin_chain"`
 }
 
 func NewListMatches(r *http.Request) (*ListMatches, error) {

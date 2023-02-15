@@ -15,8 +15,6 @@ type OrderAttributes struct {
 	MatchSwapica *string `json:"match_swapica,omitempty"`
 	// Order ID from the contract
 	OrderId *int64 `json:"order_id"`
-	// Source blockchain where the order appeared
-	SrcChain *int64 `json:"src_chain"`
 	// Order state
 	State uint8 `json:"state"`
 	// Contract address of the token to buy

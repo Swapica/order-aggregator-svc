@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/Swapica/order-aggregator-svc/resources"
 	"gitlab.com/distributed_lab/kit/comfig"
 	"gitlab.com/distributed_lab/kit/copus"
 	"gitlab.com/distributed_lab/kit/copus/types"
@@ -13,6 +14,7 @@ type Config interface {
 	pgdb.Databaser
 	types.Copuser
 	comfig.Listenerer
+	Chains() []resources.Chain
 }
 
 type config struct {
@@ -21,6 +23,7 @@ type config struct {
 	types.Copuser
 	comfig.Listenerer
 	getter kv.Getter
+	chains comfig.Once
 }
 
 func New(getter kv.Getter) Config {

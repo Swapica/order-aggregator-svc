@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/Swapica/order-aggregator-svc/internal/data/mem"
 	"github.com/Swapica/order-aggregator-svc/internal/data/postgres"
 	"github.com/Swapica/order-aggregator-svc/internal/service/handlers"
 	"github.com/go-chi/chi"
@@ -18,6 +19,7 @@ func (s *service) router() chi.Router {
 			handlers.CtxOrdersQ(postgres.NewOrders(s.cfg.DB())),
 			handlers.CtxMatchOrdersQ(postgres.NewMatchOrders(s.cfg.DB())),
 			handlers.CtxBlockQ(postgres.NewLastBlock(s.cfg.DB())),
+			handlers.CtxChainsQ(mem.NewChains(s.cfg.Chains())),
 		),
 	)
 	r.Route("/integrations/order-aggregator", func(r chi.Router) {

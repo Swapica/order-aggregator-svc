@@ -1,0 +1,10 @@
+name: include
+in: query
+required: false
+description: "Include `src_chain`, `destination_chain` / `origin_chain` for the order / match order"
+schema:
+  type: string
+  enum:
+    - src_chain
+    - destination_chain
+    - origin_chain

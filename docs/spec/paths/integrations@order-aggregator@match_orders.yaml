@@ -10,6 +10,7 @@ get:
     - $ref: "#/components/parameters/filterCreator"
     - $ref: "#/components/parameters/filterChain"
     - $ref: "#/components/parameters/filterState"
+    - $ref: "#/components/parameters/includeChain"
     - name: filter[expired]
       in: query
       required: false
@@ -32,6 +33,10 @@ get:
                 type: array
                 items:
                   $ref: '#/components/schemas/Match'
+              included:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Chain'
     '400':
       description: Request was invalid in some way
       content:

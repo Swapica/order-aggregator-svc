@@ -22,13 +22,11 @@ func NewAddOrder(r *http.Request) (*AddOrder, error) {
 }
 
 func (r *AddOrder) validate() error {
-	a := r.Data.Attributes
-	match, destChain := r.Data.Relationships.Match, &r.Data.Relationships.DestinationChain
+	a, rel := r.Data.Attributes, r.Data.Relationships
 	return val.Errors{
 		"data/id":                                        val.Validate(r.Data.ID, val.Empty),
 		"data/type":                                      val.Validate(r.Data.Type, val.Required, val.In(resources.ORDER)),
 		"data/attributes/order_id":                       val.Validate(a.OrderId, val.Required, val.Min(0)),
-		"data/attributes/src_chain":                      val.Validate(a.SrcChain, val.Required, val.Min(1)),
 		"data/attributes/creator":                        val.Validate(a.Creator, val.Required, val.Match(addressRegexp)),
 		"data/attributes/token_to_sell":                  val.Validate(a.TokenToSell, val.Required, val.Match(addressRegexp)),
 		"data/attributes/token_to_buy":                   val.Validate(a.TokenToBuy, val.Required, val.Match(addressRegexp)),
@@ -36,9 +34,11 @@ func (r *AddOrder) validate() error {
 		"data/attributes/amount_to_buy":                  validateUint(a.AmountToBuy, amountBitSize),
 		"data/attributes/state":                          val.Validate(a.State, val.Required, val.In(data.StateAwaitingMatch)),
 		"data/attributes/match_swapica":                  val.Validate(a.MatchSwapica, val.NilOrNotEmpty, val.Match(addressRegexp)),
-		"data/relationships/match":                       val.Validate(match, val.Nil),
-		"data/relationships/destination_chain/data/id":   validateUint(safeGetKey(destChain).ID, bigintBitSize),
-		"data/relationships/destination_chain/data/type": val.Validate(safeGetKey(destChain).Type, val.Required, val.In(resources.CHAIN)),
+		"data/relationships/match":                       val.Validate(rel.Match, val.Nil),
+		"data/relationships/src_chain/data/id":           validateUint(safeGetKey(&rel.SrcChain).ID, bigintBitSize),
+		"data/relationships/src_chain/data/type":         val.Validate(safeGetKey(&rel.SrcChain).Type, val.Required, val.In(resources.CHAIN)),
+		"data/relationships/destination_chain/data/id":   validateUint(safeGetKey(&rel.DestinationChain).ID, bigintBitSize),
+		"data/relationships/destination_chain/data/type": val.Validate(safeGetKey(&rel.DestinationChain).Type, val.Required, val.In(resources.CHAIN)),
 	}.Filter()
 }
 
@@ -49,7 +49,7 @@ func (r *AddOrder) DBModel() data.Order {
 	}
 
 	return data.Order{
-		SrcChain:     *r.Data.Attributes.SrcChain,
+		SrcChain:     mustParseBigint(r.Data.Relationships.SrcChain.Data.ID),
 		OrderID:      *r.Data.Attributes.OrderId,
 		Creator:      r.Data.Attributes.Creator,
 		SellToken:    r.Data.Attributes.TokenToSell,

@@ -9,7 +9,6 @@ allOf:
         type: object
         required:
           - match_id
-          - src_chain
           - creator
           - token_to_sell
           - amount_to_sell
@@ -20,11 +19,6 @@ allOf:
             format: "*int64"
             description: Match order ID from the contract
             example: 3291
-          src_chain:
-            type: integer
-            format: "*int64"
-            description: Source blockchain where the match order appeared
-            example: 92
           creator:
             type: string
             pattern: '^0x[0-9A-Fa-f]{40}$'
@@ -47,17 +41,18 @@ allOf:
       relationships:
         type: object
         required:
-          - origin_order
+          - src_chain
           - origin_chain
+          - origin_order
         properties:
-          origin_order:
+          src_chain:
             type: object
-            description: ID of the order _from the contract_ to match
+            description: Source blockchain where the match order appeared
             required:
               - data
             properties:
               data:
-                $ref: "#/components/schemas/OrderKey"
+                $ref: "#/components/schemas/ChainKey"
           origin_chain:
             type: object
             description: Source blockchain of the order to match
@@ -66,3 +61,11 @@ allOf:
             properties:
               data:
                 $ref: "#/components/schemas/ChainKey"
+          origin_order:
+            type: object
+            description: ID of the order _from the contract_ to match
+            required:
+              - data
+            properties:
+              data:
+                $ref: "#/components/schemas/OrderKey"

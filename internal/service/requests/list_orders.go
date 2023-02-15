@@ -9,12 +9,14 @@ import (
 
 type ListOrders struct {
 	page.CursorParams
-	FilterChain     *int64  `filter:"chain"`
-	FilterCreator   *string `filter:"creator"`
-	FilterBuyToken  *string `filter:"token_to_buy"`
-	FilterSellToken *string `filter:"token_to_sell"`
-	FilterDestChain *int64  `filter:"destination_chain"`
-	FilterState     *uint8  `filter:"state"`
+	FilterChain      *int64  `filter:"chain"`
+	FilterCreator    *string `filter:"creator"`
+	FilterBuyToken   *string `filter:"token_to_buy"`
+	FilterSellToken  *string `filter:"token_to_sell"`
+	FilterDestChain  *int64  `filter:"destination_chain"`
+	FilterState      *uint8  `filter:"state"`
+	IncludeSrcChain  bool    `include:"src_chain"`
+	IncludeDestChain bool    `include:"destination_chain"`
 }
 
 func NewListOrders(r *http.Request) (*ListOrders, error) {

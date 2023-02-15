@@ -5,16 +5,22 @@ import (
 	"github.com/Swapica/order-aggregator-svc/resources"
 )
 
-func NewOrderList(orders []data.Order) resources.OrderListResponse {
-	list := make([]resources.Order, len(orders))
+func NewOrderList(orders []data.Order, chains []resources.Chain) resources.OrderListResponse {
+	var resp resources.OrderListResponse
+	resp.Data = make([]resources.Order, len(orders))
 	for i, o := range orders {
-		list[i] = newOrderResource(o)
+		resp.Data[i] = newOrderResource(o)
 	}
-	return resources.OrderListResponse{Data: list}
+	for i := range chains {
+		resp.Included.Add(&chains[i])
+	}
+	return resp
 }
 
 func newOrderResource(o data.Order) resources.Order {
+	srcChain := resources.NewKeyInt64(o.SrcChain, resources.CHAIN)
 	destChain := resources.NewKeyInt64(o.DestChain, resources.CHAIN)
+
 	var matchSwapica *string
 	if m := o.MatchSwapica.String; m != "" {
 		matchSwapica = &m
@@ -38,7 +44,6 @@ func newOrderResource(o data.Order) resources.Order {
 			AmountToSell: o.SellAmount,
 			MatchSwapica: matchSwapica,
 			OrderId:      &o.OrderID,
-			SrcChain:     &o.SrcChain,
 			State:        o.State,
 			TokenToBuy:   o.BuyToken,
 			TokenToSell:  o.SellToken,
@@ -46,6 +51,7 @@ func newOrderResource(o data.Order) resources.Order {
 		Relationships: resources.OrderRelationships{
 			DestinationChain: resources.Relation{Data: &destChain},
 			Match:            matchId,
+			SrcChain:         resources.Relation{Data: &srcChain},
 		},
 	}
 }
