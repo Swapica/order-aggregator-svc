@@ -8,7 +8,7 @@ import (
 
 type Orders interface {
 	New() Orders
-	Insert(Order) error
+	Insert(Order) (Order, error)
 	Update(state uint8, matchID *int64, matchSwapica *string) error
 	Get() (*Order, error)
 	Select() ([]Order, error)

@@ -33,10 +33,11 @@ func (q *matches) New() data.MatchOrders {
 	return NewMatchOrders(q.db)
 }
 
-func (q *matches) Insert(order data.Match) error {
-	stmt := squirrel.Insert(matchesTable).SetMap(structs.Map(order))
-	err := q.db.Exec(stmt)
-	return errors.Wrap(err, "failed to insert match order")
+func (q *matches) Insert(order data.Match) (data.Match, error) {
+	var res data.Match
+	stmt := squirrel.Insert(matchesTable).SetMap(structs.Map(order)).Suffix("RETURNING *")
+	err := q.db.Get(&res, stmt)
+	return res, errors.Wrap(err, "failed to insert match order")
 }
 
 func (q *matches) Update(state uint8) error {

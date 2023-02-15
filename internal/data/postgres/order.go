@@ -30,10 +30,11 @@ func (q *orders) New() data.Orders {
 	return NewOrders(q.db)
 }
 
-func (q *orders) Insert(order data.Order) error {
-	stmt := squirrel.Insert(ordersTable).SetMap(structs.Map(order))
-	err := q.db.Exec(stmt)
-	return errors.Wrap(err, "failed to insert order")
+func (q *orders) Insert(order data.Order) (data.Order, error) {
+	var res data.Order
+	stmt := squirrel.Insert(ordersTable).SetMap(structs.Map(order)).Suffix("RETURNING *")
+	err := q.db.Get(&res, stmt)
+	return res, errors.Wrap(err, "failed to insert order")
 }
 
 func (q *orders) Update(state uint8, matchID *int64, matchSw *string) error {

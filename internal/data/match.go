@@ -4,7 +4,7 @@ import "gitlab.com/distributed_lab/kit/pgdb"
 
 type MatchOrders interface {
 	New() MatchOrders
-	Insert(Match) error
+	Insert(Match) (Match, error)
 	Update(state uint8) error
 	Get() (*Match, error)
 	Select() ([]Match, error)

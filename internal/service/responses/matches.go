@@ -5,6 +5,10 @@ import (
 	"github.com/Swapica/order-aggregator-svc/resources"
 )
 
+func NewMatch(m data.Match) resources.MatchResponse {
+	return resources.MatchResponse{Data: newMatchResource(m)}
+}
+
 func NewMatchList(matches []data.Match, chains []resources.Chain) resources.MatchListResponse {
 	var resp resources.MatchListResponse
 	resp.Data = make([]resources.Match, len(matches))
@@ -17,19 +21,19 @@ func NewMatchList(matches []data.Match, chains []resources.Chain) resources.Matc
 	return resp
 }
 
-func newMatchResource(o data.Match) resources.Match {
-	srcChain := resources.NewKeyInt64(o.SrcChain, resources.CHAIN)
-	originChain := resources.NewKeyInt64(o.OrderChain, resources.CHAIN)
-	originOrder := resources.NewKeyInt64(o.OrderID, resources.ORDER)
+func newMatchResource(m data.Match) resources.Match {
+	srcChain := resources.NewKeyInt64(m.SrcChain, resources.CHAIN)
+	originChain := resources.NewKeyInt64(m.OrderChain, resources.CHAIN)
+	originOrder := resources.NewKeyInt64(m.OrderID, resources.ORDER)
 
 	return resources.Match{
-		Key: resources.NewKeyInt64(o.ID, resources.MATCH_ORDER),
+		Key: resources.NewKeyInt64(m.ID, resources.MATCH_ORDER),
 		Attributes: resources.MatchAttributes{
-			Creator:      o.Creator,
-			AmountToSell: o.SellAmount,
-			MatchId:      &o.MatchID,
-			State:        o.State,
-			TokenToSell:  o.SellToken,
+			Creator:      m.Creator,
+			AmountToSell: m.SellAmount,
+			MatchId:      &m.MatchID,
+			State:        m.State,
+			TokenToSell:  m.SellToken,
 		},
 		Relationships: resources.MatchRelationships{
 			OriginChain: resources.Relation{Data: &originChain},

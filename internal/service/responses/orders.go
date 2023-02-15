@@ -5,6 +5,10 @@ import (
 	"github.com/Swapica/order-aggregator-svc/resources"
 )
 
+func NewOrder(o data.Order) resources.OrderResponse {
+	return resources.OrderResponse{Data: newOrderResource(o)}
+}
+
 func NewOrderList(orders []data.Order, chains []resources.Chain) resources.OrderListResponse {
 	var resp resources.OrderListResponse
 	resp.Data = make([]resources.Order, len(orders))
