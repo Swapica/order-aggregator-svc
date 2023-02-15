@@ -6,54 +6,7 @@ allOf:
       - relationships
     properties:
       attributes:
-        type: object
-        required:
-          - order_id
-          - creator
-          - token_to_sell
-          - token_to_buy
-          - amount_to_sell
-          - amount_to_buy
-          - state
-        properties:
-          order_id:
-            type: integer
-            format: "*int64"
-            description: Order ID from the contract
-            example: 3291
-          creator:
-            type: string
-            pattern: '^0x[0-9A-Fa-f]{40}$'
-            description: Order creator
-            example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
-          token_to_sell:
-            type: string
-            pattern: '^0x[0-9A-Fa-f]{40}$'
-            description: Contract address of the token to sell
-            example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
-          token_to_buy:
-            type: string
-            pattern: '^0x[0-9A-Fa-f]{40}$'
-            description: Contract address of the token to buy
-            example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
-          amount_to_sell:
-            type: string
-            description: With decimals
-            example: 800000000000
-          amount_to_buy:
-            type: string
-            description: With decimals
-            example: 16900000000000
-          state:
-            type: integer
-            format: uint8
-            description: Order state
-            enum: [1, 2, 3, 4]
-          match_swapica:
-            type: string
-            pattern: '^0x[0-9A-Fa-f]{40}$'
-            description: Swapica contract address on the destination network
-            example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
+        $ref: "#/components/schemas/OrderAttributes"
       relationships:
         type: object
         required:

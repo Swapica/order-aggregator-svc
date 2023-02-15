@@ -1,0 +1,25 @@
+allOf:
+  - $ref: "#/components/schemas/OrderKey"
+  - type: object
+    x-go-is-request: true
+    required:
+      - attributes
+    properties:
+      attributes:
+        allOf:
+          - $ref: "#/components/schemas/OrderAttributes"
+          - type: object
+            required:
+              - src_chain_id
+              - dest_chain_id
+            properties:
+              src_chain_id:
+                type: integer
+                format: "*int64"
+                description: Source blockchain where the order appeared
+                example: 92
+              dest_chain_id:
+                type: integer
+                format: "*int64"
+                description: Source blockchain of the match order which is intended to execute the order
+                example: 5
