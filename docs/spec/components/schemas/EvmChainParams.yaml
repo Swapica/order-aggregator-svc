@@ -8,7 +8,7 @@ properties:
   chain_id:
     type: integer
     format: int64
-  rpc_url:
+  rpc:
     type: string
   native_symbol:
     type: string
