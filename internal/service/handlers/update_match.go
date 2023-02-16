@@ -26,7 +26,7 @@ func UpdateMatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if exists == nil {
-		log.Debug("match order not found")
+		log.Warn("match order not found")
 		ape.RenderErr(w, problems.NotFound())
 		return
 	}

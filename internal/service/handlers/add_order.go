@@ -28,21 +28,21 @@ func AddOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if conflict != nil {
-		log.Debug("order already exists")
+		log.Info("order already exists")
 		ape.RenderErr(w, problems.Conflict())
 		return
 	}
 
 	srcChain := ChainsQ(r).FilterByChainID(order.SrcChain).Get()
 	if srcChain == nil {
-		log.Debug("src_chain is not supported by swapica-svc")
+		log.Warn("src_chain is not supported by swapica-svc")
 		ape.RenderErr(w, problems.NotFound())
 		return
 	}
 
 	destChain := ChainsQ(r).FilterByChainID(order.DestChain).Get()
 	if destChain == nil {
-		log.Debug("dest_chain is not supported by swapica-svc")
+		log.Warn("dest_chain is not supported by swapica-svc")
 		ape.RenderErr(w, problems.NotFound())
 		return
 	}

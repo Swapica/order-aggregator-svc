@@ -29,7 +29,7 @@ func AddMatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if conflict != nil {
-		log.Debug("match order already exists")
+		log.Info("match order already exists")
 		ape.RenderErr(w, problems.Conflict())
 		return
 	}
@@ -41,21 +41,21 @@ func AddMatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if origin == nil {
-		log.Debug("origin order not found")
+		log.Warn("origin order not found")
 		ape.RenderErr(w, problems.NotFound())
 		return
 	}
 
 	srcChain := ChainsQ(r).FilterByChainID(match.SrcChain).Get()
 	if srcChain == nil {
-		log.Debug("src_chain is not supported by swapica-svc")
+		log.Warn("src_chain is not supported by swapica-svc")
 		ape.RenderErr(w, problems.NotFound())
 		return
 	}
 
 	originChain := ChainsQ(r).FilterByChainID(match.OrderChain).Get()
 	if originChain == nil {
-		log.Debug("origin_chain is not supported by swapica-svc")
+		log.Warn("origin_chain is not supported by swapica-svc")
 		ape.RenderErr(w, problems.NotFound())
 		return
 	}

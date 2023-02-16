@@ -26,7 +26,7 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if exists == nil {
-		log.Debug("order not found")
+		log.Warn("order not found")
 		ape.RenderErr(w, problems.NotFound())
 		return
 	}
@@ -40,7 +40,7 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if by == nil {
-			log.Debug("match order that executed the order not found")
+			log.Warn("match order that executed the order not found")
 			ape.RenderErr(w, problems.NotFound())
 			return
 		}
