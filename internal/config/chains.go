@@ -32,6 +32,9 @@ func (c *config) Chains() []resources.Chain {
 			panic(errors.Wrap(err, "failed to unmarshal chain list response"))
 		}
 
+		if len(chains.Data) == 0 {
+			panic("at least 1 supported chain must be fetched from swapica-svc")
+		}
 		return chains.Data
 	}).([]resources.Chain)
 }

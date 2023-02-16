@@ -5,26 +5,19 @@ import (
 	"github.com/Swapica/order-aggregator-svc/resources"
 )
 
-func NewOrder(o data.Order) resources.OrderResponse {
-	return resources.OrderResponse{Data: newOrderResource(o)}
+func NewOrder(o data.Order, srcChain, destChain resources.Key) resources.OrderResponse {
+	return resources.OrderResponse{Data: ToOrderResource(o, srcChain, destChain)}
 }
 
-func NewOrderList(orders []data.Order, chains []resources.Chain) resources.OrderListResponse {
-	var resp resources.OrderListResponse
-	resp.Data = make([]resources.Order, len(orders))
-	for i, o := range orders {
-		resp.Data[i] = newOrderResource(o)
-	}
-	for i := range chains {
-		resp.Included.Add(&chains[i])
+func NewOrderList(orders []resources.Order, included []resources.Chain) resources.OrderListResponse {
+	resp := resources.OrderListResponse{Data: orders}
+	for i := range included {
+		resp.Included.Add(&included[i])
 	}
 	return resp
 }
 
-func newOrderResource(o data.Order) resources.Order {
-	srcChain := resources.NewKeyInt64(o.SrcChain, resources.CHAIN)
-	destChain := resources.NewKeyInt64(o.DestChain, resources.CHAIN)
-
+func ToOrderResource(o data.Order, srcChain, destChain resources.Key) resources.Order {
 	var matchSwapica *string
 	if m := o.MatchSwapica.String; m != "" {
 		matchSwapica = &m

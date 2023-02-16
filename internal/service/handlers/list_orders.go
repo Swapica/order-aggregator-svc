@@ -19,6 +19,7 @@ func ListOrders(w http.ResponseWriter, r *http.Request) {
 	}
 
 	orders, err := OrdersQ(r).
+		FilterBySupportedChains(ChainsQ(r).SelectIDs()...).
 		FilterByChain(req.FilterChain).
 		FilterByDestinationChain(req.FilterDestChain).
 		FilterByTokenToBuy(req.FilterBuyToken).
@@ -33,18 +34,20 @@ func ListOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var chains []resources.Chain
-	chainIDs := make([]int64, 0, 2*len(orders))
-	if req.IncludeSrcChain || req.IncludeDestChain {
-		for _, o := range orders {
-			if req.IncludeSrcChain {
-				chainIDs = append(chainIDs, o.SrcChain)
-			}
-			if req.IncludeDestChain {
-				chainIDs = append(chainIDs, o.DestChain)
-			}
+	chains := make([]resources.Chain, 0, 2*len(orders))
+	ordersRes := make([]resources.Order, 0, len(orders))
+	for _, o := range orders {
+		// must not be nil because of FilterBySupportedChains
+		src := ChainsQ(r).FilterByChainID(o.SrcChain).Get()
+		dest := ChainsQ(r).FilterByChainID(o.DestChain).Get()
+		ordersRes = append(ordersRes, responses.ToOrderResource(o, src.Key, dest.Key))
+
+		if req.IncludeSrcChain {
+			chains = append(chains, *src)
 		}
-		chains = ChainsQ(r).FilterByChainID(chainIDs...).Select()
+		if req.IncludeDestChain {
+			chains = append(chains, *dest)
+		}
 	}
 
 	var last string
@@ -52,7 +55,7 @@ func ListOrders(w http.ResponseWriter, r *http.Request) {
 		last = strconv.FormatInt(orders[len(orders)-1].ID, 10)
 	}
 
-	resp := responses.NewOrderList(orders, chains)
+	resp := responses.NewOrderList(ordersRes, chains)
 	resp.Links = req.GetCursorLinks(r, last)
 	ape.Render(w, resp)
 }

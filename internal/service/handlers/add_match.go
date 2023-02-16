@@ -46,6 +46,20 @@ func AddMatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	srcChain := ChainsQ(r).FilterByChainID(match.SrcChain).Get()
+	if srcChain == nil {
+		log.Debug("src_chain is not supported by swapica-svc")
+		ape.RenderErr(w, problems.NotFound())
+		return
+	}
+
+	originChain := ChainsQ(r).FilterByChainID(match.OrderChain).Get()
+	if originChain == nil {
+		log.Debug("origin_chain is not supported by swapica-svc")
+		ape.RenderErr(w, problems.NotFound())
+		return
+	}
+
 	newMatch, err := q.Insert(match)
 	if err != nil {
 		log.WithError(err).Error("failed to add match order")
@@ -54,5 +68,5 @@ func AddMatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	ape.Render(w, responses.NewMatch(newMatch))
+	ape.Render(w, responses.NewMatch(newMatch, srcChain.Key, originChain.Key))
 }

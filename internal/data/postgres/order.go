@@ -63,6 +63,13 @@ func (q *orders) Page(page *pgdb.CursorPageParams) data.Orders {
 	return q
 }
 
+func (q *orders) FilterBySupportedChains(chainIDs ...int64) data.Orders {
+	condition := squirrel.Eq{"src_chain": chainIDs, "dest_chain": chainIDs}
+	q.selector = q.selector.Where(condition)
+	q.updater = q.updater.Where(condition)
+	return q
+}
+
 func (q *orders) FilterByOrderID(id int64) data.Orders {
 	return q.filterByCol("order_id", id)
 }

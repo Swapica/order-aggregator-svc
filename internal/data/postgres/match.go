@@ -67,6 +67,13 @@ func (q *matches) Page(page *pgdb.CursorPageParams) data.MatchOrders {
 	return q
 }
 
+func (q *matches) FilterBySupportedChains(chainIDs ...int64) data.MatchOrders {
+	condition := squirrel.Eq{"m.src_chain": chainIDs, "m.order_chain": chainIDs}
+	q.selector = q.selector.Where(condition)
+	q.updater = q.updater.Where(condition)
+	return q
+}
+
 func (q *matches) FilterByMatchID(id int64) data.MatchOrders {
 	return q.filterByCol("match_id", id)
 }

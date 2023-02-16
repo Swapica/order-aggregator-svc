@@ -19,6 +19,7 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 	}
 
 	matches, err := MatchOrdersQ(r).
+		FilterBySupportedChains(ChainsQ(r).SelectIDs()...).
 		FilterByChain(req.FilterChain).
 		FilterByCreator(req.FilterCreator).
 		FilterByState(req.FilterState).
@@ -31,18 +32,19 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var chains []resources.Chain
-	chainIDs := make([]int64, 0, 2*len(matches))
-	if req.IncludeSrcChain || req.IncludeOriginChain {
-		for _, o := range matches {
-			if req.IncludeSrcChain {
-				chainIDs = append(chainIDs, o.SrcChain)
-			}
-			if req.IncludeOriginChain {
-				chainIDs = append(chainIDs, o.OrderChain)
-			}
+	chains := make([]resources.Chain, 0, 2*len(matches))
+	matchesRes := make([]resources.Match, 0, len(matches))
+	for _, m := range matches {
+		src := ChainsQ(r).FilterByChainID(m.SrcChain).Get()
+		origin := ChainsQ(r).FilterByChainID(m.OrderChain).Get()
+		matchesRes = append(matchesRes, responses.ToMatchResource(m, src.Key, origin.Key))
+
+		if req.IncludeSrcChain {
+			chains = append(chains, *src)
 		}
-		chains = ChainsQ(r).FilterByChainID(chainIDs...).Select()
+		if req.IncludeOriginChain {
+			chains = append(chains, *origin)
+		}
 	}
 
 	var last string
@@ -50,7 +52,7 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 		last = strconv.FormatInt(matches[len(matches)-1].ID, 10)
 	}
 
-	resp := responses.NewMatchList(matches, chains)
+	resp := responses.NewMatchList(matchesRes, chains)
 	resp.Links = req.GetCursorLinks(r, last)
 	ape.Render(w, resp)
 }

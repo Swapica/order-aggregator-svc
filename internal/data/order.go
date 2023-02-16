@@ -13,6 +13,7 @@ type Orders interface {
 	Get() (*Order, error)
 	Select() ([]Order, error)
 	Page(*pgdb.CursorPageParams) Orders
+	FilterBySupportedChains(chainIDs ...int64) Orders
 	FilterByOrderID(int64) Orders
 	FilterByChain(*int64) Orders
 	FilterByCreator(*string) Orders

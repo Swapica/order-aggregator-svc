@@ -19,7 +19,7 @@ func AddOrder(w http.ResponseWriter, r *http.Request) {
 
 	order := request.DBModel()
 	q := OrdersQ(r).FilterByOrderID(order.OrderID).FilterByChain(&order.SrcChain)
-	log := Log(r).WithFields(logan.F{"order_id": order.OrderID, "src_chain": order.SrcChain})
+	log := Log(r).WithFields(logan.F{"order_id": order.OrderID, "src_chain": order.SrcChain, "dest_chain": order.DestChain})
 
 	conflict, err := q.Get()
 	if err != nil {
@@ -33,6 +33,20 @@ func AddOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	srcChain := ChainsQ(r).FilterByChainID(order.SrcChain).Get()
+	if srcChain == nil {
+		log.Debug("src_chain is not supported by swapica-svc")
+		ape.RenderErr(w, problems.NotFound())
+		return
+	}
+
+	destChain := ChainsQ(r).FilterByChainID(order.DestChain).Get()
+	if destChain == nil {
+		log.Debug("dest_chain is not supported by swapica-svc")
+		ape.RenderErr(w, problems.NotFound())
+		return
+	}
+
 	newOrder, err := q.Insert(order)
 	if err != nil {
 		log.WithError(err).Error("failed to add order")
@@ -41,5 +55,5 @@ func AddOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	ape.Render(w, responses.NewOrder(newOrder))
+	ape.Render(w, responses.NewOrder(newOrder, srcChain.Key, destChain.Key))
 }

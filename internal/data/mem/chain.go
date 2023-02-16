@@ -34,11 +34,25 @@ func (q *chainsQ) Get() *resources.Chain {
 }
 
 func (q *chainsQ) Select() []resources.Chain {
+	if len(q.filters) == 0 { // memory usage optimization
+		return q.chains
+	}
+
 	result := make([]resources.Chain, 0, len(q.chains))
 	for _, value := range q.chains {
-		// duplicates are OK, because resources.Included.Add will eliminate them
 		if q.filter(value) {
 			result = append(result, value)
+		}
+	}
+
+	return result
+}
+
+func (q *chainsQ) SelectIDs() []int64 {
+	result := make([]int64, 0, len(q.chains))
+	for _, value := range q.chains {
+		if q.filter(value) {
+			result = append(result, value.Attributes.ChainParams.ChainId)
 		}
 	}
 
