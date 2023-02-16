@@ -20,7 +20,7 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 
 	matches, err := MatchOrdersQ(r).
 		FilterBySupportedChains(ChainsQ(r).SelectIDs()...).
-		FilterByChain(req.FilterChain).
+		FilterBySrcChain(req.FilterSrcChain).
 		FilterByCreator(req.FilterCreator).
 		FilterByState(req.FilterState).
 		FilterExpired(req.FilterExpired).

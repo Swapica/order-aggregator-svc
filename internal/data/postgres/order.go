@@ -78,7 +78,7 @@ func (q *orders) FilterByCreator(address *string) data.Orders {
 	return q.filterByCol("creator", address)
 }
 
-func (q *orders) FilterByChain(id *int64) data.Orders {
+func (q *orders) FilterBySrcChain(id *int64) data.Orders {
 	return q.filterByCol("src_chain", id)
 }
 

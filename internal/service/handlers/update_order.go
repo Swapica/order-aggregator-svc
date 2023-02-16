@@ -16,7 +16,7 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	q := OrdersQ(r).FilterByOrderID(req.OrderID).FilterByChain(&req.Chain)
+	q := OrdersQ(r).FilterByOrderID(req.OrderID).FilterBySrcChain(&req.Chain)
 	log := Log(r).WithFields(logan.F{"order_id": req.OrderID, "src_chain": req.Chain})
 
 	exists, err := q.Get()
@@ -33,7 +33,7 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 
 	if req.MatchID != nil {
 		log = log.WithField("match_id", *req.MatchID)
-		by, err := MatchOrdersQ(r).FilterByMatchID(*req.MatchID).FilterByChain(&exists.DestChain).Get()
+		by, err := MatchOrdersQ(r).FilterByMatchID(*req.MatchID).FilterBySrcChain(&exists.DestChain).Get()
 		if err != nil {
 			log.WithError(err).Error("failed to get match order that executed the order")
 			ape.RenderErr(w, problems.InternalError())

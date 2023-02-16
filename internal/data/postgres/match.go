@@ -78,7 +78,7 @@ func (q *matches) FilterByMatchID(id int64) data.MatchOrders {
 	return q.filterByCol("match_id", id)
 }
 
-func (q *matches) FilterByChain(id *int64) data.MatchOrders {
+func (q *matches) FilterBySrcChain(id *int64) data.MatchOrders {
 	return q.filterByCol("src_chain", id)
 }
 

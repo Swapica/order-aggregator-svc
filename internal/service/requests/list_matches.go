@@ -9,7 +9,7 @@ import (
 
 type ListMatches struct {
 	page.CursorParams
-	FilterChain        *int64  `filter:"chain"`
+	FilterSrcChain     *int64  `filter:"src_chain"`
 	FilterState        *uint8  `filter:"state"`
 	FilterCreator      *string `filter:"creator"`
 	FilterExpired      *bool   `filter:"expired"`

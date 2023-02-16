@@ -11,7 +11,7 @@ type MatchOrders interface {
 	Page(*pgdb.CursorPageParams) MatchOrders
 	FilterBySupportedChains(chainIDs ...int64) MatchOrders
 	FilterByMatchID(int64) MatchOrders
-	FilterByChain(*int64) MatchOrders
+	FilterBySrcChain(*int64) MatchOrders
 	FilterByCreator(*string) MatchOrders
 	FilterByState(*uint8) MatchOrders
 	FilterExpired(*bool) MatchOrders

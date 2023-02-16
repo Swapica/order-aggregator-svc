@@ -18,7 +18,7 @@ func AddOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	order := request.DBModel()
-	q := OrdersQ(r).FilterByOrderID(order.OrderID).FilterByChain(&order.SrcChain)
+	q := OrdersQ(r).FilterByOrderID(order.OrderID).FilterBySrcChain(&order.SrcChain)
 	log := Log(r).WithFields(logan.F{"order_id": order.OrderID, "src_chain": order.SrcChain, "dest_chain": order.DestChain})
 
 	conflict, err := q.Get()

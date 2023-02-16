@@ -1,7 +1,0 @@
-name: filter[src_chain]
-in: query
-required: false
-description: Filter by `data.relationships.src_chain.data.id` field
-schema:
-  type: integer
-  example: 91
