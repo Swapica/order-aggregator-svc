@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/Swapica/order-aggregator-svc/internal/data"
@@ -59,6 +60,7 @@ func (q *matches) Get() (*data.Match, error) {
 func (q *matches) Select() ([]data.Match, error) {
 	var res []data.Match
 	err := q.db.Select(&res, q.selector)
+	fmt.Println(q.selector.ToSql())
 	return res, errors.Wrap(err, "failed to select match orders")
 }
 
@@ -98,7 +100,7 @@ func (q *matches) FilterExpired(apply *bool) data.MatchOrders {
 	q.selector = q.selector.Join(ordersTable + " o ON m.order_id = o.order_id AND m.order_chain = o.src_chain").Where(
 		squirrel.Eq{
 			"m.state": data.StateAwaitingFinalization,
-			"o.state": []uint8{data.StateCanceled, data.StateExecuted}}).Where(
+			"o.state": [2]uint8{data.StateCanceled, data.StateExecuted}}).Where(
 		"o.match_id IS DISTINCT FROM m.match_id") // works with NULLs better than != or squirrel.NotEq
 	return q
 }
