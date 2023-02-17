@@ -14,7 +14,7 @@ type Orders interface {
 	Select() ([]Order, error)
 	Page(*pgdb.CursorPageParams) Orders
 	FilterBySupportedChains(chainIDs ...int64) Orders
-	FilterByOrderID(int64) Orders
+	FilterByOrderID(ids ...int64) Orders
 	FilterBySrcChain(*int64) Orders
 	FilterByCreator(*string) Orders
 	FilterByTokenToBuy(*string) Orders

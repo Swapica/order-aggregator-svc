@@ -32,8 +32,10 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var orders []resources.Order
 	chains := make([]resources.Chain, 0, 2*len(matches))
 	matchesRes := make([]resources.Match, 0, len(matches))
+
 	for _, m := range matches {
 		src := ChainsQ(r).FilterByChainID(m.SrcChain).Get()
 		origin := ChainsQ(r).FilterByChainID(m.OrderChain).Get()
@@ -47,12 +49,32 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if req.IncludeOriginOrder{
+		ids:=make([]int64, len(matches))
+		for i,m:=range matches{
+			ids[i]=m.OrderID
+		}
+
+		dbo,err:=OrdersQ(r).FilterByOrderID(ids...).Select()
+		if err!=nil{
+			Log(r).WithError(err).Error("failed to get match orders")
+			ape.RenderErr(w, problems.InternalError())
+			return
+		}
+
+		for _,o:=range dbo{
+			src := ChainsQ(r).FilterByChainID(o.SrcChain).Get()
+			dest := ChainsQ(r).FilterByChainID(o.DestChain).Get()
+			orders=append(orders, responses.ToOrderResource(o, src.Key, dest.Key))
+		}
+	}
+
 	var last string
 	if len(matches) > 0 {
 		last = strconv.FormatInt(matches[len(matches)-1].ID, 10)
 	}
 
-	resp := responses.NewMatchList(matchesRes, chains)
+	resp := responses.NewMatchList(matchesRes, orders, chains)
 	resp.Links = req.GetCursorLinks(r, last)
 	ape.Render(w, resp)
 }

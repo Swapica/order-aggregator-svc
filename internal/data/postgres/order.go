@@ -70,8 +70,8 @@ func (q *orders) FilterBySupportedChains(chainIDs ...int64) data.Orders {
 	return q
 }
 
-func (q *orders) FilterByOrderID(id int64) data.Orders {
-	return q.filterByCol("order_id", id)
+func (q *orders) FilterByOrderID(ids ...int64) data.Orders {
+	return q.filterByCol("order_id", ids)
 }
 
 func (q *orders) FilterByCreator(address *string) data.Orders {

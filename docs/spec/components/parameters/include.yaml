@@ -1,10 +1,11 @@
 name: include
 in: query
 required: false
-description: "Include `src_chain`, `destination_chain` / `origin_chain` for the order / match order"
+description: "Include relationships of orders and match orders"
 schema:
   type: string
   enum:
     - src_chain
     - destination_chain
     - origin_chain
+    - origin_order

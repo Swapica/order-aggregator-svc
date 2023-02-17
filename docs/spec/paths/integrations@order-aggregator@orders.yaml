@@ -10,7 +10,7 @@ get:
     - $ref: "#/components/parameters/filterCreator"
     - $ref: "#/components/parameters/filterSrcChain"
     - $ref: "#/components/parameters/filterState"
-    - $ref: "#/components/parameters/includeChain"
+    - $ref: "#/components/parameters/include"
     - name: filter[token_to_buy]
       in: query
       required: false
