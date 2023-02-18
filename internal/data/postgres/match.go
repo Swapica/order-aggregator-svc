@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/Swapica/order-aggregator-svc/internal/data"
@@ -60,7 +59,6 @@ func (q *matches) Get() (*data.Match, error) {
 func (q *matches) Select() ([]data.Match, error) {
 	var res []data.Match
 	err := q.db.Select(&res, q.selector)
-	fmt.Println(q.selector.ToSql())
 	return res, errors.Wrap(err, "failed to select match orders")
 }
 
