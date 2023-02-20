@@ -15,6 +15,7 @@ const ordersTable = "orders"
 type orders struct {
 	db       *pgdb.DB
 	selector squirrel.SelectBuilder
+	counter  squirrel.SelectBuilder
 	updater  squirrel.UpdateBuilder
 }
 
@@ -22,6 +23,7 @@ func NewOrders(db *pgdb.DB) data.Orders {
 	return &orders{
 		db:       db,
 		selector: squirrel.Select("*").From(ordersTable),
+		counter:  squirrel.Select("count(id)").From(ordersTable),
 		updater:  squirrel.Update(ordersTable),
 	}
 }
@@ -58,7 +60,16 @@ func (q *orders) Select() ([]data.Order, error) {
 	return res, errors.Wrap(err, "failed to select orders")
 }
 
+func (q *orders) Count() (int64, error) {
+	var res struct {
+		Count int64 `db:"count"`
+	}
+	err := q.db.Get(&res, q.counter)
+	return res.Count, errors.Wrap(err, "failed to count orders in DB")
+}
+
 func (q *orders) Page(page *pgdb.CursorPageParams) data.Orders {
+	// Count() counts all the available records, therefore pagination is not applied to it
 	q.selector = page.ApplyTo(q.selector, "id")
 	return q
 }
@@ -66,6 +77,7 @@ func (q *orders) Page(page *pgdb.CursorPageParams) data.Orders {
 func (q *orders) FilterBySupportedChains(chainIDs ...int64) data.Orders {
 	condition := squirrel.Eq{"src_chain": chainIDs, "dest_chain": chainIDs}
 	q.selector = q.selector.Where(condition)
+	q.counter = q.counter.Where(condition)
 	q.updater = q.updater.Where(condition)
 	return q
 }
@@ -105,20 +117,13 @@ func (q *orders) filterByCol(column string, value interface{}) data.Orders {
 
 	if _, ok := value.(*string); ok {
 		q.selector = q.selector.Where(squirrel.ILike{column: value})
+		q.counter = q.counter.Where(squirrel.ILike{column: value})
 		q.updater = q.updater.Where(squirrel.ILike{column: value})
 		return q
 	}
 
 	q.selector = q.selector.Where(squirrel.Eq{column: value})
+	q.counter = q.counter.Where(squirrel.Eq{column: value})
 	q.updater = q.updater.Where(squirrel.Eq{column: value})
-	return q
-}
-
-func (q *orders) filterByAddress(column string, value *string) data.Orders {
-	if value == nil {
-		return q
-	}
-	q.selector = q.selector.Where(squirrel.ILike{column: value})
-	q.updater = q.updater.Where(squirrel.ILike{column: value})
 	return q
 }

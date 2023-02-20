@@ -8,6 +8,7 @@ type MatchOrders interface {
 	Update(state uint8) error
 	Get() (*Match, error)
 	Select() ([]Match, error)
+	Count() (int64, error)
 	Page(*pgdb.CursorPageParams) MatchOrders
 	FilterBySupportedChains(chainIDs ...int64) MatchOrders
 	FilterByMatchID(int64) MatchOrders

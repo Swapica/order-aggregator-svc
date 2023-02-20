@@ -18,16 +18,23 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	matches, err := MatchOrdersQ(r).
+	q := MatchOrdersQ(r).
 		FilterBySupportedChains(ChainsQ(r).SelectIDs()...).
 		FilterBySrcChain(req.FilterSrcChain).
 		FilterByCreator(req.FilterCreator).
 		FilterByState(req.FilterState).
-		FilterExpired(req.FilterExpired).
-		Page(&req.CursorPageParams).
-		Select()
+		FilterExpired(req.FilterExpired)
+
+	matches, err := q.Page(&req.CursorPageParams).Select()
 	if err != nil {
 		Log(r).WithError(err).Error("failed to get match orders")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
+	count, err := q.Count()
+	if err != nil {
+		Log(r).WithError(err).Error("failed to count match orders")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
@@ -49,23 +56,23 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if req.IncludeOriginOrder{
-		ids:=make([]int64, len(matches))
-		for i,m:=range matches{
-			ids[i]=m.OrderID
+	if req.IncludeOriginOrder {
+		ids := make([]int64, len(matches))
+		for i, m := range matches {
+			ids[i] = m.OrderID
 		}
 
-		dbo,err:=OrdersQ(r).FilterByOrderID(ids...).Select()
-		if err!=nil{
+		dbo, err := OrdersQ(r).FilterByOrderID(ids...).Select()
+		if err != nil {
 			Log(r).WithError(err).Error("failed to get match orders")
 			ape.RenderErr(w, problems.InternalError())
 			return
 		}
 
-		for _,o:=range dbo{
+		for _, o := range dbo {
 			src := ChainsQ(r).FilterByChainID(o.SrcChain).Get()
 			dest := ChainsQ(r).FilterByChainID(o.DestChain).Get()
-			orders=append(orders, responses.ToOrderResource(o, src.Key, dest.Key))
+			orders = append(orders, responses.ToOrderResource(o, src.Key, dest.Key))
 		}
 	}
 
@@ -74,7 +81,7 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 		last = strconv.FormatInt(matches[len(matches)-1].ID, 10)
 	}
 
-	resp := responses.NewMatchList(matchesRes, orders, chains)
+	resp := responses.NewMatchList(matchesRes, orders, chains, count)
 	resp.Links = req.GetCursorLinks(r, last)
 	ape.Render(w, resp)
 }

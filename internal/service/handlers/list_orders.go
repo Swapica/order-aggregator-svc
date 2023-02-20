@@ -18,18 +18,25 @@ func ListOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	orders, err := OrdersQ(r).
+	q := OrdersQ(r).
 		FilterBySupportedChains(ChainsQ(r).SelectIDs()...).
 		FilterBySrcChain(req.FilterSrcChain).
 		FilterByDestinationChain(req.FilterDestChain).
 		FilterByTokenToBuy(req.FilterBuyToken).
 		FilterByTokenToSell(req.FilterSellToken).
 		FilterByCreator(req.FilterCreator).
-		FilterByState(req.FilterState).
-		Page(&req.CursorPageParams).
-		Select()
+		FilterByState(req.FilterState)
+
+	orders, err := q.Page(&req.CursorPageParams).Select()
 	if err != nil {
 		Log(r).WithError(err).Error("failed to get orders")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
+	count, err := q.Count()
+	if err != nil {
+		Log(r).WithError(err).Error("failed to count orders")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
@@ -55,7 +62,7 @@ func ListOrders(w http.ResponseWriter, r *http.Request) {
 		last = strconv.FormatInt(orders[len(orders)-1].ID, 10)
 	}
 
-	resp := responses.NewOrderList(ordersRes, chains)
+	resp := responses.NewOrderList(ordersRes, chains, count)
 	resp.Links = req.GetCursorLinks(r, last)
 	ape.Render(w, resp)
 }

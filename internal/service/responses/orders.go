@@ -9,8 +9,8 @@ func NewOrder(o data.Order, srcChain, destChain resources.Key) resources.OrderRe
 	return resources.OrderResponse{Data: ToOrderResource(o, srcChain, destChain)}
 }
 
-func NewOrderList(orders []resources.Order, included []resources.Chain) resources.OrderListResponse {
-	resp := resources.OrderListResponse{Data: orders}
+func NewOrderList(orders []resources.Order, included []resources.Chain, count int64) resources.OrderListResponse {
+	resp := resources.OrderListResponse{Data: orders, Meta: toRawMetaField(count)}
 	for i := range included {
 		resp.Included.Add(&included[i])
 	}

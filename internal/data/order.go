@@ -12,6 +12,7 @@ type Orders interface {
 	Update(state uint8, matchID *int64, matchSwapica *string) error
 	Get() (*Order, error)
 	Select() ([]Order, error)
+	Count() (int64, error)
 	Page(*pgdb.CursorPageParams) Orders
 	FilterBySupportedChains(chainIDs ...int64) Orders
 	FilterByOrderID(ids ...int64) Orders

@@ -4,6 +4,8 @@
 
 package resources
 
+import "encoding/json"
+
 type UpdateOrder struct {
 	Key
 	Attributes    UpdateOrderAttributes     `json:"attributes"`
@@ -15,9 +17,19 @@ type UpdateOrderRequest struct {
 }
 
 type UpdateOrderListRequest struct {
-	Data     []UpdateOrder `json:"data"`
-	Included Included      `json:"included"`
-	Links    *Links        `json:"links"`
+	Data     []UpdateOrder   `json:"data"`
+	Included Included        `json:"included"`
+	Links    *Links          `json:"links"`
+	Meta     json.RawMessage `json:"meta,omitempty"`
+}
+
+func (r *UpdateOrderListRequest) PutMeta(v interface{}) (err error) {
+	r.Meta, err = json.Marshal(v)
+	return err
+}
+
+func (r *UpdateOrderListRequest) GetMeta(out interface{}) error {
+	return json.Unmarshal(r.Meta, out)
 }
 
 // MustUpdateOrder - returns UpdateOrder from include collection.

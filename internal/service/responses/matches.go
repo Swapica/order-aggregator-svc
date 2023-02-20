@@ -9,12 +9,12 @@ func NewMatch(m data.Match, srcChain, originChain resources.Key) resources.Match
 	return resources.MatchResponse{Data: ToMatchResource(m, srcChain, originChain)}
 }
 
-func NewMatchList(matches []resources.Match, orders []resources.Order, chains []resources.Chain) resources.MatchListResponse {
-	resp := resources.MatchListResponse{Data: matches}
+func NewMatchList(matches []resources.Match, orders []resources.Order, chains []resources.Chain, count int64) resources.MatchListResponse {
+	resp := resources.MatchListResponse{Data: matches, Meta: toRawMetaField(count)}
 	for i := range chains {
 		resp.Included.Add(&chains[i])
 	}
-	for i:=range orders{
+	for i := range orders {
 		resp.Included.Add(&orders[i])
 	}
 	return resp
