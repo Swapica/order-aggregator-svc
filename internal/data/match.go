@@ -9,7 +9,7 @@ type MatchOrders interface {
 	Get() (*Match, error)
 	Select() ([]Match, error)
 	Count() (int64, error)
-	Page(*pgdb.CursorPageParams) MatchOrders
+	Page(params *pgdb.OffsetPageParams) MatchOrders
 	FilterBySupportedChains(chainIDs ...int64) MatchOrders
 	FilterByMatchID(int64) MatchOrders
 	FilterBySrcChain(*int64) MatchOrders

@@ -8,7 +8,7 @@ import (
 )
 
 type ListOrders struct {
-	page.CursorParams
+	page.Params
 	FilterSrcChain   *int64  `filter:"src_chain"`
 	FilterCreator    *string `filter:"creator"`
 	FilterBuyToken   *string `filter:"token_to_buy"`

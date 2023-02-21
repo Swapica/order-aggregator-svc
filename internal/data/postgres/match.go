@@ -69,7 +69,7 @@ func (q *matches) Count() (int64, error) {
 	return res.Count, errors.Wrap(err, "failed to count match orders in DB")
 }
 
-func (q *matches) Page(page *pgdb.CursorPageParams) data.MatchOrders {
+func (q *matches) Page(page *pgdb.OffsetPageParams) data.MatchOrders {
 	q.selector = page.ApplyTo(q.selector, "m.id")
 	return q
 }

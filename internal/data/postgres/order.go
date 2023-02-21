@@ -68,7 +68,7 @@ func (q *orders) Count() (int64, error) {
 	return res.Count, errors.Wrap(err, "failed to count orders in DB")
 }
 
-func (q *orders) Page(page *pgdb.CursorPageParams) data.Orders {
+func (q *orders) Page(page *pgdb.OffsetPageParams) data.Orders {
 	// Count() counts all the available records, therefore pagination is not applied to it
 	q.selector = page.ApplyTo(q.selector, "id")
 	return q

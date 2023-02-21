@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/Swapica/order-aggregator-svc/internal/service/requests"
 	"github.com/Swapica/order-aggregator-svc/internal/service/responses"
@@ -27,7 +26,7 @@ func ListOrders(w http.ResponseWriter, r *http.Request) {
 		FilterByCreator(req.FilterCreator).
 		FilterByState(req.FilterState)
 
-	orders, err := q.Page(&req.CursorPageParams).Select()
+	orders, err := q.Page(&req.OffsetPageParams).Select()
 	if err != nil {
 		Log(r).WithError(err).Error("failed to get orders")
 		ape.RenderErr(w, problems.InternalError())
@@ -57,12 +56,7 @@ func ListOrders(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var last string
-	if len(orders) > 0 {
-		last = strconv.FormatInt(orders[len(orders)-1].ID, 10)
-	}
-
 	resp := responses.NewOrderList(ordersRes, chains, count)
-	resp.Links = req.GetCursorLinks(r, last)
+	resp.Links = req.Params.GetLinks(r)
 	ape.Render(w, resp)
 }

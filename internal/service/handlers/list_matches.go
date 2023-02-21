@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/Swapica/order-aggregator-svc/internal/service/requests"
 	"github.com/Swapica/order-aggregator-svc/internal/service/responses"
@@ -25,7 +24,7 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 		FilterByState(req.FilterState).
 		FilterExpired(req.FilterExpired)
 
-	matches, err := q.Page(&req.CursorPageParams).Select()
+	matches, err := q.Page(&req.OffsetPageParams).Select()
 	if err != nil {
 		Log(r).WithError(err).Error("failed to get match orders")
 		ape.RenderErr(w, problems.InternalError())
@@ -76,12 +75,7 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var last string
-	if len(matches) > 0 {
-		last = strconv.FormatInt(matches[len(matches)-1].ID, 10)
-	}
-
 	resp := responses.NewMatchList(matchesRes, orders, chains, count)
-	resp.Links = req.GetCursorLinks(r, last)
+	resp.Links = req.Params.GetLinks(r)
 	ape.Render(w, resp)
 }

@@ -13,7 +13,7 @@ type Orders interface {
 	Get() (*Order, error)
 	Select() ([]Order, error)
 	Count() (int64, error)
-	Page(*pgdb.CursorPageParams) Orders
+	Page(params *pgdb.OffsetPageParams) Orders
 	FilterBySupportedChains(chainIDs ...int64) Orders
 	FilterByOrderID(ids ...int64) Orders
 	FilterBySrcChain(*int64) Orders

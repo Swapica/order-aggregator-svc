@@ -7,23 +7,23 @@ import (
 	"github.com/Swapica/order-aggregator-svc/resources"
 )
 
-func (p *CursorParams) GetCursorLinks(r *http.Request, last string) *resources.Links {
+func (p *Params) GetLinks(r *http.Request) *resources.Links {
 	result := resources.Links{
-		Self: p.getCursorLink(r, p.Cursor, p.Order),
+		Next: p.getOffsetLink(r, p.PageNumber+1),
+		Self: p.getOffsetLink(r, p.PageNumber),
 	}
-	if last != "" {
-		lastI, _ := strconv.ParseUint(last, 10, 64)
-		result.Next = p.getCursorLink(r, lastI, p.Order)
+	if p.PageNumber > 0 {
+		result.Prev = p.getOffsetLink(r, p.PageNumber-1)
 	}
 	return &result
 }
 
-func (p *CursorParams) getCursorLink(r *http.Request, cursor uint64, order string) string {
+func (p *Params) getOffsetLink(r *http.Request, number uint64) string {
 	u := r.URL
 	query := u.Query()
-	query.Set(pageParamCursor, strconv.FormatUint(cursor, 10))
+	query.Set(pageParamNumber, strconv.FormatUint(number, 10))
 	query.Set(pageParamLimit, strconv.FormatUint(p.Limit, 10))
-	query.Set(pageParamOrder, order)
+	query.Set(pageParamOrder, p.Order)
 	u.RawQuery = query.Encode()
 	return u.String()
 }

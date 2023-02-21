@@ -8,7 +8,7 @@ import (
 )
 
 type ListMatches struct {
-	page.CursorParams
+	page.Params
 	FilterSrcChain     *int64  `filter:"src_chain"`
 	FilterState        *uint8  `filter:"state"`
 	FilterCreator      *string `filter:"creator"`
