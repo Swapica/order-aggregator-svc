@@ -4,7 +4,7 @@ get:
   summary: List orders
   operationId: listOrders
   parameters:
-    - $ref: "#/components/parameters/pageCursor"
+    - $ref: "#/components/parameters/pageNumber"
     - $ref: "#/components/parameters/pageLimit"
     - $ref: "#/components/parameters/pageOrder"
     - $ref: "#/components/parameters/filterCreator"
