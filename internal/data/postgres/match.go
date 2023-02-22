@@ -3,7 +3,7 @@ package postgres
 import (
 	"database/sql"
 
-	"github.com/Masterminds/squirrel"
+	sq "github.com/Masterminds/squirrel"
 	"github.com/Swapica/order-aggregator-svc/internal/data"
 	"github.com/fatih/structs"
 	"gitlab.com/distributed_lab/kit/pgdb"
@@ -11,20 +11,21 @@ import (
 )
 
 const matchesTable = "match_orders"
+const joinOrders = ordersTable + " o ON m.order_id = o.order_id AND m.order_chain = o.src_chain"
 
 type matches struct {
 	db       *pgdb.DB
-	selector squirrel.SelectBuilder
-	counter  squirrel.SelectBuilder
-	updater  squirrel.UpdateBuilder
+	selector sq.SelectBuilder
+	counter  sq.SelectBuilder
+	updater  sq.UpdateBuilder
 }
 
 func NewMatchOrders(db *pgdb.DB) data.MatchOrders {
 	return &matches{
 		db:       db,
-		selector: squirrel.Select("m.*").From(matchesTable + " m"),
-		counter:  squirrel.Select("count(m.id)").From(matchesTable + " m"),
-		updater:  squirrel.Update(matchesTable),
+		selector: sq.Select("m.*").From(matchesTable + " m"),
+		counter:  sq.Select("count(m.id)").From(matchesTable + " m"),
+		updater:  sq.Update(matchesTable),
 	}
 }
 
@@ -34,7 +35,7 @@ func (q *matches) New() data.MatchOrders {
 
 func (q *matches) Insert(order data.Match) (data.Match, error) {
 	var res data.Match
-	stmt := squirrel.Insert(matchesTable).SetMap(structs.Map(order)).Suffix("RETURNING *")
+	stmt := sq.Insert(matchesTable).SetMap(structs.Map(order)).Suffix("RETURNING *")
 	err := q.db.Get(&res, stmt)
 	return res, errors.Wrap(err, "failed to insert match order")
 }
@@ -75,11 +76,7 @@ func (q *matches) Page(page *pgdb.OffsetPageParams) data.MatchOrders {
 }
 
 func (q *matches) FilterBySupportedChains(chainIDs ...int64) data.MatchOrders {
-	condition := squirrel.Eq{"m.src_chain": chainIDs, "m.order_chain": chainIDs}
-	q.selector = q.selector.Where(condition)
-	q.counter = q.counter.Where(condition)
-	q.updater = q.updater.Where(condition)
-	return q
+	return q.filterByCol("src_chain", chainIDs).filterByCol("order_chain", chainIDs)
 }
 
 func (q *matches) FilterByMatchID(id int64) data.MatchOrders {
@@ -103,44 +100,43 @@ func (q *matches) FilterExpired(apply *bool) data.MatchOrders {
 		return q
 	}
 
-	join := ordersTable + " o ON m.order_id = o.order_id AND m.order_chain = o.src_chain"
-	states := squirrel.Eq{
+	states := sq.Eq{
 		"m.state": data.StateAwaitingFinalization,
 		"o.state": [2]uint8{data.StateCanceled, data.StateExecuted},
 	}
-	distinct := "o.match_id IS DISTINCT FROM m.match_id" // works with NULLs better than != or squirrel.NotEq
+	distinct := "o.match_id IS DISTINCT FROM m.match_id" // works with NULLs better than != or sq.NotEq
+	fullCond := sq.And{states, sqlString(distinct)}
 
-	q.selector = q.selector.Join(join).Where(states).Where(distinct)
-	q.counter = q.counter.Join(join).Where(states).Where(distinct)
+	q.selector = q.selector.Join(joinOrders).Where(fullCond)
+	q.counter = q.counter.Join(joinOrders).Where(fullCond)
 	return q
 }
 
 func (q *matches) FilterClaimable(creator string) data.MatchOrders {
-	join := ordersTable + " o ON m.order_id = o.order_id AND m.order_chain = o.src_chain"
-	matchAwaits := squirrel.Eq{"m.state": data.StateAwaitingFinalization}
-	claimOrder := squirrel.And{squirrel.Eq{"o.state": data.StateAwaitingMatch}, squirrel.ILike{"o.creator": creator}}
-	claimMatch := squirrel.And{squirrel.Eq{"o.state": data.StateExecuted}, sqlString("o.match_id = m.match_id"), squirrel.ILike{"m.creator": creator}}
-	fullCond := squirrel.And{matchAwaits, squirrel.Or{claimOrder, claimMatch}}
+	matchAwaits := sq.Eq{"m.state": data.StateAwaitingFinalization}
+	claimOrder := sq.And{sq.Eq{"o.state": data.StateAwaitingMatch}, sq.ILike{"o.creator": creator}}
+	claimMatch := sq.And{sq.Eq{"o.state": data.StateExecuted}, sqlString("o.match_id = m.match_id"), sq.ILike{"m.creator": creator}}
+	fullCond := sq.And{matchAwaits, sq.Or{claimOrder, claimMatch}}
 
-	q.selector = q.selector.Join(join).Where(fullCond)
-	q.counter = q.counter.Join(join).Where(fullCond)
+	q.selector = q.selector.Join(joinOrders).Where(fullCond)
+	q.counter = q.counter.Join(joinOrders).Where(fullCond)
 	return q
 }
 
-func (q *matches) filterByCol(column string, value interface{}) data.MatchOrders {
+func (q *matches) filterByCol(column string, value interface{}) *matches {
 	if isNilInterface(value) {
 		return q
 	}
 
 	if _, ok := value.(*string); ok {
-		q.selector = q.selector.Where(squirrel.ILike{"m." + column: value})
-		q.counter = q.counter.Where(squirrel.ILike{"m." + column: value})
-		q.updater = q.updater.Where(squirrel.ILike{column: value})
+		q.selector = q.selector.Where(sq.ILike{"m." + column: value})
+		q.counter = q.counter.Where(sq.ILike{"m." + column: value})
+		q.updater = q.updater.Where(sq.ILike{column: value})
 		return q
 	}
 
-	q.selector = q.selector.Where(squirrel.Eq{"m." + column: value})
-	q.counter = q.counter.Where(squirrel.Eq{"m." + column: value})
-	q.updater = q.updater.Where(squirrel.Eq{column: value})
+	q.selector = q.selector.Where(sq.Eq{"m." + column: value})
+	q.counter = q.counter.Where(sq.Eq{"m." + column: value})
+	q.updater = q.updater.Where(sq.Eq{column: value})
 	return q
 }

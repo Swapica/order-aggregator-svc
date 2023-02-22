@@ -75,11 +75,7 @@ func (q *orders) Page(page *pgdb.OffsetPageParams) data.Orders {
 }
 
 func (q *orders) FilterBySupportedChains(chainIDs ...int64) data.Orders {
-	condition := squirrel.Eq{"src_chain": chainIDs, "dest_chain": chainIDs}
-	q.selector = q.selector.Where(condition)
-	q.counter = q.counter.Where(condition)
-	q.updater = q.updater.Where(condition)
-	return q
+	return q.filterByCol("src_chain", chainIDs).filterByCol("dest_chain", chainIDs)
 }
 
 func (q *orders) FilterByOrderID(ids ...int64) data.Orders {
@@ -110,7 +106,7 @@ func (q *orders) FilterByState(state *uint8) data.Orders {
 	return q.filterByCol("state", state)
 }
 
-func (q *orders) filterByCol(column string, value interface{}) data.Orders {
+func (q *orders) filterByCol(column string, value interface{}) *orders {
 	if isNilInterface(value) {
 		return q
 	}
