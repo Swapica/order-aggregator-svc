@@ -1,5 +1,11 @@
 package postgres
 
+type sqlString string
+
+func (s sqlString) ToSql() (string, []interface{}, error) {
+	return string(s), nil, nil
+}
+
 func isNilInterface(v interface{}) bool {
 	// Add new types here when you use this function
 	switch v := v.(type) {

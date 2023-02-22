@@ -115,6 +115,18 @@ func (q *matches) FilterExpired(apply *bool) data.MatchOrders {
 	return q
 }
 
+func (q *matches) FilterClaimable(creator string) data.MatchOrders {
+	join := ordersTable + " o ON m.order_id = o.order_id AND m.order_chain = o.src_chain"
+	matchAwaits := squirrel.Eq{"m.state": data.StateAwaitingFinalization}
+	claimOrder := squirrel.And{squirrel.Eq{"o.state": data.StateAwaitingMatch}, squirrel.ILike{"o.creator": creator}}
+	claimMatch := squirrel.And{squirrel.Eq{"o.state": data.StateExecuted}, sqlString("o.match_id = m.match_id"), squirrel.ILike{"m.creator": creator}}
+	fullCond := squirrel.And{matchAwaits, squirrel.Or{claimOrder, claimMatch}}
+
+	q.selector = q.selector.Join(join).Where(fullCond)
+	q.counter = q.counter.Join(join).Where(fullCond)
+	return q
+}
+
 func (q *matches) filterByCol(column string, value interface{}) data.MatchOrders {
 	if isNilInterface(value) {
 		return q

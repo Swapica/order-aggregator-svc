@@ -16,6 +16,7 @@ type MatchOrders interface {
 	FilterByCreator(*string) MatchOrders
 	FilterByState(*uint8) MatchOrders
 	FilterExpired(*bool) MatchOrders
+	FilterClaimable(creator string) MatchOrders
 }
 
 type Match struct {

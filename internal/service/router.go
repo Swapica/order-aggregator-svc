@@ -37,6 +37,7 @@ func (s *service) router() chi.Router {
 			r.Post("/block", handlers.SetBlock)
 			r.Get("/block", handlers.GetBlock)
 		})
+		r.Get("/claimable", handlers.ListClaimable)
 	})
 
 	return r

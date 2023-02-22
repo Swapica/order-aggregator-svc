@@ -10,39 +10,39 @@ import (
 	"gitlab.com/distributed_lab/ape/problems"
 )
 
-func ListMatches(w http.ResponseWriter, r *http.Request) {
-	req, err := requests.NewListMatches(r)
+func ListClaimable(w http.ResponseWriter, r *http.Request) {
+	req, err := requests.NewListClaimable(r)
 	if err != nil {
 		ape.RenderErr(w, problems.BadRequest(err)...)
 		return
 	}
 
 	q := MatchOrdersQ(r).
-		FilterBySupportedChains(ChainsQ(r).SelectIDs()...).
 		FilterBySrcChain(req.FilterSrcChain).
-		FilterByCreator(req.FilterCreator).
-		FilterByState(req.FilterState).
-		FilterExpired(req.FilterExpired)
+		FilterClaimable(*req.FilterCreator)
 
 	matches, err := q.Page(&req.OffsetPageParams).Select()
 	if err != nil {
-		Log(r).WithError(err).Error("failed to get match orders")
+		Log(r).WithError(err).Error("failed to get claimable match orders")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
 	count, err := q.Count()
 	if err != nil {
-		Log(r).WithError(err).Error("failed to count match orders")
+		Log(r).WithError(err).Error("failed to count claimable match orders")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
-	var orders []resources.Order
+	var ordersRes []resources.Order
 	chains := make([]resources.Chain, 0, 2*len(matches))
 	matchesRes := make([]resources.Match, 0, len(matches))
+	orderIDs := make([]int64, len(matches))
 
-	for _, m := range matches {
+	for i, m := range matches {
+		orderIDs[i] = m.OrderID
+
 		src := ChainsQ(r).FilterByChainID(m.SrcChain).Get()
 		origin := ChainsQ(r).FilterByChainID(m.OrderChain).Get()
 		matchesRes = append(matchesRes, responses.ToMatchResource(m, src.Key, origin.Key))
@@ -55,27 +55,20 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if req.IncludeOriginOrder {
-		ids := make([]int64, len(matches))
-		for i, m := range matches {
-			ids[i] = m.OrderID
-		}
-
-		dbo, err := OrdersQ(r).FilterByOrderID(ids...).Select()
-		if err != nil {
-			Log(r).WithError(err).Error("failed to include orders")
-			ape.RenderErr(w, problems.InternalError())
-			return
-		}
-
-		for _, o := range dbo {
-			src := ChainsQ(r).FilterByChainID(o.SrcChain).Get()
-			dest := ChainsQ(r).FilterByChainID(o.DestChain).Get()
-			orders = append(orders, responses.ToOrderResource(o, src.Key, dest.Key))
-		}
+	orders, err := OrdersQ(r).FilterByOrderID(orderIDs...).Select()
+	if err != nil {
+		Log(r).WithError(err).Error("failed to get claimable orders")
+		ape.RenderErr(w, problems.InternalError())
+		return
 	}
 
-	resp := responses.NewMatchList(matchesRes, orders, chains, count)
+	for _, o := range orders {
+		src := ChainsQ(r).FilterByChainID(o.SrcChain).Get()
+		dest := ChainsQ(r).FilterByChainID(o.DestChain).Get()
+		ordersRes = append(ordersRes, responses.ToOrderResource(o, src.Key, dest.Key))
+	}
+
+	resp := responses.NewMatchList(matchesRes, ordersRes, chains, count)
 	resp.Links = req.Params.GetLinks(r)
 	ape.Render(w, resp)
 }
