@@ -19,14 +19,21 @@ type MatchOrders interface {
 	FilterClaimable(creator string, srcChain *int64) MatchOrders
 }
 
+// Match Fields ID and OriginOrder are database-generated properties, any other come from the
+// Swapica contract on the SrcChain network
+// SrcChain, OrderID, OrderChain, SellToken, SellAmount fields are preserved for convenience
+// and to reduce computing power and network usage.
 type Match struct {
-	ID         int64  `structs:"-" db:"id"`
-	SrcChain   int64  `structs:"src_chain" db:"src_chain"`
-	MatchID    int64  `structs:"match_id" db:"match_id"`
-	OrderID    int64  `structs:"order_id" db:"order_id"`
-	OrderChain int64  `structs:"order_chain" db:"order_chain"`
-	Creator    string `structs:"creator" db:"creator"`
-	SellToken  string `structs:"sell_token" db:"sell_token"`
-	SellAmount string `structs:"sell_amount" db:"sell_amount"`
-	State      uint8  `structs:"state" db:"state"`
+	// ID surrogate key is strongly preferred against PRIMARY KEY (MatchID, SrcChain)
+	ID       int64 `structs:"-" db:"id"`
+	MatchID  int64 `structs:"match_id" db:"match_id"`
+	SrcChain int64 `structs:"src_chain" db:"src_chain"`
+	// OriginOrder foreign key for orders(ID)
+	OriginOrder int64  `structs:"origin_order" db:"origin_order"`
+	OrderID     int64  `structs:"order_id" db:"order_id"`
+	OrderChain  int64  `structs:"order_chain" db:"order_chain"`
+	Creator     string `structs:"creator" db:"creator"`
+	SellToken   string `structs:"sell_token" db:"sell_token"`
+	SellAmount  string `structs:"sell_amount" db:"sell_amount"`
+	State       uint8  `structs:"state" db:"state"`
 }

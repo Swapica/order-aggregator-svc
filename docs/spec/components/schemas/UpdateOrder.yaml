@@ -15,20 +15,13 @@ allOf:
             format: uint8
             description: New order state
             enum: [1, 2, 3, 4]
+          match_id:
+            type: integer
+            format: int64
+            description: ID of the match order _from the contract_ which was used to execute the order
+            example: 803
           match_swapica:
             type: string
             pattern: '^0x[0-9A-Fa-f]{40}$'
             description: Swapica contract address on the destination network
             example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
-      relationships:
-        type: object
-        properties:
-          match:
-            type: object
-            # same relation's descriptions cause bad relationship generation
-            description: Match order's ID _from the contract_ that allowed to execute the order.
-            required:
-              - data
-            properties:
-              data:
-                $ref: "#/components/schemas/MatchKey"

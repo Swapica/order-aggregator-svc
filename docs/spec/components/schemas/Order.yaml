@@ -31,7 +31,7 @@ allOf:
                 $ref: "#/components/schemas/ChainKey"
           match:
             type: object
-            description: Match order's ID _from the contract_ that allowed to execute the order
+            description: Match order which was used to execute the order
             required:
               - data
             properties:

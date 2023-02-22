@@ -8,8 +8,7 @@ import "encoding/json"
 
 type UpdateOrder struct {
 	Key
-	Attributes    UpdateOrderAttributes     `json:"attributes"`
-	Relationships *UpdateOrderRelationships `json:"relationships,omitempty"`
+	Attributes UpdateOrderAttributes `json:"attributes"`
 }
 type UpdateOrderRequest struct {
 	Data     UpdateOrder `json:"data"`

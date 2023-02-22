@@ -41,7 +41,7 @@ func ListClaimable(w http.ResponseWriter, r *http.Request) {
 	orderIDs := make([]int64, len(matches))
 
 	for i, m := range matches {
-		orderIDs[i] = m.OrderID
+		orderIDs[i] = m.OriginOrder
 
 		src := ChainsQ(r).FilterByChainID(m.SrcChain).Get()
 		origin := ChainsQ(r).FilterByChainID(m.OrderChain).Get()
@@ -55,7 +55,7 @@ func ListClaimable(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	orders, err := OrdersQ(r).FilterByOrderID(orderIDs...).Select()
+	orders, err := OrdersQ(r).FilterByID(orderIDs...).Select()
 	if err != nil {
 		Log(r).WithError(err).Error("failed to get claimable orders")
 		ape.RenderErr(w, problems.InternalError())

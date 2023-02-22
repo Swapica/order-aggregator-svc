@@ -12,20 +12,14 @@ allOf:
             required:
               - src_chain_id
               - origin_chain_id
-              - origin_order_id
             properties:
               src_chain_id:
                 type: integer
-                format: "*int64"
+                format: int64
                 description: Source blockchain where the match order appeared
                 example: 92
               origin_chain_id:
                 type: integer
-                format: "*int64"
+                format: int64
                 description: Source blockchain of the order to match
                 example: 5
-              origin_order_id:
-                type: integer
-                format: "*int64"
-                description: ID of the order _from the contract_ to match
-                example: 100

@@ -15,11 +15,11 @@ allOf:
             properties:
               src_chain_id:
                 type: integer
-                format: "*int64"
+                format: int64
                 description: Source blockchain where the order appeared
                 example: 92
               dest_chain_id:
                 type: integer
-                format: "*int64"
+                format: int64
                 description: Source blockchain of the match order which is intended to execute the order
                 example: 5

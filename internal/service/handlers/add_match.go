@@ -11,16 +11,17 @@ import (
 )
 
 func AddMatch(w http.ResponseWriter, r *http.Request) {
-	request, err := requests.NewAddMatch(r)
+	req, err := requests.NewAddMatch(r)
 	if err != nil {
 		ape.RenderErr(w, problems.BadRequest(err)...)
 		return
 	}
 
-	match := request.DBModel()
-	q := MatchOrdersQ(r).FilterByMatchID(match.MatchID).FilterBySrcChain(&match.SrcChain)
+	attr := req.Data.Attributes
+	q := MatchOrdersQ(r).FilterByMatchID(attr.MatchId).FilterBySrcChain(&attr.SrcChainId)
 	log := Log(r).WithFields(logan.F{
-		"match_id": match.MatchID, "src_chain": match.SrcChain, "order_id": match.OrderID, "order_chain": match.OrderChain})
+		"match_id": attr.MatchId, "src_chain": attr.SrcChainId,
+		"origin_order_id": attr.OriginOrderId, "origin_chain_id": attr.OriginChainId})
 
 	conflict, err := q.Get()
 	if err != nil {
@@ -34,33 +35,33 @@ func AddMatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	origin, err := OrdersQ(r).FilterByOrderID(match.OrderID).FilterBySrcChain(&match.OrderChain).Get()
+	originOrder, err := OrdersQ(r).FilterByOrderID(attr.OriginOrderId).FilterBySrcChain(&attr.OriginChainId).Get()
 	if err != nil {
 		log.WithError(err).Error("failed to get origin order")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
-	if origin == nil {
+	if originOrder == nil {
 		log.Warn("origin order not found")
 		ape.RenderErr(w, problems.NotFound())
 		return
 	}
 
-	srcChain := ChainsQ(r).FilterByChainID(match.SrcChain).Get()
+	srcChain := ChainsQ(r).FilterByChainID(attr.SrcChainId).Get()
 	if srcChain == nil {
 		log.Warn("src_chain is not supported by swapica-svc")
 		ape.RenderErr(w, problems.NotFound())
 		return
 	}
 
-	originChain := ChainsQ(r).FilterByChainID(match.OrderChain).Get()
+	originChain := ChainsQ(r).FilterByChainID(attr.OriginChainId).Get()
 	if originChain == nil {
 		log.Warn("origin_chain is not supported by swapica-svc")
 		ape.RenderErr(w, problems.NotFound())
 		return
 	}
 
-	newMatch, err := q.Insert(match)
+	newMatch, err := q.Insert(req.DBModel(originOrder.ID))
 	if err != nil {
 		log.WithError(err).Error("failed to add match order")
 		ape.RenderErr(w, problems.InternalError())

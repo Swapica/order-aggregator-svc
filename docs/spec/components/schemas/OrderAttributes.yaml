@@ -10,9 +10,9 @@ required:
 properties:
   order_id:
     type: integer
-    format: "*int64"
+    format: int64
     description: Order ID from the contract
-    example: 3291
+    example: 431
   creator:
     type: string
     pattern: '^0x[0-9A-Fa-f]{40}$'
@@ -41,6 +41,11 @@ properties:
     format: uint8
     description: Order state
     enum: [1, 2, 3, 4]
+  match_id:
+    type: integer
+    format: int64
+    description: ID of the match order _from the contract_ which was used to execute the order
+    example: 803
   match_swapica:
     type: string
     pattern: '^0x[0-9A-Fa-f]{40}$'

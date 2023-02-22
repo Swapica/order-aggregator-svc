@@ -1,6 +1,7 @@
 type: object
 required:
   - match_id
+  - origin_order_id
   - creator
   - token_to_sell
   - amount_to_sell
@@ -8,13 +9,18 @@ required:
 properties:
   match_id:
     type: integer
-    format: "*int64"
+    format: int64
     description: Match order ID from the contract
     example: 3291
+  origin_order_id:
+    type: integer
+    format: int64
+    description: ID of the order _from the contract_ to match
+    example: 711
   creator:
     type: string
     pattern: '^0x[0-9A-Fa-f]{40}$'
-    description: "Match order creator"
+    description: Match order creator
     example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
   token_to_sell:
     type: string

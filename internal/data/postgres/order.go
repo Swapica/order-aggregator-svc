@@ -39,8 +39,9 @@ func (q *orders) Insert(order data.Order) (data.Order, error) {
 	return res, errors.Wrap(err, "failed to insert order")
 }
 
-func (q *orders) Update(state uint8, matchID *int64, matchSw *string) error {
-	stmt := q.updater.SetMap(map[string]interface{}{"state": state, "match_id": matchID, "match_swapica": matchSw})
+func (q *orders) Update(state uint8, executedByMatch, matchId *int64, matchSw *string) error {
+	stmt := q.updater.SetMap(map[string]interface{}{
+		"state": state, "executed_by_match": executedByMatch, "match_id": matchId, "match_swapica": matchSw})
 	err := q.db.Exec(stmt)
 	return errors.Wrap(err, "failed to update order")
 }
@@ -76,6 +77,10 @@ func (q *orders) Page(page *pgdb.OffsetPageParams) data.Orders {
 
 func (q *orders) FilterBySupportedChains(chainIDs ...int64) data.Orders {
 	return q.filterByCol("src_chain", chainIDs).filterByCol("dest_chain", chainIDs)
+}
+
+func (q *orders) FilterByID(ids ...int64) data.Orders {
+	return q.filterByCol("id", ids)
 }
 
 func (q *orders) FilterByOrderID(ids ...int64) data.Orders {
