@@ -19,8 +19,7 @@ func ListClaimable(w http.ResponseWriter, r *http.Request) {
 
 	q := MatchOrdersQ(r).
 		FilterBySupportedChains(ChainsQ(r).SelectIDs()...).
-		FilterBySrcChain(req.FilterSrcChain).
-		FilterClaimable(*req.FilterCreator)
+		FilterClaimable(*req.FilterCreator, req.FilterSrcChain)
 
 	matches, err := q.Page(&req.OffsetPageParams).Select()
 	if err != nil {

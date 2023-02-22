@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"database/sql"
+	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/Swapica/order-aggregator-svc/internal/data"
@@ -57,6 +58,7 @@ func (q *matches) Get() (*data.Match, error) {
 }
 
 func (q *matches) Select() ([]data.Match, error) {
+	fmt.Println(q.selector.ToSql())
 	var res []data.Match
 	err := q.db.Select(&res, q.selector)
 	return res, errors.Wrap(err, "failed to select match orders")
@@ -112,11 +114,16 @@ func (q *matches) FilterExpired(apply *bool) data.MatchOrders {
 	return q
 }
 
-func (q *matches) FilterClaimable(creator string) data.MatchOrders {
+func (q *matches) FilterClaimable(creator string, chain *int64) data.MatchOrders {
+	srcChain := ""
+	if chain != nil {
+		srcChain = fmt.Sprintf("%d IN (o.src_chain, m.src_chain)", *chain)
+	}
+
 	matchAwaits := sq.Eq{"m.state": data.StateAwaitingFinalization}
 	claimOrder := sq.And{sq.Eq{"o.state": data.StateAwaitingMatch}, sq.ILike{"m.creator": creator}}
 	claimMatch := sq.And{sq.Eq{"o.state": data.StateExecuted}, sqlString("o.match_id = m.match_id"), sq.ILike{"o.creator": creator}}
-	fullCond := sq.And{matchAwaits, sq.Or{claimOrder, claimMatch}}
+	fullCond := sq.And{sqlString(srcChain), matchAwaits, sq.Or{claimOrder, claimMatch}}
 
 	q.selector = q.selector.Join(joinOrders).Where(fullCond)
 	q.counter = q.counter.Join(joinOrders).Where(fullCond)
