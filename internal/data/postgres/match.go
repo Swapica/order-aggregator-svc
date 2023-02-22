@@ -114,8 +114,8 @@ func (q *matches) FilterExpired(apply *bool) data.MatchOrders {
 
 func (q *matches) FilterClaimable(creator string) data.MatchOrders {
 	matchAwaits := sq.Eq{"m.state": data.StateAwaitingFinalization}
-	claimOrder := sq.And{sq.Eq{"o.state": data.StateAwaitingMatch}, sq.ILike{"o.creator": creator}}
-	claimMatch := sq.And{sq.Eq{"o.state": data.StateExecuted}, sqlString("o.match_id = m.match_id"), sq.ILike{"m.creator": creator}}
+	claimOrder := sq.And{sq.Eq{"o.state": data.StateAwaitingMatch}, sq.ILike{"m.creator": creator}}
+	claimMatch := sq.And{sq.Eq{"o.state": data.StateExecuted}, sqlString("o.match_id = m.match_id"), sq.ILike{"o.creator": creator}}
 	fullCond := sq.And{matchAwaits, sq.Or{claimOrder, claimMatch}}
 
 	q.selector = q.selector.Join(joinOrders).Where(fullCond)
