@@ -18,6 +18,7 @@ func ListClaimable(w http.ResponseWriter, r *http.Request) {
 	}
 
 	q := MatchOrdersQ(r).
+		FilterBySupportedChains(ChainsQ(r).SelectIDs()...).
 		FilterBySrcChain(req.FilterSrcChain).
 		FilterClaimable(*req.FilterCreator)
 
