@@ -58,6 +58,7 @@ func (q *matches) Get() (*data.Match, error) {
 }
 
 func (q *matches) Select() ([]data.Match, error) {
+	fmt.Println(q.selector.ToSql())
 	var res []data.Match
 	err := q.db.Select(&res, q.selector)
 	return res, errors.Wrap(err, "failed to select match orders")
@@ -114,15 +115,26 @@ func (q *matches) FilterExpired(apply *bool) data.MatchOrders {
 }
 
 func (q *matches) FilterClaimable(creator string, chain *int64) data.MatchOrders {
-	srcChain := ""
+	var mChain, oChain string
 	if chain != nil {
-		srcChain = fmt.Sprintf("%d IN (o.src_chain, m.src_chain)", *chain)
+		mChain = fmt.Sprintf("m.src_chain = %d", *chain)
+		oChain = fmt.Sprintf("o.src_chain = %d", *chain)
 	}
 
-	matchAwaits := sq.Eq{"m.state": data.StateAwaitingFinalization}
-	claimOrder := sq.And{sq.Eq{"o.state": data.StateAwaitingMatch}, sq.ILike{"m.creator": creator}}
-	claimMatch := sq.And{sq.Eq{"o.state": data.StateExecuted}, sqlString("o.match_id = m.match_id"), sq.ILike{"o.creator": creator}}
-	fullCond := sq.And{sqlString(srcChain), matchAwaits, sq.Or{claimOrder, claimMatch}}
+	claimOrder := sq.And{
+		sq.Eq{"o.state": data.StateAwaitingMatch},
+		sq.ILike{"m.creator": creator},
+		sqlString(mChain),
+	}
+
+	claimMatch := sq.And{
+		sq.Eq{"o.state": data.StateExecuted},
+		sqlString("o.match_id = m.match_id"),
+		sq.ILike{"o.creator": creator},
+		sqlString(oChain),
+	}
+
+	fullCond := sq.And{sq.Eq{"m.state": data.StateAwaitingFinalization}, sq.Or{claimOrder, claimMatch}}
 
 	q.selector = q.selector.Join(joinOrders).Where(fullCond)
 	q.counter = q.counter.Join(joinOrders).Where(fullCond)
