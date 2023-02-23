@@ -103,7 +103,7 @@ func (q *orders) FilterByTokenToSell(address *string) data.Orders {
 	return q.filterByCol("sell_token", address)
 }
 
-func (q *orders) FilterByDestinationChain(id *int64) data.Orders {
+func (q *orders) FilterByDestChain(id *int64) data.Orders {
 	return q.filterByCol("dest_chain", id)
 }
 

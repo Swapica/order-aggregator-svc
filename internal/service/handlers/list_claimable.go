@@ -35,13 +35,13 @@ func ListClaimable(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var ordersRes []resources.Order
-	chains := make([]resources.Chain, 0, 2*len(matches))
 	matchesRes := make([]resources.Match, 0, len(matches))
-	orderIDs := make([]int64, len(matches))
+	ordersRes := make([]resources.Order, 0, len(matches))
+	orderIDs := make([]int64, 0, len(matches))
+	chains := make([]resources.Chain, 0, 2*len(matches))
 
-	for i, m := range matches {
-		orderIDs[i] = m.OriginOrder
+	for _, m := range matches {
+		orderIDs = append(orderIDs, m.OriginOrder)
 
 		src := ChainsQ(r).FilterByChainID(m.SrcChain).Get()
 		origin := ChainsQ(r).FilterByChainID(m.OrderChain).Get()

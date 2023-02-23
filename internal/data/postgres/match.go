@@ -12,7 +12,7 @@ import (
 )
 
 const matchesTable = "match_orders"
-const joinOrders = ordersTable + " o ON m.order_id = o.order_id AND m.order_chain = o.src_chain"
+const joinOrders = ordersTable + " o ON m.origin_order = o.id"
 
 type matches struct {
 	db       *pgdb.DB

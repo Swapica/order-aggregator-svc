@@ -31,9 +31,11 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.MatchID != nil {
-		log = log.WithField("match_id", *req.MatchID)
-		by, err := MatchOrdersQ(r).FilterByMatchID(*req.MatchID).FilterBySrcChain(&exists.DestChain).Get()
+	var matchFK *int64
+	matchId := req.Body.Data.Attributes.MatchId
+	if matchId != nil {
+		log = log.WithField("match_id", *matchId)
+		by, err := MatchOrdersQ(r).FilterByMatchID(*matchId).FilterBySrcChain(&exists.DestChain).Get()
 		if err != nil {
 			log.WithError(err).Error("failed to get match order that executed the order")
 			ape.RenderErr(w, problems.InternalError())
@@ -44,11 +46,12 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 			ape.RenderErr(w, problems.NotFound())
 			return
 		}
+		matchFK = &by.ID
 	}
 
 	a := req.Body.Data.Attributes
-	if err = q.Update(a.State, req.MatchID, a.MatchSwapica); err != nil {
-		log.WithError(err).Error("failed to insert order")
+	if err = q.Update(a.State, matchFK, matchId, a.MatchSwapica); err != nil {
+		log.WithError(err).Error("failed to update order")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}

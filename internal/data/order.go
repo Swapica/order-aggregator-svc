@@ -21,7 +21,7 @@ type Orders interface {
 	FilterByCreator(*string) Orders
 	FilterByTokenToBuy(*string) Orders
 	FilterByTokenToSell(*string) Orders
-	FilterByDestinationChain(*int64) Orders
+	FilterByDestChain(*int64) Orders
 	FilterByState(*uint8) Orders
 }
 
