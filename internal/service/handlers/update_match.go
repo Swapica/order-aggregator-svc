@@ -12,6 +12,7 @@ import (
 func UpdateMatch(w http.ResponseWriter, r *http.Request) {
 	request, err := requests.NewUpdateMatch(r)
 	if err != nil {
+		Log(r).WithError(err).Debug("bad request")
 		ape.RenderErr(w, problems.BadRequest(err)...)
 		return
 	}

@@ -13,6 +13,7 @@ import (
 func AddOrder(w http.ResponseWriter, r *http.Request) {
 	request, err := requests.NewAddOrder(r)
 	if err != nil {
+		Log(r).WithError(err).Debug("bad request")
 		ape.RenderErr(w, problems.BadRequest(err)...)
 		return
 	}

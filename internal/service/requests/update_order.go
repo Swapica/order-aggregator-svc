@@ -31,7 +31,7 @@ func NewUpdateOrder(r *http.Request) (*UpdateOrder, error) {
 		"data/id":                       errOrderID,
 		"data/type":                     val.Validate(dst.Body.Data.Type, val.Required, val.In(resources.ORDER)),
 		"data/attributes/state":         val.Validate(a.State, val.Required, val.In(data.StateCanceled, data.StateExecuted)),
-		"data/attributes/match_id":      val.Validate(a.MatchId, val.NilOrNotEmpty, val.Match(addressRegexp)),
+		"data/attributes/match_id":      val.Validate(a.MatchId, val.NilOrNotEmpty, val.Min(1)),
 		"data/attributes/match_swapica": val.Validate(a.MatchSwapica, val.NilOrNotEmpty, val.Match(addressRegexp)),
 	}.Filter()
 }
