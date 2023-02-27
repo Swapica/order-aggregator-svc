@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/Swapica/order-aggregator-svc/internal/service/helpers"
 	"github.com/Swapica/order-aggregator-svc/internal/service/requests"
 	"github.com/Swapica/order-aggregator-svc/internal/service/responses"
 	"gitlab.com/distributed_lab/ape"
@@ -62,7 +63,14 @@ func AddMatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newMatch, err := q.Insert(req.DBModel(originOrder.ID))
+	sellToken, err := helpers.GetOrAddToken(TokensQ(r), attr.TokenToSell, *srcChain)
+	if err != nil {
+		log.WithError(err).Error("failed to get or add token to sell")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
+	newMatch, err := q.Insert(req.DBModel(originOrder.ID, sellToken.ID))
 	if err != nil {
 		log.WithError(err).Error("failed to add match order")
 		ape.RenderErr(w, problems.InternalError())

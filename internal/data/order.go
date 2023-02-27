@@ -34,8 +34,8 @@ type Order struct {
 	OrderID    int64  `structs:"order_id" db:"order_id"`
 	SrcChain   int64  `structs:"src_chain" db:"src_chain"`
 	Creator    string `structs:"creator" db:"creator"`
-	SellToken  string `structs:"sell_token" db:"sell_token"`
-	BuyToken   string `structs:"buy_token" db:"buy_token"`
+	SellToken  int64  `structs:"sell_token" db:"sell_token"`
+	BuyToken   int64  `structs:"buy_token" db:"buy_token"`
 	SellAmount string `structs:"sell_amount" db:"sell_amount"`
 	BuyAmount  string `structs:"buy_amount" db:"buy_amount"`
 	DestChain  int64  `structs:"dest_chain" db:"dest_chain"`

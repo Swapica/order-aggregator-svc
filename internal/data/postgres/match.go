@@ -58,7 +58,6 @@ func (q *matches) Get() (*data.Match, error) {
 }
 
 func (q *matches) Select() ([]data.Match, error) {
-	fmt.Println(q.selector.ToSql())
 	var res []data.Match
 	err := q.db.Select(&res, q.selector)
 	return res, errors.Wrap(err, "failed to select match orders")

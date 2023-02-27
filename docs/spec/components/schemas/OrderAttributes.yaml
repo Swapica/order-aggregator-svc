@@ -18,16 +18,6 @@ properties:
     pattern: '^0x[0-9A-Fa-f]{40}$'
     description: Order creator
     example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
-  token_to_sell:
-    type: string
-    pattern: '^0x[0-9A-Fa-f]{40}$'
-    description: Contract address of the token to sell
-    example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
-  token_to_buy:
-    type: string
-    pattern: '^0x[0-9A-Fa-f]{40}$'
-    description: Contract address of the token to buy
-    example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
   amount_to_sell:
     type: string
     description: With decimals

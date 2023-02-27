@@ -12,6 +12,8 @@ allOf:
         required:
           - src_chain
           - destination_chain
+          - token_to_sell
+          - token_to_buy
         properties:
           src_chain:
             type: object
@@ -29,6 +31,22 @@ allOf:
             properties:
               data:
                 $ref: "#/components/schemas/ChainKey"
+          token_to_sell:
+            type: object
+            description: Token which is sold by the order
+            required:
+              - data
+            properties:
+              data:
+                $ref: "#/components/schemas/TokenKey"
+          token_to_buy:
+            type: object
+            description: Token which is bought by the order
+            required:
+              - data
+            properties:
+              data:
+                $ref: "#/components/schemas/TokenKey"
           match:
             type: object
             description: Match order which was used to execute the order

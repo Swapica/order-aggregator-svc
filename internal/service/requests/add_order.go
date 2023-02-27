@@ -39,13 +39,13 @@ func (r *AddOrder) validate() error {
 	}.Filter()
 }
 
-func (r *AddOrder) DBModel() data.Order {
+func (r *AddOrder) DBModel(sellToken, buyToken int64) data.Order {
 	return data.Order{
 		OrderID:    r.Data.Attributes.OrderId,
 		SrcChain:   r.Data.Attributes.SrcChainId,
 		Creator:    r.Data.Attributes.Creator,
-		SellToken:  r.Data.Attributes.TokenToSell,
-		BuyToken:   r.Data.Attributes.TokenToBuy,
+		SellToken:  sellToken,
+		BuyToken:   buyToken,
 		SellAmount: r.Data.Attributes.AmountToSell,
 		BuyAmount:  r.Data.Attributes.AmountToBuy,
 		DestChain:  r.Data.Attributes.DestChainId,

@@ -9,3 +9,5 @@ schema:
     - destination_chain
     - origin_chain
     - origin_order
+    - token_to_sell
+    - token_to_buy

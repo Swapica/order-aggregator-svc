@@ -13,6 +13,7 @@ allOf:
           - src_chain
           - origin_chain
           - origin_order
+          - token_to_sell
         properties:
           src_chain:
             type: object
@@ -38,3 +39,11 @@ allOf:
             properties:
               data:
                 $ref: "#/components/schemas/OrderKey"
+          token_to_sell:
+            type: object
+            description: Token which is sold by the match order
+            required:
+              - data
+            properties:
+              data:
+                $ref: "#/components/schemas/TokenKey"

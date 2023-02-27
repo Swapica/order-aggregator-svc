@@ -16,6 +16,7 @@ const (
 	matchOrdersCtxKey
 	blockCtxKey
 	chainsCtxKey
+	tokensCtxKey
 )
 
 func CtxLog(entry *logan.Entry) func(context.Context) context.Context {
@@ -66,4 +67,14 @@ func CtxChainsQ(q data.Chains) func(context.Context) context.Context {
 
 func ChainsQ(r *http.Request) data.Chains {
 	return r.Context().Value(chainsCtxKey).(data.Chains).New()
+}
+
+func CtxTokensQ(q data.Tokens) func(context.Context) context.Context {
+	return func(ctx context.Context) context.Context {
+		return context.WithValue(ctx, tokensCtxKey, q)
+	}
+}
+
+func TokensQ(r *http.Request) data.Tokens {
+	return r.Context().Value(tokensCtxKey).(data.Tokens).New()
 }

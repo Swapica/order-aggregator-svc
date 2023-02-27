@@ -33,7 +33,7 @@ type Match struct {
 	OrderID     int64  `structs:"order_id" db:"order_id"`
 	OrderChain  int64  `structs:"order_chain" db:"order_chain"`
 	Creator     string `structs:"creator" db:"creator"`
-	SellToken   string `structs:"sell_token" db:"sell_token"`
+	SellToken   int64  `structs:"sell_token" db:"sell_token"`
 	SellAmount  string `structs:"sell_amount" db:"sell_amount"`
 	State       uint8  `structs:"state" db:"state"`
 }

@@ -10,9 +10,15 @@ allOf:
           - $ref: "#/components/schemas/MatchAttributes"
           - type: object
             required:
+              - token_to_sell
               - src_chain_id
               - origin_chain_id
             properties:
+              token_to_sell:
+                type: string
+                pattern: '^0x[0-9A-Fa-f]{40}$'
+                description: Contract address of the token to sell
+                example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
               src_chain_id:
                 type: integer
                 format: int64

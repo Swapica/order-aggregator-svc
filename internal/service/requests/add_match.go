@@ -36,7 +36,7 @@ func (r *AddMatch) validate() error {
 	}.Filter()
 }
 
-func (r *AddMatch) DBModel(originOrder int64) data.Match {
+func (r *AddMatch) DBModel(originOrder, sellToken int64) data.Match {
 	return data.Match{
 		MatchID:     r.Data.Attributes.MatchId,
 		SrcChain:    r.Data.Attributes.SrcChainId,
@@ -44,7 +44,7 @@ func (r *AddMatch) DBModel(originOrder int64) data.Match {
 		OrderID:     r.Data.Attributes.OriginOrderId,
 		OrderChain:  r.Data.Attributes.OriginChainId,
 		Creator:     r.Data.Attributes.Creator,
-		SellToken:   r.Data.Attributes.TokenToSell,
+		SellToken:   sellToken,
 		SellAmount:  r.Data.Attributes.AmountToSell,
 		State:       r.Data.Attributes.State,
 	}

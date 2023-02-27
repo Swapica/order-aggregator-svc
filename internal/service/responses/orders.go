@@ -18,6 +18,9 @@ func NewOrderList(orders []resources.Order, included []resources.Chain, count in
 }
 
 func ToOrderResource(o data.Order, srcChain, destChain resources.Key) resources.Order {
+	buyKey :=resources.NewKeyInt64(o.BuyToken, resources.TOKEN)
+	sellKey :=resources.NewKeyInt64(o.SellToken, resources.TOKEN)
+
 	var executedBy *resources.Relation
 	if ebm := o.ExecutedByMatch.Int64; ebm != 0 {
 		key := resources.NewKeyInt64(ebm, resources.MATCH_ORDER)
@@ -44,13 +47,13 @@ func ToOrderResource(o data.Order, srcChain, destChain resources.Key) resources.
 			MatchSwapica: matchSwapica,
 			OrderId:      o.OrderID,
 			State:        o.State,
-			TokenToBuy:   o.BuyToken,
-			TokenToSell:  o.SellToken,
 		},
 		Relationships: resources.OrderRelationships{
 			DestinationChain: resources.Relation{Data: &destChain},
 			Match:            executedBy,
 			SrcChain:         resources.Relation{Data: &srcChain},
+			TokenToBuy:   resources.Relation{Data: &buyKey},
+			TokenToSell:  resources.Relation{Data: &sellKey},
 		},
 	}
 }
