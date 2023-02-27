@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/Swapica/order-aggregator-svc/internal/data"
 	"github.com/Swapica/order-aggregator-svc/internal/service/requests"
 	"github.com/Swapica/order-aggregator-svc/internal/service/responses"
 	"github.com/Swapica/order-aggregator-svc/resources"
@@ -38,10 +39,12 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var orders []data.Order
 	matchesRes := make([]resources.Match, 0, len(matches))
-	ordersRes := make([]resources.Order, 0, len(matches))
 	orderIDs := make([]int64, 0, len(matches))
-	chains := make([]resources.Chain, 0, 2*len(matches))
+	tokenIDs := make([]int64, 0, 3*len(matches))
+	included := make([]resources.Resource, 0, 4*len(matches))
+	includeOrigin := req.IncludeOriginOrder || req.IncludeOriginBuyToken || req.IncludeOriginSellToken
 
 	for _, m := range matches {
 		src := ChainsQ(r).FilterByChainID(m.SrcChain).Get()
@@ -49,20 +52,23 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 		matchesRes = append(matchesRes, responses.ToMatchResource(m, src.Key, origin.Key))
 
 		if req.IncludeSrcChain {
-			chains = append(chains, *src)
+			included = append(included, src)
 		}
 		if req.IncludeOriginChain {
-			chains = append(chains, *origin)
+			included = append(included, origin)
 		}
-		if req.IncludeOriginOrder {
+		if includeOrigin {
 			orderIDs = append(orderIDs, m.OriginOrder)
+		}
+		if req.IncludeSellToken {
+			tokenIDs = append(tokenIDs, m.SellToken)
 		}
 	}
 
-	if req.IncludeOriginOrder {
-		orders, err := OrdersQ(r).FilterByID(orderIDs...).Select()
+	if includeOrigin {
+		orders, err = OrdersQ(r).FilterByID(orderIDs...).Select()
 		if err != nil {
-			Log(r).WithError(err).Error("failed to include orders")
+			Log(r).WithError(err).Error("failed to include origin orders")
 			ape.RenderErr(w, problems.InternalError())
 			return
 		}
@@ -70,11 +76,33 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 		for _, o := range orders {
 			src := ChainsQ(r).FilterByChainID(o.SrcChain).Get()
 			dest := ChainsQ(r).FilterByChainID(o.DestChain).Get()
-			ordersRes = append(ordersRes, responses.ToOrderResource(o, src.Key, dest.Key))
+			res := responses.ToOrderResource(o, src.Key, dest.Key)
+			included = append(included, &res)
+
+			if req.IncludeOriginBuyToken {
+				tokenIDs = append(tokenIDs, o.BuyToken)
+			}
+			if req.IncludeOriginSellToken {
+				tokenIDs = append(tokenIDs, o.SellToken)
+			}
 		}
 	}
 
-	resp := responses.NewMatchList(matchesRes, ordersRes, chains, count)
+	if req.IncludeSellToken || req.IncludeOriginBuyToken || req.IncludeOriginSellToken {
+		tokens, err := TokensQ(r).FilterByID(tokenIDs...).Select()
+		if err != nil {
+			Log(r).WithError(err).Error("failed to include tokens")
+			ape.RenderErr(w, problems.InternalError())
+			return
+		}
+
+		for _, t := range tokens {
+			res := responses.ToTokenResource(t)
+			included = append(included, &res)
+		}
+	}
+
+	resp := responses.NewMatchList(matchesRes, included, count)
 	resp.Links = req.Params.GetLinks(r)
 	ape.Render(w, resp)
 }

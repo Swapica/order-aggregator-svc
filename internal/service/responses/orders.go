@@ -9,17 +9,17 @@ func NewOrder(o data.Order, srcChain, destChain resources.Key) resources.OrderRe
 	return resources.OrderResponse{Data: ToOrderResource(o, srcChain, destChain)}
 }
 
-func NewOrderList(orders []resources.Order, included []resources.Chain, count int64) resources.OrderListResponse {
+func NewOrderList(orders []resources.Order, included []resources.Resource, count int64) resources.OrderListResponse {
 	resp := resources.OrderListResponse{Data: orders, Meta: toRawMetaField(count)}
 	for i := range included {
-		resp.Included.Add(&included[i])
+		resp.Included.Add(included[i])
 	}
 	return resp
 }
 
 func ToOrderResource(o data.Order, srcChain, destChain resources.Key) resources.Order {
-	buyKey :=resources.NewKeyInt64(o.BuyToken, resources.TOKEN)
-	sellKey :=resources.NewKeyInt64(o.SellToken, resources.TOKEN)
+	buyKey := resources.NewKeyInt64(o.BuyToken, resources.TOKEN)
+	sellKey := resources.NewKeyInt64(o.SellToken, resources.TOKEN)
 
 	var executedBy *resources.Relation
 	if ebm := o.ExecutedByMatch.Int64; ebm != 0 {
@@ -52,8 +52,8 @@ func ToOrderResource(o data.Order, srcChain, destChain resources.Key) resources.
 			DestinationChain: resources.Relation{Data: &destChain},
 			Match:            executedBy,
 			SrcChain:         resources.Relation{Data: &srcChain},
-			TokenToBuy:   resources.Relation{Data: &buyKey},
-			TokenToSell:  resources.Relation{Data: &sellKey},
+			TokenToBuy:       resources.Relation{Data: &buyKey},
+			TokenToSell:      resources.Relation{Data: &sellKey},
 		},
 	}
 }

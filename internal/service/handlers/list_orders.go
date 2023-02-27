@@ -40,8 +40,10 @@ func ListOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	chains := make([]resources.Chain, 0, 2*len(orders))
 	ordersRes := make([]resources.Order, 0, len(orders))
+	tokenIDs := make([]int64, 0, 3*len(orders))
+	included := make([]resources.Resource, 0, 4*len(orders))
+
 	for _, o := range orders {
 		// must not be nil because of FilterBySupportedChains
 		src := ChainsQ(r).FilterByChainID(o.SrcChain).Get()
@@ -49,14 +51,34 @@ func ListOrders(w http.ResponseWriter, r *http.Request) {
 		ordersRes = append(ordersRes, responses.ToOrderResource(o, src.Key, dest.Key))
 
 		if req.IncludeSrcChain {
-			chains = append(chains, *src)
+			included = append(included, src)
 		}
 		if req.IncludeDestChain {
-			chains = append(chains, *dest)
+			included = append(included, dest)
+		}
+		if req.IncludeBuyToken {
+			tokenIDs = append(tokenIDs, o.BuyToken)
+		}
+		if req.IncludeSellToken {
+			tokenIDs = append(tokenIDs, o.SellToken)
 		}
 	}
 
-	resp := responses.NewOrderList(ordersRes, chains, count)
+	if req.IncludeBuyToken || req.IncludeSellToken {
+		tokens, err := TokensQ(r).FilterByID(tokenIDs...).Select()
+		if err != nil {
+			Log(r).WithError(err).Error("failed to include tokens")
+			ape.RenderErr(w, problems.InternalError())
+			return
+		}
+
+		for _, t := range tokens {
+			res := responses.ToTokenResource(t)
+			included = append(included, &res)
+		}
+	}
+
+	resp := responses.NewOrderList(ordersRes, included, count)
 	resp.Links = req.Params.GetLinks(r)
 	ape.Render(w, resp)
 }

@@ -17,6 +17,8 @@ type ListOrders struct {
 	FilterState      *uint8  `filter:"state"`
 	IncludeSrcChain  bool    `include:"src_chain"`
 	IncludeDestChain bool    `include:"destination_chain"`
+	IncludeBuyToken  bool    `include:"token_to_buy"`
+	IncludeSellToken bool    `include:"token_to_sell"`
 }
 
 func NewListOrders(r *http.Request) (*ListOrders, error) {

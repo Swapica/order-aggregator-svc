@@ -9,20 +9,17 @@ func NewMatch(m data.Match, srcChain, originChain resources.Key) resources.Match
 	return resources.MatchResponse{Data: ToMatchResource(m, srcChain, originChain)}
 }
 
-func NewMatchList(matches []resources.Match, orders []resources.Order, chains []resources.Chain, count int64) resources.MatchListResponse {
+func NewMatchList(matches []resources.Match, included []resources.Resource, count int64) resources.MatchListResponse {
 	resp := resources.MatchListResponse{Data: matches, Meta: toRawMetaField(count)}
-	for i := range chains {
-		resp.Included.Add(&chains[i])
-	}
-	for i := range orders {
-		resp.Included.Add(&orders[i])
+	for i := range included {
+		resp.Included.Add(included[i])
 	}
 	return resp
 }
 
 func ToMatchResource(m data.Match, srcChain, originChain resources.Key) resources.Match {
 	originKey := resources.NewKeyInt64(m.OriginOrder, resources.ORDER)
-	sellKey :=resources.NewKeyInt64(m.SellToken, resources.TOKEN)
+	sellKey := resources.NewKeyInt64(m.SellToken, resources.TOKEN)
 
 	return resources.Match{
 		Key: resources.NewKeyInt64(m.ID, resources.MATCH_ORDER),

@@ -7,7 +7,9 @@ schema:
   enum:
     - src_chain
     - destination_chain
+    - token_to_buy
+    - token_to_sell
     - origin_chain
     - origin_order
-    - token_to_sell
-    - token_to_buy
+    - origin_order.token_to_buy
+    - origin_order.token_to_sell

@@ -55,7 +55,6 @@ func AddMatch(w http.ResponseWriter, r *http.Request) {
 		ape.RenderErr(w, problems.NotFound())
 		return
 	}
-
 	originChain := ChainsQ(r).FilterByChainID(attr.OriginChainId).Get()
 	if originChain == nil {
 		log.Warn("origin_chain is not supported by swapica-svc")

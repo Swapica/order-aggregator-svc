@@ -19,7 +19,7 @@ func AddOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	attr:=req.Data.Attributes
+	attr := req.Data.Attributes
 	q := OrdersQ(r).FilterByOrderID(attr.OrderId).FilterBySrcChain(&attr.SrcChainId)
 	log := Log(r).WithFields(logan.F{"order_id": attr.OrderId, "src_chain": attr.SrcChainId, "dest_chain": attr.DestChainId})
 
@@ -54,7 +54,7 @@ func AddOrder(w http.ResponseWriter, r *http.Request) {
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
-	buyToken, err := helpers.GetOrAddToken(TokensQ(r), attr.TokenToBuy, *srcChain)
+	buyToken, err := helpers.GetOrAddToken(TokensQ(r), attr.TokenToBuy, *destChain)
 	if err != nil {
 		log.WithError(err).Error("failed to get or add token to sell")
 		ape.RenderErr(w, problems.InternalError())

@@ -10,10 +10,13 @@ import (
 
 type ListClaimable struct {
 	page.Params
-	FilterSrcChain     *int64  `filter:"src_chain"`
-	FilterCreator      *string `filter:"creator"`
-	IncludeSrcChain    bool    `include:"src_chain"`
-	IncludeOriginChain bool    `include:"origin_chain"`
+	FilterSrcChain         *int64  `filter:"src_chain"`
+	FilterCreator          *string `filter:"creator"`
+	IncludeSrcChain        bool    `include:"src_chain"`
+	IncludeOriginChain     bool    `include:"origin_chain"`
+	IncludeOriginBuyToken  bool    `include:"origin_order.token_to_buy"`
+	IncludeOriginSellToken bool    `include:"origin_order.token_to_sell"`
+	IncludeSellToken       bool    `include:"token_to_sell"`
 }
 
 func NewListClaimable(r *http.Request) (*ListClaimable, error) {
