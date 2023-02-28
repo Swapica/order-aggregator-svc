@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/Swapica/order-aggregator-svc/internal/data"
@@ -13,17 +14,18 @@ import (
 const ordersTable = "orders"
 
 type orders struct {
-	db       *pgdb.DB
-	selector squirrel.SelectBuilder
-	counter  squirrel.SelectBuilder
-	updater  squirrel.UpdateBuilder
+	db           *pgdb.DB
+	selector     squirrel.SelectBuilder
+	counter      squirrel.SelectBuilder
+	updater      squirrel.UpdateBuilder
+	tokensJoined bool
 }
 
 func NewOrders(db *pgdb.DB) data.Orders {
 	return &orders{
 		db:       db,
-		selector: squirrel.Select("*").From(ordersTable),
-		counter:  squirrel.Select("count(id)").From(ordersTable),
+		selector: squirrel.Select("o.*").From(ordersTable + " o"),
+		counter:  squirrel.Select("count(o.id)").From(ordersTable + " o"),
 		updater:  squirrel.Update(ordersTable),
 	}
 }
@@ -96,11 +98,11 @@ func (q *orders) FilterBySrcChain(id *int64) data.Orders {
 }
 
 func (q *orders) FilterByTokenToBuy(address *string) data.Orders {
-	return q.filterByCol("buy_token", address)
+	return q.filterByToken("buy_token", address)
 }
 
 func (q *orders) FilterByTokenToSell(address *string) data.Orders {
-	return q.filterByCol("sell_token", address)
+	return q.filterByToken("sell_token", address)
 }
 
 func (q *orders) FilterByDestChain(id *int64) data.Orders {
@@ -117,14 +119,31 @@ func (q *orders) filterByCol(column string, value interface{}) *orders {
 	}
 
 	if _, ok := value.(*string); ok {
-		q.selector = q.selector.Where(squirrel.ILike{column: value})
-		q.counter = q.counter.Where(squirrel.ILike{column: value})
+		q.selector = q.selector.Where(squirrel.ILike{"o." + column: value})
+		q.counter = q.counter.Where(squirrel.ILike{"o." + column: value})
 		q.updater = q.updater.Where(squirrel.ILike{column: value})
 		return q
 	}
 
-	q.selector = q.selector.Where(squirrel.Eq{column: value})
-	q.counter = q.counter.Where(squirrel.Eq{column: value})
+	q.selector = q.selector.Where(squirrel.Eq{"o." + column: value})
+	q.counter = q.counter.Where(squirrel.Eq{"o." + column: value})
 	q.updater = q.updater.Where(squirrel.Eq{column: value})
+	return q
+}
+
+func (q *orders) filterByToken(col string, address *string) *orders {
+	if address != nil {
+		if !q.tokensJoined {
+			join := fmt.Sprintf("%s t ON o.%s = t.id", tokensTable, col)
+			q.selector = q.selector.Join(join)
+			q.counter = q.counter.Join(join)
+		}
+		q.tokensJoined = true
+
+		filter := squirrel.ILike{"t.address": address}
+		q.selector = q.selector.Where(filter)
+		q.counter = q.counter.Where(filter)
+	}
+
 	return q
 }
