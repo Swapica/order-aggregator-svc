@@ -14,18 +14,17 @@ import (
 const ordersTable = "orders"
 
 type orders struct {
-	db           *pgdb.DB
-	selector     squirrel.SelectBuilder
-	counter      squirrel.SelectBuilder
-	updater      squirrel.UpdateBuilder
-	tokensJoined bool
+	db       *pgdb.DB
+	selector squirrel.SelectBuilder
+	counter  squirrel.SelectBuilder
+	updater  squirrel.UpdateBuilder
 }
 
 func NewOrders(db *pgdb.DB) data.Orders {
 	return &orders{
 		db:       db,
-		selector: squirrel.Select("o.*").From(ordersTable + " o"),
-		counter:  squirrel.Select("count(o.id)").From(ordersTable + " o"),
+		selector: squirrel.Select("*").From(ordersTable),
+		counter:  squirrel.Select("count(id)").From(ordersTable),
 		updater:  squirrel.Update(ordersTable),
 	}
 }
@@ -119,30 +118,24 @@ func (q *orders) filterByCol(column string, value interface{}) *orders {
 	}
 
 	if _, ok := value.(*string); ok {
-		q.selector = q.selector.Where(squirrel.ILike{"o." + column: value})
-		q.counter = q.counter.Where(squirrel.ILike{"o." + column: value})
+		q.selector = q.selector.Where(squirrel.ILike{column: value})
+		q.counter = q.counter.Where(squirrel.ILike{column: value})
 		q.updater = q.updater.Where(squirrel.ILike{column: value})
 		return q
 	}
 
-	q.selector = q.selector.Where(squirrel.Eq{"o." + column: value})
-	q.counter = q.counter.Where(squirrel.Eq{"o." + column: value})
+	q.selector = q.selector.Where(squirrel.Eq{column: value})
+	q.counter = q.counter.Where(squirrel.Eq{column: value})
 	q.updater = q.updater.Where(squirrel.Eq{column: value})
 	return q
 }
 
 func (q *orders) filterByToken(col string, address *string) *orders {
 	if address != nil {
-		if !q.tokensJoined {
-			join := fmt.Sprintf("%s t ON o.%s = t.id", tokensTable, col)
-			q.selector = q.selector.Join(join)
-			q.counter = q.counter.Join(join)
-		}
-		q.tokensJoined = true
-
-		filter := squirrel.ILike{"t.address": address}
+		filter := fmt.Sprintf("%s IN (SELECT id FROM %s WHERE address ILIKE '%s')", col, tokensTable, *address)
 		q.selector = q.selector.Where(filter)
 		q.counter = q.counter.Where(filter)
+		q.updater = q.updater.Where(filter)
 	}
 
 	return q
