@@ -1,0 +1,39 @@
+allOf:
+  - $ref: "#/components/schemas/OrderKey"
+  - type: object
+    required:
+      - attributes
+      - relationships
+    properties:
+      attributes:
+        type: object
+        required:
+          - address
+          - src_chain
+          - name
+          - symbol
+          - decimals
+        properties:
+          address:
+            type: string
+            pattern: '^0x[0-9A-Fa-f]{40}$'
+            description: Token contract address
+            example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
+          src_chain:
+            type: integer
+            format: int64
+            description: Blockchain where the token lives
+            example: 5
+          name:
+            type: string
+            description: ERC20 token name property
+            example: "Tether USD"
+          symbol:
+            type: string
+            description: ERC20 token symbol property
+            example: "USDT"
+          decimals:
+            type: integer
+            format: uint8
+            description: ERC20 token decimals property
+            example: 18

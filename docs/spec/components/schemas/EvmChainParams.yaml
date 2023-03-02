@@ -1,0 +1,19 @@
+type: object
+required:
+  - chain_id
+  - rpc_url
+  - native_symbol
+  - native_decimals
+properties:
+  chain_id:
+    type: integer
+    format: int64
+  rpc:
+    type: string
+  native_symbol:
+    type: string
+  explorer_url:
+    type: string
+  native_decimals:
+    type: integer
+    format: uint8

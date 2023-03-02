@@ -1,0 +1,70 @@
+get:
+  tags:
+    - Match Orders
+  summary: List claimable
+  description: |
+    List order-match pair of the specific creator where order or match is available to claim, e.g. execute.
+    Match orders appear in `data`, and connected orders are `included`. There might be several matches for a single
+    _available to claim_ order.
+    
+    `src_chain` and `origin_chain` of the match order can be included.
+  operationId: listClaimable
+  parameters:
+    - $ref: "#/components/parameters/pageNumber"
+    - $ref: "#/components/parameters/pageLimit"
+    - $ref: "#/components/parameters/pageOrder"
+    - $ref: "#/components/parameters/include"
+    - $ref: "#/components/parameters/filterSrcChain"
+    - name: filter[creator]
+      in: query
+      required: true
+      description: Filter by `data.attributes.creator` field
+      schema:
+        type: string
+  pattern: '^0x[0-9A-Fa-f]{40}$'
+  example: 2
+  responses:
+    '200':
+      description: Success
+      content:
+        application/vnd.api+json:
+          schema:
+            type: object
+            required:
+              - data
+              - included
+              - meta
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Match'
+              included:
+                type: array
+                items:
+                  anyOf:
+                    - $ref: '#/components/schemas/Order'
+                    - $ref: '#/components/schemas/Chain'
+              meta:
+                type: object
+                required:
+                  - count
+                properties:
+                  count:
+                    type: integer
+                    description: |
+                      Total amount of all claimable match orders. It is always greater or equal than amount
+                      of the corresponding orders.
+                    example: 248
+    '400':
+      description: Request was invalid in some way
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    '500':
+      description: Internal error
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Errors'

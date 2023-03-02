@@ -1,0 +1,8 @@
+allOf:
+  - $ref: "#/components/schemas/BlockKey"
+  - type: object
+    properties:
+      attributes:
+        type: object
+        format: struct{}
+        description: Only for generation of Go API resources

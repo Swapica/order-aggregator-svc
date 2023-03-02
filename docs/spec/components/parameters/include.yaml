@@ -1,0 +1,15 @@
+name: include
+in: query
+required: false
+description: "Include relationships of orders and match orders"
+schema:
+  type: string
+  enum:
+    - src_chain
+    - destination_chain
+    - token_to_buy
+    - token_to_sell
+    - origin_chain
+    - origin_order
+    - origin_order.token_to_buy
+    - origin_order.token_to_sell

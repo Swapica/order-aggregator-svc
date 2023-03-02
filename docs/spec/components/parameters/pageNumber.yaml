@@ -1,0 +1,8 @@
+in: query
+name: page[number]
+required: false
+description: Page number in terms of limit-offset pagination
+schema:
+  type: integer
+  default: 0
+  minimum: 0

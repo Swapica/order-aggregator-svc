@@ -1,0 +1,10 @@
+in: query
+name: 'page[order]'
+required: false
+description: Ascending or descending order of records on the page
+schema:
+  type: string
+  enum:
+    - asc
+    - desc
+  default: desc

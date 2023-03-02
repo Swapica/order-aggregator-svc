@@ -1,0 +1,13 @@
+type: object
+required:
+  - id
+  - type
+properties:
+  id:
+    type: string
+    description: _Surrogate_ order ID
+    example: 7802323
+  type:
+    type: string
+    enum:
+      - order

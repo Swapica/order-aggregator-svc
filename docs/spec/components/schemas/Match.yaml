@@ -1,0 +1,49 @@
+allOf:
+  - $ref: "#/components/schemas/MatchKey"
+  - type: object
+    required:
+      - attributes
+      - relationships
+    properties:
+      attributes:
+        $ref: "#/components/schemas/MatchAttributes"
+      relationships:
+        type: object
+        required:
+          - src_chain
+          - origin_chain
+          - origin_order
+          - token_to_sell
+        properties:
+          src_chain:
+            type: object
+            description: Source blockchain where the match order appeared
+            required:
+              - data
+            properties:
+              data:
+                $ref: "#/components/schemas/ChainKey"
+          origin_chain:
+            type: object
+            description: Source blockchain of the order to match
+            required:
+              - data
+            properties:
+              data:
+                $ref: "#/components/schemas/ChainKey"
+          origin_order:
+            type: object
+            description: Order related to match
+            required:
+              - data
+            properties:
+              data:
+                $ref: "#/components/schemas/OrderKey"
+          token_to_sell:
+            type: object
+            description: Token which is sold by the match order
+            required:
+              - data
+            properties:
+              data:
+                $ref: "#/components/schemas/TokenKey"

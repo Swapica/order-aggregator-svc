@@ -1,0 +1,9 @@
+name: filter[state]
+in: query
+required: false
+description: Filter by `data.attributes.state` field
+schema:
+  type: integer
+  minimum: 0
+  maximum: 255
+  example: 2

@@ -1,0 +1,76 @@
+get:
+  tags:
+    - Orders
+  summary: List orders
+  operationId: listOrders
+  parameters:
+    - $ref: "#/components/parameters/pageNumber"
+    - $ref: "#/components/parameters/pageLimit"
+    - $ref: "#/components/parameters/pageOrder"
+    - $ref: "#/components/parameters/filterCreator"
+    - $ref: "#/components/parameters/filterSrcChain"
+    - $ref: "#/components/parameters/filterState"
+    - $ref: "#/components/parameters/include"
+    - name: filter[token_to_buy]
+      in: query
+      required: false
+      description: Filter by `data.attributes.token_to_buy` field
+      schema:
+        type: string
+        pattern: '^0x[0-9a-fA-F]{40}$'
+    - name: filter[token_to_sell]
+      in: query
+      required: false
+      description: Filter by `data.attributes.token_to_sell` field
+      schema:
+        type: string
+        pattern: '^0x[0-9a-fA-F]{40}$'
+    - name: filter[destination_chain]
+      in: query
+      required: false
+      description: |
+        Filter by `chain_id` of the order destination blockchain,
+        related to `data.relationships.destination_chain.data.id` field
+      schema:
+        type: integer
+        example: 5
+  responses:
+    '200':
+      description: Success
+      content:
+        application/vnd.api+json:
+          schema:
+            type: object
+            required:
+              - data
+              - meta
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+              included:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Chain'
+              meta:
+                type: object
+                required:
+                  - count
+                properties:
+                  count:
+                    type: integer
+                    description: Total amount of all orders in database that match the given filters
+                    example: 248
+    '400':
+      description: Request was invalid in some way
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    '500':
+      description: Internal error
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Errors'

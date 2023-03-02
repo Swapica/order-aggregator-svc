@@ -1,0 +1,29 @@
+allOf:
+  - $ref: '#/components/schemas/ChainKey'
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - name
+          - chain_type
+          - chain_params
+          - swap_contract
+        properties:
+          name:
+            type: string
+          icon:
+            type: string
+            description: Link to network icon
+            example: https://some.storage.com/image.png
+          chain_type:
+            type: string
+            description: Type of blockchain by supported wallets, APIs, etc.
+            enum:
+              - evm
+          swap_contract:
+            type: string
+          chain_params:
+            $ref: '#/components/schemas/EvmChainParams'

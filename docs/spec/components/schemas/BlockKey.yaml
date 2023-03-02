@@ -1,0 +1,13 @@
+type: object
+required:
+  - id
+  - type
+properties:
+  id:
+    type: string
+    description: Block number
+    example: 7344018
+  type:
+    type: string
+    enum:
+      - block
