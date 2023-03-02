@@ -59,6 +59,7 @@ func (q *matches) Get() (*data.Match, error) {
 
 func (q *matches) Select() ([]data.Match, error) {
 	var res []data.Match
+	q.filterBadTokens()
 	err := q.db.Select(&res, q.selector)
 	return res, errors.Wrap(err, "failed to select match orders")
 }
@@ -155,5 +156,13 @@ func (q *matches) filterByCol(column string, value interface{}) *matches {
 	q.selector = q.selector.Where(sq.Eq{"m." + column: value})
 	q.counter = q.counter.Where(sq.Eq{"m." + column: value})
 	q.updater = q.updater.Where(sq.Eq{column: value})
+	return q
+}
+
+func (q *matches) filterBadTokens() *matches {
+	filter := sq.NotEq{"m.state": data.StateBadToken}
+	q.selector = q.selector.Where(filter)
+	q.counter = q.counter.Where(filter)
+	q.updater = q.updater.Where(filter)
 	return q
 }

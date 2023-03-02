@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/Swapica/order-aggregator-svc/internal/data"
 	"github.com/Swapica/order-aggregator-svc/internal/service/helpers"
 	"github.com/Swapica/order-aggregator-svc/internal/service/requests"
 	"github.com/Swapica/order-aggregator-svc/internal/service/responses"
@@ -22,6 +23,7 @@ func AddOrder(w http.ResponseWriter, r *http.Request) {
 	attr := req.Data.Attributes
 	q := OrdersQ(r).FilterByOrderID(attr.OrderId).FilterBySrcChain(&attr.SrcChainId)
 	log := Log(r).WithFields(logan.F{"order_id": attr.OrderId, "src_chain": attr.SrcChainId, "dest_chain": attr.DestChainId})
+	badTokens := false
 
 	conflict, err := q.Get()
 	if err != nil {
@@ -50,18 +52,32 @@ func AddOrder(w http.ResponseWriter, r *http.Request) {
 
 	sellToken, err := helpers.GetOrAddToken(TokensQ(r), attr.TokenToSell, *srcChain)
 	if err != nil {
-		log.WithError(err).Error("failed to get or add token to sell")
-		ape.RenderErr(w, problems.InternalError())
-		return
-	}
-	buyToken, err := helpers.GetOrAddToken(TokensQ(r), attr.TokenToBuy, *destChain)
-	if err != nil {
-		log.WithError(err).Error("failed to get or add token to sell")
-		ape.RenderErr(w, problems.InternalError())
-		return
+		if !helpers.IsBadTokenErr(err) {
+			log.WithError(err).Error("failed to get or add token to sell")
+			ape.RenderErr(w, problems.InternalError())
+			return
+		}
+		log.WithError(err).Info("found bad token_to_sell, the order will be hidden")
+		badTokens = true
 	}
 
-	newOrder, err := q.Insert(req.DBModel(sellToken.ID, buyToken.ID))
+	buyToken, err := helpers.GetOrAddToken(TokensQ(r), attr.TokenToBuy, *destChain)
+	if err != nil {
+		if !helpers.IsBadTokenErr(err) {
+			log.WithError(err).Error("failed to get or add token to sell")
+			ape.RenderErr(w, problems.InternalError())
+			return
+		}
+		log.WithError(err).Info("found invalid token_to_buy, the order will be hidden")
+		badTokens = true
+	}
+
+	order := req.DBModel(sellToken.ID, buyToken.ID)
+	if badTokens {
+		order.State = data.StateBadToken
+	}
+
+	order, err = q.Insert(req.DBModel(sellToken.ID, buyToken.ID))
 	if err != nil {
 		log.WithError(err).Error("failed to add order")
 		ape.RenderErr(w, problems.InternalError())
@@ -69,5 +85,5 @@ func AddOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	ape.Render(w, responses.NewOrder(newOrder, srcChain.Key, destChain.Key))
+	ape.Render(w, responses.NewOrder(order, srcChain.Key, destChain.Key))
 }

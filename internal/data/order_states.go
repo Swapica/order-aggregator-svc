@@ -5,4 +5,5 @@ const (
 	StateAwaitingFinalization
 	StateCanceled
 	StateExecuted
+	StateBadToken = 255
 )

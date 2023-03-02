@@ -58,6 +58,7 @@ func (q *orders) Get() (*data.Order, error) {
 
 func (q *orders) Select() ([]data.Order, error) {
 	var res []data.Order
+	q.filterBadTokens()
 	err := q.db.Select(&res, q.selector)
 	return res, errors.Wrap(err, "failed to select orders")
 }
@@ -138,5 +139,13 @@ func (q *orders) filterByToken(col string, address *string) *orders {
 		q.updater = q.updater.Where(filter)
 	}
 
+	return q
+}
+
+func (q *orders) filterBadTokens() *orders {
+	filter := squirrel.NotEq{"state": data.StateBadToken}
+	q.selector = q.selector.Where(filter)
+	q.counter = q.counter.Where(filter)
+	q.updater = q.updater.Where(filter)
 	return q
 }

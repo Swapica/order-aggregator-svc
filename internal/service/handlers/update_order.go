@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/Swapica/order-aggregator-svc/internal/data"
 	"github.com/Swapica/order-aggregator-svc/internal/service/requests"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
@@ -29,6 +30,11 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 	if exists == nil {
 		log.Warn("order not found")
 		ape.RenderErr(w, problems.NotFound())
+		return
+	}
+	if exists.State == data.StateBadToken {
+		log.Info("order was hidden due to invalid token_to_buy or token_to_sell, its status won't be updated")
+		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 

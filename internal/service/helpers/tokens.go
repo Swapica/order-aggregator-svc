@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"context"
+	"net/http"
 	"strings"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ethereum/go-ethereum/rpc"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 )
 
@@ -31,13 +33,13 @@ func GetTokenMetadata(address string, chain resources.Chain) (TokenMetadata, err
 		}, nil
 	}
 
-	rpc := chain.Attributes.ChainParams.Rpc
-	if rpc == nil {
+	endpoint := chain.Attributes.ChainParams.Rpc
+	if endpoint == nil {
 		return TokenMetadata{}, errors.Errorf(
 			"unable to call network for chain=%s: data/attributes/chain_params/rpc is nil", chain.ID)
 	}
 
-	cli, err := ethclient.Dial(*rpc)
+	cli, err := ethclient.Dial(*endpoint)
 	if err != nil {
 		return TokenMetadata{}, errors.Wrap(err, "failed to connect EVM network")
 	}
@@ -76,4 +78,19 @@ func fetchTokenMetadata(caller *erc20.ERC20Caller) (TokenMetadata, error) {
 
 	res.Decimals, err = caller.Decimals(opts)
 	return res, errors.Wrap(err, "failed to fetch ERC20 decimals")
+}
+
+func IsBadTokenErr(err error) bool {
+	// TODO: test it for the different situations
+	// 1) address is not a contract
+	// 2) address has no name(), symbol() or decimals() method
+	// 3) RPC provider errors, like 'invalid project id' (this may be detected as 400, but must be 500;
+	// to fix it, you can try calling this method inside fetchTokenMetadata)
+	err = errors.Cause(err)
+	if e, ok := err.(rpc.HTTPError); ok {
+		return e.StatusCode >= http.StatusBadRequest &&
+			e.StatusCode < http.StatusInternalServerError
+	}
+
+	return err == bind.ErrNoCode
 }

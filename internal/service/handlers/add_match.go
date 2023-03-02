@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/Swapica/order-aggregator-svc/internal/data"
 	"github.com/Swapica/order-aggregator-svc/internal/service/helpers"
 	"github.com/Swapica/order-aggregator-svc/internal/service/requests"
 	"github.com/Swapica/order-aggregator-svc/internal/service/responses"
@@ -63,13 +64,20 @@ func AddMatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sellToken, err := helpers.GetOrAddToken(TokensQ(r), attr.TokenToSell, *srcChain)
-	if err != nil {
+	// token_to_sell == origin_order.token_to_buy, therefore assertion of order state covers the check for a bad token
+	if err != nil && !helpers.IsBadTokenErr(err) {
 		log.WithError(err).Error("failed to get or add token to sell")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
-	newMatch, err := q.Insert(req.DBModel(originOrder.ID, sellToken.ID))
+	match := req.DBModel(originOrder.ID, sellToken.ID)
+	if originOrder.State == data.StateBadToken {
+		log.Info("origin_order has invalid token_to_buy or token_to_sell, the match will be hidden")
+		match.State = data.StateBadToken
+	}
+
+	match, err = q.Insert(match)
 	if err != nil {
 		log.WithError(err).Error("failed to add match order")
 		ape.RenderErr(w, problems.InternalError())
@@ -77,5 +85,5 @@ func AddMatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	ape.Render(w, responses.NewMatch(newMatch, srcChain.Key, originChain.Key))
+	ape.Render(w, responses.NewMatch(match, srcChain.Key, originChain.Key))
 }
