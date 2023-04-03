@@ -36,20 +36,22 @@ func (r *AddOrder) validate() error {
 		"data/attributes/dest_chain_id":  val.Validate(a.DestChainId, val.Required, val.Min(1)),
 		"data/attributes/match_id":       val.Validate(a.MatchId, val.Nil),
 		"data/attributes/match_swapica":  val.Validate(a.MatchSwapica, val.Nil),
+		"data/attributes/auto_execute":   val.Validate(a.AutoExecute, val.Required),
 	}.Filter()
 }
 
 func (r *AddOrder) DBModel(sellToken, buyToken int64) data.Order {
 	return data.Order{
-		OrderID:    r.Data.Attributes.OrderId,
-		SrcChain:   r.Data.Attributes.SrcChainId,
-		Creator:    r.Data.Attributes.Creator,
-		SellToken:  sellToken,
-		BuyToken:   buyToken,
-		SellAmount: r.Data.Attributes.AmountToSell,
-		BuyAmount:  r.Data.Attributes.AmountToBuy,
-		DestChain:  r.Data.Attributes.DestChainId,
-		State:      r.Data.Attributes.State,
+		OrderID:     r.Data.Attributes.OrderId,
+		SrcChain:    r.Data.Attributes.SrcChainId,
+		Creator:     r.Data.Attributes.Creator,
+		SellToken:   sellToken,
+		BuyToken:    buyToken,
+		SellAmount:  r.Data.Attributes.AmountToSell,
+		BuyAmount:   r.Data.Attributes.AmountToBuy,
+		DestChain:   r.Data.Attributes.DestChainId,
+		State:       r.Data.Attributes.State,
+		AutoExecute: r.Data.Attributes.AutoExecute,
 		// ExecutedByMatch, MatchID, MatchSwapica must not appear on the order creation, according to the core contract
 	}
 }
