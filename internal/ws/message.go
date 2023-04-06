@@ -11,14 +11,16 @@ type Message struct {
 }
 
 const (
-	AddOrder = "add-order"
-	AddMatch = "add-match"
+	AddOrder    = "add-order"
+	AddMatch    = "add-match"
+	UpdateOrder = "update-order"
+	UpdateMatch = "update-match"
 )
 
 func (m *Message) encode() ([]byte, error) {
-	json, err := json.Marshal(m)
+	data, err := json.Marshal(m)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to encode websocket message")
 	}
-	return json, nil
+	return data, nil
 }
