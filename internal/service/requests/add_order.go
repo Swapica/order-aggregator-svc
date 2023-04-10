@@ -36,7 +36,7 @@ func (r *AddOrder) validate() error {
 		"data/attributes/dest_chain_id":  val.Validate(a.DestChainId, val.Required, val.Min(1)),
 		"data/attributes/match_id":       val.Validate(a.MatchId, val.Nil),
 		"data/attributes/match_swapica":  val.Validate(a.MatchSwapica, val.Nil),
-		"data/attributes/auto_execute":   val.Validate(a.AutoExecute, val.Required),
+		"data/attributes/auto_execute":   val.Validate(a.AutoExecute, val.NotNil),
 	}.Filter()
 }
 

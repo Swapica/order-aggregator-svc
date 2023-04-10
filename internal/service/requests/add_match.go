@@ -33,7 +33,7 @@ func (r *AddMatch) validate() error {
 		"data/attributes/src_chain_id":    val.Validate(a.SrcChainId, val.Required, val.Min(1)),
 		"data/attributes/origin_chain_id": val.Validate(a.OriginChainId, val.Required, val.Min(1)),
 		"data/attributes/origin_order_id": val.Validate(a.OriginOrderId, val.Required, val.Min(1)),
-		"data/attributes/auto_execute":    val.Validate(a.AutoExecute, val.Required),
+		"data/attributes/auto_execute":    val.Validate(a.AutoExecute, val.NotNil),
 	}.Filter()
 }
 
