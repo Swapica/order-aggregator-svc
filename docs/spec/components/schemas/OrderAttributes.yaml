@@ -7,7 +7,7 @@ required:
   - amount_to_sell
   - amount_to_buy
   - state
-  - auto_execute
+  - use_relayer
 properties:
   order_id:
     type: integer
@@ -42,7 +42,7 @@ properties:
     pattern: '^0x[0-9A-Fa-f]{40}$'
     description: Swapica contract address on the destination network
     example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
-  auto_execute:
+  use_relayer:
     type: bool
-    description: Auto execute order
+    description: Relayer execute order
     example: false

@@ -17,7 +17,7 @@ type MatchOrders interface {
 	FilterByState(*uint8) MatchOrders
 	FilterExpired(*bool) MatchOrders
 	FilterClaimable(creator string, srcChain *int64) MatchOrders
-	FilterByAutoExecute(*bool) MatchOrders
+	FilterByUseRelayer(*bool) MatchOrders
 }
 
 // Match Fields ID and OriginOrder are database-generated properties, any other come from the
@@ -37,5 +37,5 @@ type Match struct {
 	SellToken   int64  `structs:"sell_token" db:"sell_token"`
 	SellAmount  string `structs:"sell_amount" db:"sell_amount"`
 	State       uint8  `structs:"state" db:"state"`
-	AutoExecute bool   `structs:"auto_execute" db:"auto_execute"`
+	UseRelayer  bool   `structs:"use_relayer" db:"use_relayer"`
 }

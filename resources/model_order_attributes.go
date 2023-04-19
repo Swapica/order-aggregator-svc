@@ -21,4 +21,6 @@ type OrderAttributes struct {
 	OrderId int64 `json:"order_id"`
 	// Order state
 	State uint8 `json:"state"`
+	// Relayer execute order
+	UseRelayer bool `json:"use_relayer"`
 }

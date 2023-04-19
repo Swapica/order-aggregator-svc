@@ -14,7 +14,7 @@ allOf:
               - token_to_buy
               - src_chain_id
               - dest_chain_id
-              - auto_execute
+              - use_relayer
             properties:
               token_to_sell:
                 type: string
@@ -36,7 +36,7 @@ allOf:
                 format: int64
                 description: Source blockchain of the match order which is intended to execute the order
                 example: 5
-              auto_execute:
+              use_relayer:
                 type: bool
-                description: Auto execute order
+                description: Relayer execute order
                 example: false

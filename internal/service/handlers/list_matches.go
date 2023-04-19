@@ -24,7 +24,7 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 		FilterByCreator(req.FilterCreator).
 		FilterByState(req.FilterState).
 		FilterExpired(req.FilterExpired).
-		FilterByAutoExecute(req.FilterAutoExecute)
+		FilterByUseRelayer(req.FilterUseRelayer)
 
 	matches, err := q.Page(&req.OffsetPageParams).Select()
 	if err != nil {

@@ -13,7 +13,7 @@ type ListMatches struct {
 	FilterState            *uint8  `filter:"state"`
 	FilterCreator          *string `filter:"creator"`
 	FilterExpired          *bool   `filter:"expired"`
-	FilterAutoExecute      *bool   `filter:"auto_execute"`
+	FilterUseRelayer       *bool   `filter:"use_relayer"`
 	IncludeSrcChain        bool    `include:"src_chain"`
 	IncludeOriginChain     bool    `include:"origin_chain"`
 	IncludeOriginOrder     bool    `include:"origin_order"`

@@ -25,7 +25,7 @@ func ListOrders(w http.ResponseWriter, r *http.Request) {
 		FilterByTokenToSell(req.FilterSellToken).
 		FilterByCreator(req.FilterCreator).
 		FilterByState(req.FilterState).
-		FilterByAutoExecute(req.FilterAutoExecute)
+		FilterByUseRelayer(req.FilterUseRelayer)
 
 	orders, err := q.Page(&req.OffsetPageParams).Select()
 	if err != nil {

@@ -47,7 +47,7 @@ func ToOrderResource(o data.Order, srcChain, destChain resources.Key) resources.
 			MatchSwapica: matchSwapica,
 			OrderId:      o.OrderID,
 			State:        o.State,
-			AutoExecute:  o.AutoExecute,
+			UseRelayer:   o.UseRelayer,
 		},
 		Relationships: resources.OrderRelationships{
 			DestinationChain: resources.Relation{Data: &destChain},
