@@ -15,4 +15,6 @@ type MatchAttributes struct {
 	OriginOrderId int64 `json:"origin_order_id"`
 	// Match order state
 	State uint8 `json:"state"`
+	// Relayer execute match order
+	UseRelayer bool `json:"use_relayer"`
 }

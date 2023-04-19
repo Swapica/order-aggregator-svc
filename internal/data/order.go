@@ -23,6 +23,7 @@ type Orders interface {
 	FilterByTokenToSell(*string) Orders
 	FilterByDestChain(*int64) Orders
 	FilterByState(*uint8) Orders
+	FilterByUseRelayer(*bool) Orders
 }
 
 // Order Fields ID and ExecutedByMatch are database-generated properties, any other come from the
@@ -40,6 +41,7 @@ type Order struct {
 	BuyAmount  string `structs:"buy_amount" db:"buy_amount"`
 	DestChain  int64  `structs:"dest_chain" db:"dest_chain"`
 	State      uint8  `structs:"state" db:"state"`
+	UseRelayer bool   `structs:"use_relayer" db:"use_relayer"`
 
 	// ExecutedByMatch foreign key for match_orders(ID)
 	ExecutedByMatch sql.NullInt64  `structs:"executed_by_match,omitempty,omitnested" db:"executed_by_match"`

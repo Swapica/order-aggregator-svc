@@ -15,6 +15,8 @@ func isNilInterface(v interface{}) bool {
 		return v == nil
 	case *uint8:
 		return v == nil
+	case *bool:
+		return v == nil
 	}
 	return v == nil
 	// return v == nil || (reflect.ValueOf(v).Kind() == reflect.Ptr && reflect.ValueOf(v).IsNil()) // 7 times slower

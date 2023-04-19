@@ -6,6 +6,7 @@ required:
   - token_to_sell
   - amount_to_sell
   - state
+  - use_relayer
 properties:
   match_id:
     type: integer
@@ -31,3 +32,7 @@ properties:
     format: uint8
     description: Match order state
     enum: [1, 2, 3, 4]
+  use_relayer:
+    type: bool
+    description: Relayer execute match order
+    example: false

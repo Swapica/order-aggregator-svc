@@ -23,7 +23,8 @@ func ListMatches(w http.ResponseWriter, r *http.Request) {
 		FilterBySrcChain(req.FilterSrcChain).
 		FilterByCreator(req.FilterCreator).
 		FilterByState(req.FilterState).
-		FilterExpired(req.FilterExpired)
+		FilterExpired(req.FilterExpired).
+		FilterByUseRelayer(req.FilterUseRelayer)
 
 	matches, err := q.Page(&req.OffsetPageParams).Select()
 	if err != nil {

@@ -141,6 +141,10 @@ func (q *matches) FilterClaimable(creator string, chain *int64) data.MatchOrders
 	return q
 }
 
+func (q *matches) FilterByUseRelayer(useRelayer *bool) data.MatchOrders {
+	return q.filterByCol("use_relayer", useRelayer)
+}
+
 func (q *matches) filterByCol(column string, value interface{}) *matches {
 	if isNilInterface(value) {
 		return q

@@ -23,6 +23,7 @@ CREATE TABLE orders
     buy_amount        numeric(78) NOT NULL,
     dest_chain        bigint      NOT NULL,
     state             smallint    NOT NULL,
+    use_relayer       boolean     NOT NULL,
     executed_by_match bigint,
     match_id          bigint,
     match_swapica     varchar(42),
@@ -44,6 +45,7 @@ CREATE TABLE match_orders
     sell_token   bigint      NOT NULL,
     sell_amount  numeric(78) NOT NULL,
     state        smallint    NOT NULL,
+    use_relayer  boolean     NOT NULL,
 
     UNIQUE (match_id, src_chain),
     FOREIGN KEY (sell_token) REFERENCES tokens (id),

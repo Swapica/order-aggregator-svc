@@ -113,6 +113,10 @@ func (q *orders) FilterByState(state *uint8) data.Orders {
 	return q.filterByCol("state", state)
 }
 
+func (q *orders) FilterByUseRelayer(useRelayer *bool) data.Orders {
+	return q.filterByCol("use_relayer", useRelayer)
+}
+
 func (q *orders) filterByCol(column string, value interface{}) *orders {
 	if isNilInterface(value) {
 		return q

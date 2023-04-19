@@ -15,6 +15,7 @@ type ListOrders struct {
 	FilterSellToken  *string `filter:"token_to_sell"`
 	FilterDestChain  *int64  `filter:"destination_chain"`
 	FilterState      *uint8  `filter:"state"`
+	FilterUseRelayer *bool   `filter:"use_relayer"`
 	IncludeSrcChain  bool    `include:"src_chain"`
 	IncludeDestChain bool    `include:"destination_chain"`
 	IncludeBuyToken  bool    `include:"token_to_buy"`

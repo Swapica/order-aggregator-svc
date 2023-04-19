@@ -36,6 +36,7 @@ func (r *AddOrder) validate() error {
 		"data/attributes/dest_chain_id":  val.Validate(a.DestChainId, val.Required, val.Min(1)),
 		"data/attributes/match_id":       val.Validate(a.MatchId, val.Nil),
 		"data/attributes/match_swapica":  val.Validate(a.MatchSwapica, val.Nil),
+		"data/attributes/use_relayer":    val.Validate(a.UseRelayer, val.NotNil),
 	}.Filter()
 }
 
@@ -50,6 +51,7 @@ func (r *AddOrder) DBModel(sellToken, buyToken int64) data.Order {
 		BuyAmount:  r.Data.Attributes.AmountToBuy,
 		DestChain:  r.Data.Attributes.DestChainId,
 		State:      r.Data.Attributes.State,
+		UseRelayer: r.Data.Attributes.UseRelayer,
 		// ExecutedByMatch, MatchID, MatchSwapica must not appear on the order creation, according to the core contract
 	}
 }

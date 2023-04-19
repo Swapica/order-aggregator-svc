@@ -13,6 +13,7 @@ allOf:
               - token_to_sell
               - src_chain_id
               - origin_chain_id
+              - use_relayer
             properties:
               token_to_sell:
                 type: string
@@ -29,3 +30,7 @@ allOf:
                 format: int64
                 description: Source blockchain of the order to match
                 example: 5
+              use_relayer:
+                type: bool
+                description: Relayer execute match order
+                example: false

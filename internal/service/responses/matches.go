@@ -29,6 +29,7 @@ func ToMatchResource(m data.Match, srcChain, originChain resources.Key) resource
 			MatchId:       m.MatchID,
 			OriginOrderId: m.OrderID,
 			State:         m.State,
+			UseRelayer:    m.UseRelayer,
 		},
 		Relationships: resources.MatchRelationships{
 			OriginChain: resources.Relation{Data: &originChain},
