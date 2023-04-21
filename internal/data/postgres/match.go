@@ -97,10 +97,6 @@ func (q *matches) FilterByState(state *uint8) data.MatchOrders {
 	return q.filterByCol("state", state)
 }
 
-func (q *matches) FilterByAutoExecute(execute *bool) data.MatchOrders {
-	return q.filterByCol("auto_execute", execute)
-}
-
 func (q *matches) FilterExpired(apply *bool) data.MatchOrders {
 	if apply == nil || !*apply {
 		return q
