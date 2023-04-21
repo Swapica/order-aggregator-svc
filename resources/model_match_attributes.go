@@ -7,8 +7,6 @@ package resources
 type MatchAttributes struct {
 	// With decimals
 	AmountToSell string `json:"amount_to_sell"`
-	// Auto execute match order
-	AutoExecute bool `json:"auto_execute"`
 	// Match order creator
 	Creator string `json:"creator"`
 	// Match order ID from the contract

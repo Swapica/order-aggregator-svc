@@ -9,8 +9,6 @@ type AddOrderAttributes struct {
 	AmountToBuy string `json:"amount_to_buy"`
 	// With decimals
 	AmountToSell string `json:"amount_to_sell"`
-	// Auto execute order
-	AutoExecute bool `json:"auto_execute"`
 	// Order creator
 	Creator string `json:"creator"`
 	// ID of the match order _from the contract_ which was used to execute the order
