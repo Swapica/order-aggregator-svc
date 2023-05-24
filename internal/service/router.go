@@ -27,10 +27,12 @@ func (s *service) router() chi.Router {
 		r.Route("/match_orders", func(r chi.Router) {
 			r.Post("/", handlers.AddMatch)
 			r.Get("/", handlers.ListMatches)
+			r.Get("/{id}", handlers.GetMatch)
 		})
 		r.Route("/orders", func(r chi.Router) {
 			r.Post("/", handlers.AddOrder)
 			r.Get("/", handlers.ListOrders)
+			r.Get("/{id}", handlers.GetOrder)
 		})
 		r.Route("/{chain}", func(r chi.Router) {
 			r.Patch("/orders", handlers.UpdateOrder)
