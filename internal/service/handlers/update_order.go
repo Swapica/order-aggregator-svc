@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/Swapica/order-aggregator-svc/internal/data"
+	"github.com/Swapica/order-aggregator-svc/internal/service/notifications"
 	"github.com/Swapica/order-aggregator-svc/internal/service/requests"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
@@ -21,39 +23,40 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 	q := OrdersQ(r).FilterByOrderID(req.OrderID).FilterBySrcChain(&req.Chain)
 	log := Log(r).WithFields(logan.F{"order_id": req.OrderID, "src_chain": req.Chain})
 
-	exists, err := q.Get()
+	order, err := q.Get()
 	if err != nil {
 		log.WithError(err).Error("failed to get order")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
-	if exists == nil {
+	if order == nil {
 		log.Warn("order not found")
 		ape.RenderErr(w, problems.NotFound())
 		return
 	}
-	if exists.State == data.StateBadToken {
+	if order.State == data.StateBadToken {
 		log.Info("order was hidden due to invalid token_to_buy or token_to_sell, its status won't be updated")
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 
 	var matchFK *int64
+	var match *data.Match
 	matchId := req.Body.Data.Attributes.MatchId
 	if matchId != nil {
 		log = log.WithField("match_id", *matchId)
-		by, err := MatchOrdersQ(r).FilterByMatchID(*matchId).FilterBySrcChain(&exists.DestChain).Get()
+		match, err = MatchOrdersQ(r).FilterByMatchID(*matchId).FilterBySrcChain(&order.DestChain).Get()
 		if err != nil {
 			log.WithError(err).Error("failed to get match order that executed the order")
 			ape.RenderErr(w, problems.InternalError())
 			return
 		}
-		if by == nil {
+		if match == nil {
 			log.Warn("match order that executed the order not found")
 			ape.RenderErr(w, problems.NotFound())
 			return
 		}
-		matchFK = &by.ID
+		matchFK = &match.ID
 	}
 
 	a := req.Body.Data.Attributes
@@ -61,6 +64,49 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 		log.WithError(err).Error("failed to update order")
 		ape.RenderErr(w, problems.InternalError())
 		return
+	}
+
+	if matchId != nil {
+		t, err := TokensQ(r).New().FilterByID(order.SellToken, order.BuyToken).Select()
+		if err != nil {
+			log.WithError(err).Error("failed to get token from database")
+			ape.RenderErr(w, problems.InternalError())
+			return
+		}
+		if len(t) < 2 {
+			log.Error("token(s) not found")
+			ape.RenderErr(w, problems.InternalError())
+			return
+		}
+
+		matchSrcChain := ChainsQ(r).FilterByChainID(match.SrcChain).Get()
+		if matchSrcChain == nil {
+			log.Warn("src_chain is not supported by swapica-svc")
+			ape.RenderErr(w, problems.NotFound())
+			return
+		}
+		matchDestChain := ChainsQ(r).FilterByChainID(match.OrderChain).Get()
+		if matchDestChain == nil {
+			log.Warn("origin_chain is not supported by swapica-svc")
+			ape.RenderErr(w, problems.NotFound())
+			return
+		}
+
+		pushCli := notifications.NewNotificationsClient(Notifications(r), 1)
+
+		if err := pushCli.NotifyUser(
+			fmt.Sprintf("The %s/%s order you matched has been updated",
+				t[0].Symbol, t[1].Symbol),
+			fmt.Sprintf("Order sell amount: %s.\nOrder buy amount: %s.\nMatch source chain: %s.\nMatch destination chain: %s.\nOrder state: %s.\n",
+				order.SellAmount, order.BuyAmount,
+				matchSrcChain.Attributes.Name, matchDestChain.Attributes.Name,
+				data.StateToString(order.State)),
+			match.Creator,
+		); err != nil {
+			log.WithError(err).Error("failed to notify user")
+			ape.RenderErr(w, problems.InternalError())
+			return
+		}
 	}
 
 	w.WriteHeader(http.StatusNoContent)
