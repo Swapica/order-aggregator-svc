@@ -103,7 +103,7 @@ func AddMatch(w http.ResponseWriter, r *http.Request) {
 	if err := pushCli.NotifyUser(
 		fmt.Sprintf("Match for the %s/%s order has been created",
 			t[0].Symbol, t[1].Symbol),
-		fmt.Sprintf("Sell amount: %s.\nBuy amount: %s.\nOrder source chain: %s.\nOrder destination chain: %s.\n",
+		fmt.Sprintf("Order sell amount: %s.\nOrder buy amount: %s.\nOrder source chain: %s.\nOrder destination chain: %s.\n",
 			originOrder.SellAmount, originOrder.BuyAmount,
 			// for order creator source chain is match destination chain
 			// and destination chain is match source chain

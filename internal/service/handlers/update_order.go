@@ -97,7 +97,7 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 		if err := pushCli.NotifyUser(
 			fmt.Sprintf("The %s/%s order you matched has been updated",
 				t[0].Symbol, t[1].Symbol),
-			fmt.Sprintf("Sell amount: %s.\nBuy amount: %s.\nMatch source chain: %s.\nMatch destination chain: %s.\nOrder state: %s.\n",
+			fmt.Sprintf("Order sell amount: %s.\nOrder buy amount: %s.\nMatch source chain: %s.\nMatch destination chain: %s.\nOrder state: %s.\n",
 				order.SellAmount, order.BuyAmount,
 				matchSrcChain.Attributes.Name, matchDestChain.Attributes.Name,
 				data.StateToString(order.State)),
