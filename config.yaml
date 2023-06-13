@@ -11,6 +11,12 @@ listener:
 chains:
   url: "http://swapica"
 
+notifications:
+  push_url: ""
+  channel_address: ""
+  push_comm_address: ""
+  private_key: ""
+
 cop:
   disabled: true
   endpoint: "http://cop"
