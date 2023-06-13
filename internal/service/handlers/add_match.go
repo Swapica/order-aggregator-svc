@@ -98,15 +98,16 @@ func AddMatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// FIXME chain? maybe just to Ethereum?
-	pushCli := notifications.NewNotificationsClient(Notifications(r), req.Data.Attributes.SrcChainId)
+	pushCli := notifications.NewNotificationsClient(Notifications(r), 1)
 
 	if err := pushCli.NotifyUser(
 		fmt.Sprintf("Match for the %s/%s order has been created",
 			t[0].Symbol, t[1].Symbol),
-		fmt.Sprintf("Sell amount: %s.\nBuy amount: %s.\nSource chain: %s.\nDestination chain: %s.\n",
+		fmt.Sprintf("Sell amount: %s.\nBuy amount: %s.\nOrder source chain: %s.\nOrder destination chain: %s.\n",
 			originOrder.SellAmount, originOrder.BuyAmount,
-			srcChain.Attributes.Name, originChain.Attributes.Name), // TODO check what is origin
+			// for order creator source chain is match destination chain
+			// and destination chain is match source chain
+			originChain.Attributes.Name, srcChain.Attributes.Name),
 		originOrder.Creator,
 	); err != nil {
 		log.WithError(err).Error("failed to notify user")

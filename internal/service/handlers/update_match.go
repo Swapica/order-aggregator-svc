@@ -46,8 +46,7 @@ func UpdateMatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO check chains everywhere
-	originOrder, err := OrdersQ(r).FilterByOrderID(match.OriginOrder).FilterBySrcChain(&match.SrcChain).Get()
+	originOrder, err := OrdersQ(r).FilterByOrderID(match.OriginOrder).FilterBySrcChain(&match.OrderChain).Get()
 	if err != nil {
 		log.WithError(err).Error("failed to get origin order")
 		ape.RenderErr(w, problems.InternalError())
@@ -71,28 +70,27 @@ func UpdateMatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	srcChain := ChainsQ(r).FilterByChainID(match.SrcChain).Get()
-	if srcChain == nil {
+	orderSrcChain := ChainsQ(r).FilterByChainID(match.OrderChain).Get()
+	if orderSrcChain == nil {
 		log.Warn("src_chain is not supported by swapica-svc")
 		ape.RenderErr(w, problems.NotFound())
 		return
 	}
-	originChain := ChainsQ(r).FilterByChainID(match.OrderChain).Get()
-	if originChain == nil {
+	orderDestChain := ChainsQ(r).FilterByChainID(match.SrcChain).Get()
+	if orderDestChain == nil {
 		log.Warn("origin_chain is not supported by swapica-svc")
 		ape.RenderErr(w, problems.NotFound())
 		return
 	}
 
-	// FIXME chain? maybe just to Ethereum?
-	pushCli := notifications.NewNotificationsClient(Notifications(r), match.SrcChain)
+	pushCli := notifications.NewNotificationsClient(Notifications(r), 1)
 
 	if err := pushCli.NotifyUser(
 		fmt.Sprintf("Match for the %s/%s order has been updated",
 			t[0].Symbol, t[1].Symbol),
-		fmt.Sprintf("Sell amount: %s.\nBuy amount: %s.\nSource chain: %s.\nDestination chain: %s.\nState: %s.\n",
+		fmt.Sprintf("Sell amount: %s.\nBuy amount: %s.\nOrder source chain: %s.\nOrder destination chain: %s.\nMatch state: %s.\n",
 			originOrder.SellAmount, originOrder.BuyAmount,
-			srcChain.Attributes.Name, originChain.Attributes.Name,
+			orderSrcChain.Attributes.Name, orderDestChain.Attributes.Name,
 			data.StateToString(match.State)),
 		originOrder.Creator,
 	); err != nil {
