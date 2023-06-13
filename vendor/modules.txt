@@ -183,6 +183,9 @@ gitlab.com/distributed_lab/ape/problems
 # gitlab.com/distributed_lab/figure v2.1.0+incompatible
 ## explicit
 gitlab.com/distributed_lab/figure
+# gitlab.com/distributed_lab/figure/v3 v3.1.3
+## explicit; go 1.19
+gitlab.com/distributed_lab/figure/v3
 # gitlab.com/distributed_lab/kit v1.11.1
 ## explicit; go 1.14
 gitlab.com/distributed_lab/kit/comfig

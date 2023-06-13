@@ -15,6 +15,7 @@ type Config interface {
 	types.Copuser
 	comfig.Listenerer
 	Chains() []resources.Chain
+	Notifications() Notifications
 }
 
 type config struct {
@@ -22,8 +23,9 @@ type config struct {
 	pgdb.Databaser
 	types.Copuser
 	comfig.Listenerer
-	getter kv.Getter
-	chains comfig.Once
+	getter        kv.Getter
+	chains        comfig.Once
+	notifications comfig.Once
 }
 
 func New(getter kv.Getter) Config {

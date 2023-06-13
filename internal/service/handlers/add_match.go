@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/Swapica/order-aggregator-svc/internal/data"
 	"github.com/Swapica/order-aggregator-svc/internal/service/helpers"
+	"github.com/Swapica/order-aggregator-svc/internal/service/notifications"
 	"github.com/Swapica/order-aggregator-svc/internal/service/requests"
 	"github.com/Swapica/order-aggregator-svc/internal/service/responses"
 	"gitlab.com/distributed_lab/ape"
@@ -80,6 +82,34 @@ func AddMatch(w http.ResponseWriter, r *http.Request) {
 	match, err = q.Insert(match)
 	if err != nil {
 		log.WithError(err).Error("failed to add match order")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
+	t, err := TokensQ(r).New().FilterByID(originOrder.SellToken, originOrder.BuyToken).Select()
+	if err != nil {
+		log.WithError(err).Error("failed to get token from database")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+	if len(t) < 2 {
+		log.Error("token(s) not found")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
+	// FIXME chain? maybe just to Ethereum?
+	pushCli := notifications.NewNotificationsClient(Notifications(r), req.Data.Attributes.SrcChainId)
+
+	if err := pushCli.NotifyUser(
+		fmt.Sprintf("Match for the %s/%s order has been created",
+			t[0].Symbol, t[1].Symbol),
+		fmt.Sprintf("Sell amount: %s.\nBuy amount: %s.\nSource chain: %s.\nDestination chain: %s.\n",
+			originOrder.SellAmount, originOrder.BuyAmount,
+			srcChain.Attributes.Name, originChain.Attributes.Name), // TODO check what is origin
+		originOrder.Creator,
+	); err != nil {
+		log.WithError(err).Error("failed to notify user")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
