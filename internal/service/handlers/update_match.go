@@ -5,8 +5,9 @@ import (
 	"github.com/Swapica/order-aggregator-svc/internal/ws"
 	"github.com/Swapica/order-aggregator-svc/resources"
 	"net/http"
-
+	"fmt"
 	"github.com/Swapica/order-aggregator-svc/internal/data"
+	"github.com/Swapica/order-aggregator-svc/internal/service/notifications"
 	"github.com/Swapica/order-aggregator-svc/internal/service/requests"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
@@ -44,6 +45,59 @@ func UpdateMatch(w http.ResponseWriter, r *http.Request) {
 	newState := request.Body.Data.Attributes.State
 	if err = q.Update(newState); err != nil {
 		log.WithError(err).Error("failed to update match order")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
+	originOrder, err := OrdersQ(r).FilterByOrderID(match.OriginOrder).FilterBySrcChain(&match.OrderChain).Get()
+	if err != nil {
+		log.WithError(err).Error("failed to get origin order")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+	if originOrder == nil {
+		log.Warn("origin order not found")
+		ape.RenderErr(w, problems.NotFound())
+		return
+	}
+
+	t, err := TokensQ(r).New().FilterByID(originOrder.SellToken, originOrder.BuyToken).Select()
+	if err != nil {
+		log.WithError(err).Error("failed to get token from database")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+	if len(t) < 2 {
+		log.Error("token(s) not found")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
+	orderSrcChain := ChainsQ(r).FilterByChainID(match.OrderChain).Get()
+	if orderSrcChain == nil {
+		log.Warn("src_chain is not supported by swapica-svc")
+		ape.RenderErr(w, problems.NotFound())
+		return
+	}
+	orderDestChain := ChainsQ(r).FilterByChainID(match.SrcChain).Get()
+	if orderDestChain == nil {
+		log.Warn("origin_chain is not supported by swapica-svc")
+		ape.RenderErr(w, problems.NotFound())
+		return
+	}
+
+	pushCli := notifications.NewNotificationsClient(Notifications(r), 1)
+
+	if err := pushCli.NotifyUser(
+		fmt.Sprintf("Match for the %s/%s order has been updated",
+			t[0].Symbol, t[1].Symbol),
+		fmt.Sprintf("Order sell amount: %s.\nOrder buy amount: %s.\nOrder source chain: %s.\nOrder destination chain: %s.\nMatch state: %s.\n",
+			originOrder.SellAmount, originOrder.BuyAmount,
+			orderSrcChain.Attributes.Name, orderDestChain.Attributes.Name,
+			data.StateToString(match.State)),
+		originOrder.Creator,
+	); err != nil {
+		log.WithError(err).Error("failed to notify user")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}

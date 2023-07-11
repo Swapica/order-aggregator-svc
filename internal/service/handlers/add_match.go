@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/Swapica/order-aggregator-svc/internal/data"
 	"github.com/Swapica/order-aggregator-svc/internal/service/helpers"
+	"github.com/Swapica/order-aggregator-svc/internal/service/notifications"
 	"github.com/Swapica/order-aggregator-svc/internal/service/requests"
 	"github.com/Swapica/order-aggregator-svc/internal/service/responses"
 	"github.com/Swapica/order-aggregator-svc/internal/ws"
@@ -81,6 +83,35 @@ func AddMatch(w http.ResponseWriter, r *http.Request) {
 	match, err = q.Insert(match)
 	if err != nil {
 		log.WithError(err).Error("failed to add match order")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
+	t, err := TokensQ(r).New().FilterByID(originOrder.SellToken, originOrder.BuyToken).Select()
+	if err != nil {
+		log.WithError(err).Error("failed to get token from database")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+	if len(t) < 2 {
+		log.Error("token(s) not found")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
+	pushCli := notifications.NewNotificationsClient(Notifications(r), 1)
+
+	if err := pushCli.NotifyUser(
+		fmt.Sprintf("Match for the %s/%s order has been created",
+			t[0].Symbol, t[1].Symbol),
+		fmt.Sprintf("Order sell amount: %s.\nOrder buy amount: %s.\nOrder source chain: %s.\nOrder destination chain: %s.\n",
+			originOrder.SellAmount, originOrder.BuyAmount,
+			// for order creator source chain is match destination chain
+			// and destination chain is match source chain
+			originChain.Attributes.Name, srcChain.Attributes.Name),
+		originOrder.Creator,
+	); err != nil {
+		log.WithError(err).Error("failed to notify user")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}

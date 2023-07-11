@@ -25,6 +25,7 @@ func (s *service) router() chi.Router {
 			handlers.CtxChainsQ(mem.NewChains(s.cfg.Chains())),
 			handlers.CtxTokensQ(postgres.NewTokens(s.cfg.DB())),
 			handlers.CtxWebSocket(hub),
+			handlers.CtxNotifications(s.cfg.Notifications()),
 		),
 	)
 	r.Route("/integrations/order-aggregator", func(r chi.Router) {
