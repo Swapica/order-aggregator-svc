@@ -1,9 +1,11 @@
 package handlers
 
 import (
-	"fmt"
+	"github.com/Swapica/order-aggregator-svc/internal/service/responses"
+	"github.com/Swapica/order-aggregator-svc/internal/ws"
+	"github.com/Swapica/order-aggregator-svc/resources"
 	"net/http"
-
+	"fmt"
 	"github.com/Swapica/order-aggregator-svc/internal/data"
 	"github.com/Swapica/order-aggregator-svc/internal/service/notifications"
 	"github.com/Swapica/order-aggregator-svc/internal/service/requests"
@@ -40,7 +42,8 @@ func UpdateMatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = q.Update(request.Body.Data.Attributes.State); err != nil {
+	newState := request.Body.Data.Attributes.State
+	if err = q.Update(newState); err != nil {
 		log.WithError(err).Error("failed to update match order")
 		ape.RenderErr(w, problems.InternalError())
 		return
@@ -100,4 +103,15 @@ func UpdateMatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+
+	match.State = newState
+	matchResponse := responses.ToMatchResource(
+		*match,
+		resources.NewKeyInt64(match.SrcChain, "chain"),
+		resources.NewKeyInt64(match.OriginOrder, "chain"),
+	)
+	err = WebSocket(r).BroadcastToClients(ws.UpdateMatch, matchResponse)
+	if err != nil {
+		log.WithError(err).Debug("failed to broadcast update match order to websocket")
+	}
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/Swapica/order-aggregator-svc/internal/service/notifications"
 	"github.com/Swapica/order-aggregator-svc/internal/service/requests"
 	"github.com/Swapica/order-aggregator-svc/internal/service/responses"
+	"github.com/Swapica/order-aggregator-svc/internal/ws"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 	"gitlab.com/distributed_lab/logan/v3"
@@ -117,4 +118,10 @@ func AddMatch(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	ape.Render(w, responses.NewMatch(match, srcChain.Key, originChain.Key))
+
+	matchResponse := responses.ToMatchResource(match, srcChain.Key, originChain.Key)
+	err = WebSocket(r).BroadcastToClients(ws.AddMatch, matchResponse)
+	if err != nil {
+		log.WithError(err).Debug("failed to broadcast match order to websocket")
+	}
 }

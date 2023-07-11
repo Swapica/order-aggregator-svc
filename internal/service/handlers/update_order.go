@@ -1,9 +1,12 @@
 package handlers
 
 import (
-	"fmt"
+	"database/sql"
+	"github.com/Swapica/order-aggregator-svc/internal/service/responses"
+	"github.com/Swapica/order-aggregator-svc/internal/ws"
+	"github.com/Swapica/order-aggregator-svc/resources"
 	"net/http"
-
+	"fmt"
 	"github.com/Swapica/order-aggregator-svc/internal/data"
 	"github.com/Swapica/order-aggregator-svc/internal/service/notifications"
 	"github.com/Swapica/order-aggregator-svc/internal/service/requests"
@@ -110,4 +113,27 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+
+	if matchId != nil {
+		order.MatchID = sql.NullInt64{Int64: *matchId, Valid: true}
+	}
+	if matchFK != nil {
+		order.ExecutedByMatch = sql.NullInt64{Int64: *matchFK, Valid: true}
+	}
+	if a.MatchSwapica != nil {
+		order.MatchSwapica = sql.NullString{
+			String: *a.MatchSwapica,
+			Valid:  true,
+		}
+	}
+
+	orderResponse := responses.ToOrderResource(
+		*order,
+		resources.NewKeyInt64(order.SrcChain, "chain"),
+		resources.NewKeyInt64(order.DestChain, "chain"),
+	)
+	err = WebSocket(r).BroadcastToClients(ws.UpdateOrder, orderResponse)
+	if err != nil {
+		log.WithError(err).Debug("failed to broadcast update order to websocket")
+	}
 }

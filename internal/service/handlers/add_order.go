@@ -7,6 +7,7 @@ import (
 	"github.com/Swapica/order-aggregator-svc/internal/service/helpers"
 	"github.com/Swapica/order-aggregator-svc/internal/service/requests"
 	"github.com/Swapica/order-aggregator-svc/internal/service/responses"
+	"github.com/Swapica/order-aggregator-svc/internal/ws"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 	"gitlab.com/distributed_lab/logan/v3"
@@ -86,4 +87,10 @@ func AddOrder(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	ape.Render(w, responses.NewOrder(order, srcChain.Key, destChain.Key))
+
+	orderResponse := responses.ToOrderResource(order, srcChain.Key, destChain.Key)
+	err = WebSocket(r).BroadcastToClients(ws.AddOrder, orderResponse)
+	if err != nil {
+		log.WithError(err).Debug("failed to broadcast order to websocket")
+	}
 }

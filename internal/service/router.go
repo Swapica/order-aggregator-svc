@@ -1,16 +1,19 @@
 package service
 
 import (
+	"net/http"
+
 	"github.com/Swapica/order-aggregator-svc/internal/data/mem"
 	"github.com/Swapica/order-aggregator-svc/internal/data/postgres"
 	"github.com/Swapica/order-aggregator-svc/internal/service/handlers"
+	"github.com/Swapica/order-aggregator-svc/internal/ws"
 	"github.com/go-chi/chi"
 	"gitlab.com/distributed_lab/ape"
 )
 
 func (s *service) router() chi.Router {
 	r := chi.NewRouter()
-
+	hub := ws.NewHub(s.cfg)
 	r.Use(
 		ape.RecoverMiddleware(s.log),
 		ape.LoganMiddleware(s.log),
@@ -21,6 +24,7 @@ func (s *service) router() chi.Router {
 			handlers.CtxBlockQ(postgres.NewLastBlock(s.cfg.DB())),
 			handlers.CtxChainsQ(mem.NewChains(s.cfg.Chains())),
 			handlers.CtxTokensQ(postgres.NewTokens(s.cfg.DB())),
+			handlers.CtxWebSocket(hub),
 			handlers.CtxNotifications(s.cfg.Notifications()),
 		),
 	)
@@ -42,6 +46,14 @@ func (s *service) router() chi.Router {
 			r.Get("/block", handlers.GetBlock)
 		})
 		r.Get("/claimable", handlers.ListClaimable)
+	})
+
+	go hub.Run()
+
+	r.Group(func(r chi.Router) {
+		r.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+			ws.ServeWs(hub, w, r)
+		})
 	})
 
 	return r

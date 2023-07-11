@@ -6,6 +6,7 @@ import (
 
 	"github.com/Swapica/order-aggregator-svc/internal/config"
 	"github.com/Swapica/order-aggregator-svc/internal/data"
+	"github.com/Swapica/order-aggregator-svc/internal/ws"
 	"gitlab.com/distributed_lab/logan/v3"
 )
 
@@ -19,6 +20,7 @@ const (
 	chainsCtxKey
 	tokensCtxKey
 	notificationsCtxKey
+	webSocketCtxKey
 )
 
 func CtxLog(entry *logan.Entry) func(context.Context) context.Context {
@@ -79,6 +81,16 @@ func CtxTokensQ(q data.Tokens) func(context.Context) context.Context {
 
 func TokensQ(r *http.Request) data.Tokens {
 	return r.Context().Value(tokensCtxKey).(data.Tokens).New()
+}
+
+func WebSocket(r *http.Request) *ws.Hub {
+	return r.Context().Value(webSocketCtxKey).(*ws.Hub)
+}
+
+func CtxWebSocket(entry *ws.Hub) func(ctx context.Context) context.Context {
+	return func(ctx context.Context) context.Context {
+		return context.WithValue(ctx, webSocketCtxKey, entry)
+	}
 }
 
 func CtxNotifications(entry config.Notifications) func(context.Context) context.Context {
