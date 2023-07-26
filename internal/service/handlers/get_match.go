@@ -15,7 +15,10 @@ func GetMatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	match, err := MatchOrdersQ(r).New().FilterByMatchID(request.MatchId).Get()
+	match, err := MatchOrdersQ(r).New().
+		FilterBySrcChain(&request.ChainId).
+		FilterByMatchID(request.MatchId).
+		Get()
 	if err != nil {
 		Log(r).WithError(err).Error("failed to get match by id")
 		ape.RenderErr(w, problems.InternalError())

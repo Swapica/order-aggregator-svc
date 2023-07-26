@@ -9,6 +9,7 @@ import (
 
 type GetOrderRequest struct {
 	OrderId int64
+	ChainId int64
 }
 
 func NewGetOrder(r *http.Request) (GetOrderRequest, error) {
@@ -20,6 +21,13 @@ func NewGetOrder(r *http.Request) (GetOrderRequest, error) {
 		return GetOrderRequest{}, errors.Wrap(err, "failed to parse match id to int")
 	}
 	request.OrderId = orderIdInt
+
+	chainId := chi.URLParam(r, "chain")
+	chainIdInt, err := strconv.ParseInt(chainId, 10, 64)
+	if err != nil {
+		return GetOrderRequest{}, errors.Wrap(err, "failed to parse match id to int")
+	}
+	request.ChainId = chainIdInt
 
 	return request, nil
 }

@@ -15,7 +15,10 @@ func GetOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	order, err := OrdersQ(r).New().FilterByOrderID(request.OrderId).Get()
+	order, err := OrdersQ(r).New().
+		FilterBySrcChain(&request.ChainId).
+		FilterByOrderID(request.OrderId).
+		Get()
 	if err != nil {
 		Log(r).WithError(err).Error("failed to get order by id")
 		ape.RenderErr(w, problems.InternalError())
