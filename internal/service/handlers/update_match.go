@@ -1,14 +1,15 @@
 package handlers
 
 import (
-	"github.com/Swapica/order-aggregator-svc/internal/service/responses"
-	"github.com/Swapica/order-aggregator-svc/internal/ws"
-	"github.com/Swapica/order-aggregator-svc/resources"
-	"net/http"
 	"fmt"
+	"net/http"
+
 	"github.com/Swapica/order-aggregator-svc/internal/data"
 	"github.com/Swapica/order-aggregator-svc/internal/service/notifications"
 	"github.com/Swapica/order-aggregator-svc/internal/service/requests"
+	"github.com/Swapica/order-aggregator-svc/internal/service/responses"
+	"github.com/Swapica/order-aggregator-svc/internal/ws"
+	"github.com/Swapica/order-aggregator-svc/resources"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 	"gitlab.com/distributed_lab/logan/v3"
@@ -49,7 +50,7 @@ func UpdateMatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	originOrder, err := OrdersQ(r).FilterByOrderID(match.OriginOrder).FilterBySrcChain(&match.OrderChain).Get()
+	originOrder, err := OrdersQ(r).FilterByOrderID(match.OrderID).FilterBySrcChain(&match.OrderChain).Get()
 	if err != nil {
 		log.WithError(err).Error("failed to get origin order")
 		ape.RenderErr(w, problems.InternalError())
