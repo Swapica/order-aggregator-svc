@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"fmt"
+	"math/big"
 	"net/http"
 
 	"github.com/Swapica/order-aggregator-svc/internal/data"
+	"github.com/Swapica/order-aggregator-svc/internal/service/helpers"
 	"github.com/Swapica/order-aggregator-svc/internal/service/notifications"
 	"github.com/Swapica/order-aggregator-svc/internal/service/requests"
 	"github.com/Swapica/order-aggregator-svc/internal/service/responses"
@@ -89,18 +91,39 @@ func UpdateMatch(w http.ResponseWriter, r *http.Request) {
 
 	pushCli := notifications.NewNotificationsClient(Notifications(r), 1)
 
+	sellAmountI, _ := new(big.Int).SetString(originOrder.SellAmount, 10)
+	buyAmountI, _ := new(big.Int).SetString(originOrder.BuyAmount, 10)
+
 	if err := pushCli.NotifyUser(
 		fmt.Sprintf("Match for the %s/%s order has been updated",
 			t[0].Symbol, t[1].Symbol),
 		fmt.Sprintf("Order sell amount: %s.\nOrder buy amount: %s.\nOrder source chain: %s.\nOrder destination chain: %s.\nMatch state: %s.\n",
-			originOrder.SellAmount, originOrder.BuyAmount,
+			helpers.ConvertAmount(sellAmountI, t[0].Decimals).String(),
+			helpers.ConvertAmount(buyAmountI, t[1].Decimals).String(),
 			orderSrcChain.Attributes.Name, orderDestChain.Attributes.Name,
-			data.StateToString(match.State)),
+			data.StateToString(newState)),
 		originOrder.Creator,
 	); err != nil {
 		log.WithError(err).Error("failed to notify user")
 		ape.RenderErr(w, problems.InternalError())
 		return
+	}
+
+	if match.UseRelayer && newState == 4 {
+		if err := pushCli.NotifyUser(
+			fmt.Sprintf("Your match for the %s/%s order has been executed",
+				t[0].Symbol, t[1].Symbol),
+			fmt.Sprintf("Order sell amount: %s.\nOrder buy amount: %s.\nOrder source chain: %s.\nOrder destination chain: %s.\nMatch state: %s.\n",
+				helpers.ConvertAmount(sellAmountI, t[0].Decimals).String(),
+				helpers.ConvertAmount(buyAmountI, t[1].Decimals).String(),
+				orderSrcChain.Attributes.Name, orderDestChain.Attributes.Name,
+				data.StateToString(newState)),
+			match.Creator,
+		); err != nil {
+			log.WithError(err).Error("failed to notify user")
+			ape.RenderErr(w, problems.InternalError())
+			return
+		}
 	}
 
 	w.WriteHeader(http.StatusNoContent)

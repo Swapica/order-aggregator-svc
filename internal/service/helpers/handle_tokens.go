@@ -1,6 +1,9 @@
 package helpers
 
 import (
+	"math"
+	"math/big"
+
 	"github.com/Swapica/order-aggregator-svc/internal/data"
 	"github.com/Swapica/order-aggregator-svc/resources"
 	"gitlab.com/distributed_lab/logan/v3/errors"
@@ -23,4 +26,13 @@ func GetOrAddToken(q data.Tokens, address string, srcChain resources.Chain) (dat
 		return dbt, errors.Wrap(err, "failed to add token")
 	}
 	return *token, nil
+}
+
+func ConvertAmount(wei *big.Int, decimals uint8) *big.Float {
+	ether := new(big.Float)
+	weiFloat := new(big.Float).SetInt(wei)
+	decimal := new(big.Float).SetInt(big.NewInt(int64(math.Pow10(int(decimals)))))
+	ether.Quo(weiFloat, decimal)
+
+	return ether
 }

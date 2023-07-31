@@ -2,14 +2,17 @@ package handlers
 
 import (
 	"database/sql"
+	"fmt"
+	"math/big"
+	"net/http"
+
+	"github.com/Swapica/order-aggregator-svc/internal/data"
+	"github.com/Swapica/order-aggregator-svc/internal/service/helpers"
+	"github.com/Swapica/order-aggregator-svc/internal/service/notifications"
+	"github.com/Swapica/order-aggregator-svc/internal/service/requests"
 	"github.com/Swapica/order-aggregator-svc/internal/service/responses"
 	"github.com/Swapica/order-aggregator-svc/internal/ws"
 	"github.com/Swapica/order-aggregator-svc/resources"
-	"net/http"
-	"fmt"
-	"github.com/Swapica/order-aggregator-svc/internal/data"
-	"github.com/Swapica/order-aggregator-svc/internal/service/notifications"
-	"github.com/Swapica/order-aggregator-svc/internal/service/requests"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 	"gitlab.com/distributed_lab/logan/v3"
@@ -97,18 +100,39 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 
 		pushCli := notifications.NewNotificationsClient(Notifications(r), 1)
 
+		sellAmountI, _ := new(big.Int).SetString(order.SellAmount, 10)
+		buyAmountI, _ := new(big.Int).SetString(order.BuyAmount, 10)
+
 		if err := pushCli.NotifyUser(
 			fmt.Sprintf("The %s/%s order you matched has been updated",
 				t[0].Symbol, t[1].Symbol),
 			fmt.Sprintf("Order sell amount: %s.\nOrder buy amount: %s.\nMatch source chain: %s.\nMatch destination chain: %s.\nOrder state: %s.\n",
-				order.SellAmount, order.BuyAmount,
+				helpers.ConvertAmount(sellAmountI, t[0].Decimals).String(),
+				helpers.ConvertAmount(buyAmountI, t[1].Decimals).String(),
 				matchSrcChain.Attributes.Name, matchDestChain.Attributes.Name,
-				data.StateToString(order.State)),
+				data.StateToString(a.State)),
 			match.Creator,
 		); err != nil {
 			log.WithError(err).Error("failed to notify user")
 			ape.RenderErr(w, problems.InternalError())
 			return
+		}
+
+		if order.UseRelayer && a.State == 4 {
+			if err := pushCli.NotifyUser(
+				fmt.Sprintf("Your %s/%s order has been executed",
+					t[0].Symbol, t[1].Symbol),
+				fmt.Sprintf("Order sell amount: %s.\nOrder buy amount: %s.\nMatch source chain: %s.\nMatch destination chain: %s.\nOrder state: %s.\n",
+					helpers.ConvertAmount(sellAmountI, t[0].Decimals).String(),
+					helpers.ConvertAmount(buyAmountI, t[1].Decimals).String(),
+					matchSrcChain.Attributes.Name, matchDestChain.Attributes.Name,
+					data.StateToString(a.State)),
+				order.Creator,
+			); err != nil {
+				log.WithError(err).Error("failed to notify user")
+				ape.RenderErr(w, problems.InternalError())
+				return
+			}
 		}
 	}
 
