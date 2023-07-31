@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"math/big"
 	"net/http"
 
 	"github.com/Swapica/order-aggregator-svc/internal/data"
@@ -101,11 +102,15 @@ func AddMatch(w http.ResponseWriter, r *http.Request) {
 
 	pushCli := notifications.NewNotificationsClient(Notifications(r), 1)
 
+	sellAmountI, _ := new(big.Int).SetString(originOrder.SellAmount, 10)
+	buyAmountI, _ := new(big.Int).SetString(originOrder.BuyAmount, 10)
+
 	if err := pushCli.NotifyUser(
 		fmt.Sprintf("Match for the %s/%s order has been created",
 			t[0].Symbol, t[1].Symbol),
 		fmt.Sprintf("Order sell amount: %s.\nOrder buy amount: %s.\nOrder source chain: %s.\nOrder destination chain: %s.\n",
-			originOrder.SellAmount, originOrder.BuyAmount,
+			helpers.ConvertAmount(sellAmountI, t[0].Decimals).String(),
+			helpers.ConvertAmount(buyAmountI, t[1].Decimals).String(),
 			// for order creator source chain is match destination chain
 			// and destination chain is match source chain
 			originChain.Attributes.Name, srcChain.Attributes.Name),
