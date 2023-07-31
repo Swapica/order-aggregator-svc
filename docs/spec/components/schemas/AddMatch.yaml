@@ -1,0 +1,36 @@
+allOf:
+  - $ref: "#/components/schemas/MatchKey"
+  - type: object
+    x-go-is-request: true
+    required:
+      - attributes
+    properties:
+      attributes:
+        allOf:
+          - $ref: "#/components/schemas/MatchAttributes"
+          - type: object
+            required:
+              - token_to_sell
+              - src_chain_id
+              - origin_chain_id
+              - use_relayer
+            properties:
+              token_to_sell:
+                type: string
+                pattern: '^0x[0-9A-Fa-f]{40}$'
+                description: Contract address of the token to sell
+                example: "0xe6e5a1E8236394cCC8cFaD6E44d1705B09233BA7"
+              src_chain_id:
+                type: integer
+                format: int64
+                description: Source blockchain where the match order appeared
+                example: 92
+              origin_chain_id:
+                type: integer
+                format: int64
+                description: Source blockchain of the order to match
+                example: 5
+              use_relayer:
+                type: bool
+                description: Relayer execute match order
+                example: false

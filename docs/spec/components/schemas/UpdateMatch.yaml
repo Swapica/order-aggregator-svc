@@ -1,0 +1,17 @@
+allOf:
+  - $ref: "#/components/schemas/MatchKey"
+  - type: object
+    x-go-is-request: true
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - state
+        properties:
+          state:
+            type: integer
+            format: uint8
+            description: New match order state
+            enum: [1, 2, 3, 4]

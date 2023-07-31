@@ -1,0 +1,13 @@
+type: object
+required:
+  - id
+  - type
+properties:
+  id:
+    type: string
+    description: Chain ID
+    example: 91
+  type:
+    type: string
+    enum:
+      - chain

@@ -1,0 +1,63 @@
+get:
+  tags:
+    - Match Orders
+  summary: List match orders
+  operationId: listMatchOrders
+  parameters:
+    - $ref: "#/components/parameters/pageNumber"
+    - $ref: "#/components/parameters/pageLimit"
+    - $ref: "#/components/parameters/pageOrder"
+    - $ref: "#/components/parameters/filterCreator"
+    - $ref: "#/components/parameters/filterSrcChain"
+    - $ref: "#/components/parameters/filterState"
+    - $ref: "#/components/parameters/include"
+    - name: filter[expired]
+      in: query
+      required: false
+      description: |
+        Filter expired match orders, i.e. those which have the corresponding order canceled or executed by another match.
+        Use only `true` value, because `false` will take no effect.
+      schema:
+        type: boolean
+  responses:
+    '200':
+      description: Success
+      content:
+        application/vnd.api+json:
+          schema:
+            type: object
+            required:
+              - data
+              - meta
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Match'
+              included:
+                type: array
+                items:
+                  anyOf:
+                    - $ref: '#/components/schemas/Chain'
+                    - $ref: '#/components/schemas/Order'
+              meta:
+                type: object
+                required:
+                  - count
+                properties:
+                  count:
+                    type: integer
+                    description: Total amount of all match orders in database that match the given filters
+                    example: 248
+    '400':
+      description: Request was invalid in some way
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    '500':
+      description: Internal error
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Errors'

@@ -1,0 +1,8 @@
+name: filter[creator]
+in: query
+required: false
+description: Filter by `data.attributes.creator` field
+schema:
+  type: string
+  pattern: '^0x[0-9A-Fa-f]{40}$'
+  example: 2
